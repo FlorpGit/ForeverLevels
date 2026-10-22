@@ -35,7 +35,7 @@ T.Test("Commands: every slash command runs without error", function()
 		"", "", "help", "routes", "route fl.horde.undead.02-brill", "route nope", "next", "back", "skip",
 		"lock", "unlock", "scale 1.2", "scale 9", "arrow off", "arrow on", "waypoint", "auto off", "auto on",
 		"sync on", "sync off", "dungeons", "record", "recorder", "recorder clear", "debug", "where",
-		"options", "reset", "unknowncommand",
+		"style", "style tooltip", "style nope", "style classic", "options", "reset", "unknowncommand",
 	}) do
 		FL.HandleSlash(input)
 	end
@@ -55,4 +55,23 @@ T.Test("GuideFrame: renders a step with goals and the unverified notice", functi
 	T.Equal(guide.counter.text, "1/15", "counter")
 	T.True(guide.lines[1].text:find("Rude Awakening"), "goal line uses quest name")
 	T.True(guide.note.text:find("Not yet verified"), "verification notice")
+end)
+
+T.Test("GuideFrame: classic style by default, switchable and saved", function()
+	local FL = T.Boot()
+	local guide
+	for _, frame in ipairs(T.Stub.frames) do
+		if rawget(frame, "nextButton") then guide = frame end
+	end
+	T.Equal(FL.db.profile.frame.style, "classic", "default style")
+	T.Equal(guide.backdrop.edgeFile, [[Interface\DialogFrame\UI-DialogBox-Border]], "classic dialog border")
+	FL.HandleSlash("style tooltip")
+	T.Equal(guide.backdrop.edgeFile, [[Interface\Tooltips\UI-Tooltip-Border]], "tooltip border")
+	FL.HandleSlash("style")
+	T.Equal(FL.db.profile.frame.style, "minimal", "cycled to minimal")
+	FL.HandleSlash("style")
+	T.Equal(FL.db.profile.frame.style, "classic", "cycled back to classic")
+	FL.HandleSlash("style nope")
+	T.Equal(FL.db.profile.frame.style, "classic", "unknown style ignored")
+	T.True(T.ChatContains("usage: /fl style"), "usage shown")
 end)

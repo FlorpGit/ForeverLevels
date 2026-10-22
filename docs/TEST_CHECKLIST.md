@@ -26,6 +26,7 @@ lua tools/validate_routes.lua
 - [ ] Dragging moves it; position survives `/reload`.
 - [ ] `/fl lock` prevents dragging; `/fl unlock` allows it again.
 - [ ] `/fl scale 1.3` resizes it; the close button hides it; `/fl` shows it again.
+- [ ] The window uses the classic stone dialog border by default. `/fl style` cycles to tooltip and minimal; the choice survives `/reload`. Note if the border art looks wrong on Forever.
 - [ ] Back and Next buttons work, and "(viewing)" appears after Back.
 
 ## 3. Waypoint and arrow

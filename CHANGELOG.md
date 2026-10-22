@@ -2,6 +2,8 @@
 
 ## 0.1.0 - MVP (unreleased)
 
+- Classic window style (dialog border used by the classic UI) as the default, plus tooltip and minimal styles. `/fl style` or the options panel.
+
 - Movable step-by-step guide window with live quest objectives, Back/Next, lock and scale.
 - Quest detection: accept, objectives complete, turn-in and level goals; auto-advance; skip; fast-forward on login.
 - Automatic accept and turn-in for route quests (gossip, greeting and quest dialogs), Shift to pause, no reward auto-pick.

@@ -8,10 +8,42 @@ FL.GuideFrame = GuideFrame
 local Engine, Quests = FL.Engine, FL.Quests
 
 local WIDTH = 320
-local PAD = 10
-local INNER = WIDTH - PAD * 2
 local MAX_LINES = 16
 local MAX_PARTY = 4
+
+-- Window styles. "classic" and "tooltip" use the same art as Forever's own classic
+-- dialogs and tooltips (see Blizzard_SharedXML/Backdrop.lua on the forever branch).
+local STYLES = {
+	classic = {
+		label = "Classic",
+		backdrop = BACKDROP_DARK_DIALOG_32_32 or {
+			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+			tile = true, tileEdge = true, tileSize = 32, edgeSize = 32,
+			insets = { left = 11, right = 12, top = 12, bottom = 11 },
+		},
+		pad = 18, bg = { 1, 1, 1, 0.92 }, border = { 1, 1, 1, 1 }, close = { -5, -5 },
+	},
+	tooltip = {
+		label = "Tooltip",
+		backdrop = {
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 16,
+			insets = { left = 4, right = 4, top = 4, bottom = 4 },
+		},
+		pad = 12, bg = { 0, 0, 0, 0.85 }, border = { 0.8, 0.8, 0.8, 1 }, close = { -1, -1 },
+	},
+	minimal = {
+		label = "Minimal",
+		backdrop = { bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 1 },
+		pad = 10, bg = { 0.04, 0.05, 0.07, 0.86 }, border = { 0.31, 0.76, 0.97, 0.55 }, close = { 2, 2 },
+	},
+}
+GuideFrame.STYLES = STYLES
+GuideFrame.STYLE_ORDER = { "classic", "tooltip", "minimal" }
+
+local pad = STYLES.classic.pad
 
 local COLOR_DONE = "|cff55dd55"
 local COLOR_OPEN = "|cffdddddd"
@@ -26,7 +58,7 @@ local function CreateText(parent, font, justify)
 	local text = parent:CreateFontString(nil, "OVERLAY", font)
 	text:SetJustifyH(justify or "LEFT")
 	text:SetWordWrap(true)
-	text:SetWidth(INNER)
+	parent.texts[#parent.texts + 1] = text
 	return text
 end
 
@@ -64,26 +96,16 @@ function GuideFrame:Create()
 		f:StopMovingOrSizing()
 		SavePosition()
 	end)
-	frame:SetBackdrop({
-		bgFile = "Interface\\Buttons\\WHITE8X8",
-		edgeFile = "Interface\\Buttons\\WHITE8X8",
-		edgeSize = 1,
-	})
-	frame:SetBackdropColor(0.04, 0.05, 0.07, 0.86)
-	frame:SetBackdropBorderColor(0.31, 0.76, 0.97, 0.55)
+	frame.texts = {}
 
 	frame.header = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-	frame.header:SetPoint("TOPLEFT", PAD, -PAD)
-	frame.header:SetPoint("RIGHT", -70, 0)
 	frame.header:SetJustifyH("LEFT")
 	frame.header:SetWordWrap(false)
 
 	frame.counter = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	frame.counter:SetPoint("TOPRIGHT", -28, -PAD)
 
 	frame.close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 	frame.close:SetSize(22, 22)
-	frame.close:SetPoint("TOPRIGHT", 2, 2)
 	frame.close:SetScript("OnClick", function() GuideFrame:SetShown(false) end)
 
 	frame.title = CreateText(frame, "GameFontNormalLarge")
@@ -101,11 +123,58 @@ function GuideFrame:Create()
 
 	frame.prev = CreateButton(frame, "Back", 70, function() Engine:Prev() end)
 	frame.nextButton = CreateButton(frame, "Next", 70, function() Engine:Next() end)
-	frame.prev:SetPoint("BOTTOMLEFT", PAD, PAD)
-	frame.nextButton:SetPoint("BOTTOMRIGHT", -PAD, PAD)
 
+	self:ApplyStyle()
 	frame:SetShown(saved.shown)
 	return frame
+end
+
+-- Applies the saved window style: backdrop, colors, padding and anchors.
+function GuideFrame:ApplyStyle()
+	if not frame then return end
+	local style = STYLES[FL.db.profile.frame.style] or STYLES.classic
+	pad = style.pad
+
+	frame:SetBackdrop(style.backdrop)
+	frame:SetBackdropColor(style.bg[1], style.bg[2], style.bg[3], style.bg[4])
+	frame:SetBackdropBorderColor(style.border[1], style.border[2], style.border[3], style.border[4])
+
+	frame.header:ClearAllPoints()
+	frame.header:SetPoint("TOPLEFT", pad, -pad)
+	frame.header:SetPoint("RIGHT", -70, 0)
+	frame.counter:ClearAllPoints()
+	frame.counter:SetPoint("TOPRIGHT", -(pad + 18), -pad)
+	frame.close:ClearAllPoints()
+	frame.close:SetPoint("TOPRIGHT", style.close[1], style.close[2])
+	frame.prev:ClearAllPoints()
+	frame.prev:SetPoint("BOTTOMLEFT", pad, pad)
+	frame.nextButton:ClearAllPoints()
+	frame.nextButton:SetPoint("BOTTOMRIGHT", -pad, pad)
+
+	local inner = WIDTH - pad * 2
+	for _, text in ipairs(frame.texts) do
+		text:SetWidth(inner)
+	end
+	self:Update()
+end
+
+function GuideFrame:SetStyle(name)
+	if not STYLES[name] then return false end
+	FL.db.profile.frame.style = name
+	self:ApplyStyle()
+	return true
+end
+
+-- Moves to the next style in STYLE_ORDER and returns its name.
+function GuideFrame:CycleStyle()
+	local current = FL.db.profile.frame.style
+	local order = self.STYLE_ORDER
+	local nextIndex = 1
+	for i, name in ipairs(order) do
+		if name == current then nextIndex = i % #order + 1 end
+	end
+	self:SetStyle(order[nextIndex])
+	return order[nextIndex]
 end
 
 function GuideFrame:SetShown(shown)
@@ -210,7 +279,7 @@ function GuideFrame:Update()
 	frame.dungeon:Hide()
 
 	frame.title:ClearAllPoints()
-	frame.title:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD, -PAD - 18)
+	frame.title:SetPoint("TOPLEFT", frame, "TOPLEFT", pad, -pad - 18)
 
 	if not route or not step then
 		frame.header:SetText("ForeverLevels")
@@ -274,7 +343,7 @@ function GuideFrame:Update()
 	local bottom = last:GetBottom()
 	local height = 180
 	if top and bottom then
-		height = (top - bottom) + PAD + 32
+		height = (top - bottom) + pad + 32
 	end
 	frame:SetHeight(math.max(110, height))
 end

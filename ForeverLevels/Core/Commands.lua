@@ -15,6 +15,7 @@ local HELP = {
 	"/fl reset - restart the current route",
 	"/fl lock | unlock - lock the guide and arrow in place",
 	"/fl scale <0.5-2> - guide window scale",
+	"/fl style [classic|tooltip|minimal] - guide window look",
 	"/fl arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
 	"/fl where - print map ID, zone and coordinates",
 	"/fl options - open the Settings panel",
@@ -98,6 +99,20 @@ commands.scale = function(arg)
 	end
 	FL.db.profile.frame.scale = scale
 	FL.GuideFrame:ApplySettings()
+end
+
+commands.style = function(arg)
+	local name = arg ~= "" and arg:lower() or nil
+	if name then
+		if not FL.GuideFrame:SetStyle(name) then
+			FL:Print("usage: /fl style classic | tooltip | minimal")
+			return
+		end
+	else
+		name = FL.GuideFrame:CycleStyle()
+	end
+	if FL.Options.panel then FL.Options.Refresh() end
+	FL:Print("window style:", name)
 end
 
 commands.where = function()

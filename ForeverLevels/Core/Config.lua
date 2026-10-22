@@ -19,7 +19,7 @@ FL.defaults = {
 		autoSelectRoute = true,
 		debug = false,
 		record = false,          -- log quest accept/turn-in positions for route authors
-		frame = { point = "RIGHT", relPoint = "RIGHT", x = -60, y = 120, scale = 1, locked = false, shown = true },
+		frame = { point = "RIGHT", relPoint = "RIGHT", x = -60, y = 120, scale = 1, locked = false, shown = true, style = "classic" },
 		arrowFrame = { point = "TOP", relPoint = "TOP", x = 0, y = -140, scale = 1, locked = false },
 	},
 	recorder = {},

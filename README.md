@@ -14,7 +14,7 @@ send feedback (see Contributing below).
 
 ## Features
 
-- Guide window you can move, lock and scale. Shows the current step, quest objectives as they update, notes, and Back/Next buttons.
+- Guide window you can move, lock and scale. Shows the current step, quest objectives as they update, notes, and Back/Next buttons. Three looks: classic (the stone dialog border from the old UI, default), tooltip, or minimal.
 - Waypoints: puts Blizzard's map pin and in-world marker on the target, plus its own arrow with distance.
 - Detects quest accept, objectives done, turn-in and "reach level X" goals. Moves to the next step on its own and skips steps you already did when you log in.
 - Accepts and turns in quests that are on the route when you talk to the NPC. Hold Shift to skip that for one NPC. It won't choose between rewards for you or complete quests that cost gold.
@@ -50,6 +50,7 @@ There's also an example route pack in `examples/ForeverLevels_ExampleRoute` if y
 | `/fl routes`, `/fl route <id>` | List routes, switch route |
 | `/fl reset` | Start the current route over |
 | `/fl lock`, `/fl unlock`, `/fl scale 1.2` | Window position and size |
+| `/fl style [classic\|tooltip\|minimal]` | Window look |
 | `/fl arrow`, `/fl waypoint`, `/fl auto`, `/fl sync`, `/fl dungeons` `[on\|off]` | Turn features on or off |
 | `/fl record [on\|off]`, `/fl recorder [clear]`, `/fl where` | Tools for writing routes |
 | `/fl options` | Settings panel (Esc > Options > AddOns) |

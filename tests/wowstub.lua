@@ -83,6 +83,7 @@ function FrameMethods:GetText() return self.text end
 function FrameMethods:GetStringHeight() return 12 end
 function FrameMethods:SetRotation(angle) self.rotation = angle end
 function FrameMethods:SetAtlas(atlas) self.atlas = atlas end
+function FrameMethods:SetBackdrop(backdrop) self.backdrop = backdrop end
 
 local function NewObject()
 	local object = setmetatable({ scripts = {}, events = {}, shown = true }, FrameMethods)

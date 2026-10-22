@@ -46,6 +46,8 @@ function Options.Refresh()
 	for _, button in ipairs(Options.panel.buttons) do
 		button:SetText(ButtonText(button.toggle))
 	end
+	local style = FL.GuideFrame.STYLES[FL.db.profile.frame.style]
+	Options.panel.styleButton:SetText("Window style: " .. (style and style.label or "Classic"))
 end
 
 function Options:Create()
@@ -78,6 +80,16 @@ function Options:Create()
 		panel.buttons[#panel.buttons + 1] = button
 		previous = button
 	end
+
+	local styleButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	styleButton:SetSize(380, 24)
+	styleButton:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -14)
+	styleButton:SetScript("OnClick", function()
+		FL.GuideFrame:CycleStyle()
+		Options.Refresh()
+	end)
+	panel.styleButton = styleButton
+
 	panel:SetScript("OnShow", Options.Refresh)
 
 	self.panel = panel
