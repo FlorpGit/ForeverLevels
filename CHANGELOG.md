@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.2.0-alpha.2 - Phase 2 test build (unreleased)
+## 0.2.0-alpha.3 - Phase 2 test build (unreleased)
+
+- Renamed to "Pathwise: Leveling Guide & Professions". The addon folder and TOC files are now `Pathwise`; the GitHub repository is FlorpGit/Pathwise. Internal names (`ForeverLevelsDB`, the `ForeverLevels` global, `/fl`, the sync prefix) are unchanged. Testers of earlier builds: see Compatibility in the README.
 
 - License change: code is now GPL-3.0-only (Copyright The Pathwise Authors), with an additional permission letting data-only route and profession packs use any license, and a section 7(e) term reserving the Pathwise names. Bundled guide data stays CC BY-SA 4.0. Earlier ForeverLevels versions remain MIT. Adds NOTICE.md, TRADEMARKS.md and CREDITS.md.
 - Renamed to Pathwise ("Every quest. Every craft. Every level.", by leight_nn & florp). `/pathwise` is the main command; `/fl`, `/foreverlevels`, `ForeverLevels:RegisterRoute()`, the addon folder and saved progress all keep working. About section in the options panel.

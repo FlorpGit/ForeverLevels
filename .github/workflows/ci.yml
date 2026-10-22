@@ -25,4 +25,4 @@ jobs:
         if: matrix.lua == '5.1'
         run: |
           luarocks install luacheck
-          luacheck ForeverLevels examples tools tests
+          luacheck Pathwise examples tools tests

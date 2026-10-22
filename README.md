@@ -1,4 +1,4 @@
-# Pathwise
+# Pathwise: Leveling Guide & Professions
 
 Every quest. Every craft. Every level.
 
@@ -10,14 +10,14 @@ clicks for quests on the route, and plans your professions alongside it.
 Code is GPL-3.0, bundled guides are CC BY-SA 4.0. Routes and profession data are written for
 this project; nothing is taken from paid guides.
 
-Current state: 0.2.0-alpha.2, a test build. The addon works and has offline tests, but
+Current state: 0.2.0-alpha.3, a test build. The addon works and has offline tests, but
 nothing has been run on the live Forever client yet. The Undead 1-10 route is a draft
 (quest IDs correct, coordinates rough), and profession data is a small verified starter
 set for Tailoring and Enchanting. If you play with it, please send feedback (see
 Contributing below).
 
-Pathwise used to be called ForeverLevels. The addon folder, its files, saved progress,
-`/fl` and `ForeverLevels:RegisterRoute()` all still work; see Compatibility.
+Pathwise used to be called ForeverLevels. `/fl` and `ForeverLevels:RegisterRoute()` still
+work; see Compatibility.
 
 ## Features
 
@@ -47,12 +47,12 @@ Included: Undead 1-6 (Deathknell), then Undead 6-10 (Brill). Tailoring and Encha
 
 ## Install
 
-1. Download the test build zip (or the repo with Code > Download ZIP) and unzip it.
-2. Copy the `ForeverLevels` folder, the one with `ForeverLevels_Forever.toc` in it, to:
+1. Open the [Releases page](https://github.com/FlorpGit/Pathwise/releases) and download `Pathwise-<version>.zip` from the latest release. Not "Source code": that is the whole developer repository.
+2. Unzip it into your AddOns folder:
    - live: `World of Warcraft/_forever_/Interface/AddOns/`
    - beta: `World of Warcraft/_classic_beta_/Interface/AddOns/`
 
-   You want `Interface/AddOns/ForeverLevels/ForeverLevels_Forever.toc`, not `AddOns/ForeverLevels-main/ForeverLevels/...`. The folder keeps its old name on purpose so existing installs keep their progress; it shows up as Pathwise in game.
+   You want `Interface/AddOns/Pathwise/Pathwise_Forever.toc`, not `AddOns/Pathwise-x/Pathwise/...`.
 3. Restart the game completely. A `/reload` won't load a newly added addon.
 4. Check that Pathwise is enabled in the AddOns list on the character screen.
 5. Log in on an Undead character and the guide shows up on the right side of the screen. Open each profession window once so Pathwise can read your recipes.
@@ -85,11 +85,15 @@ There are example packs in `examples/` (a route pack and a profession data pack)
 
 | Kept | Why |
 |---|---|
-| Addon folder `ForeverLevels` and the `.toc` file names | Renaming would make the game treat it as a new addon and drop saved progress |
-| `ForeverLevelsDB`, `ForeverLevelsCharDB` | Saved progress and settings carry over; version 1 data is upgraded in place |
+| `ForeverLevelsDB`, `ForeverLevelsCharDB` | Saved data keeps its format; older data is upgraded in place |
 | `/fl`, `/foreverlevels` | Same handler as `/pathwise` |
 | `ForeverLevels:RegisterRoute()` | `Pathwise` and `ForeverLevels` are the same table, so both work, as does `Pathwise:RegisterRoute()` |
 | Party sync prefix | Players on older versions still see each other |
+
+Test builds before 0.2.0-alpha.3 used the folder name `ForeverLevels`. If you tested one,
+delete that folder, install the `Pathwise` folder, and to keep your progress rename
+`WTF/Account/<ACCOUNT>/SavedVariables/ForeverLevels.lua` (and the same file under each
+character's `SavedVariables` folder) to `Pathwise.lua` while the game is closed.
 
 ## Forever API notes
 
@@ -110,8 +114,8 @@ the API doesn't allow. The main ones:
 ## Layout
 
 ```
-ForeverLevels/                 the addon folder (this is what you install)
-  ForeverLevels_Forever.toc    Interface 16001, ForeverLevels.toc is an identical fallback
+Pathwise/                 the addon folder (this is what you install)
+  Pathwise_Forever.toc    Interface 16001, Pathwise.toc is an identical fallback
   Core/                        engine, quests, waypoints, auto quest, sync, professions, planner, detours
   UI/                          guide window, arrow, detour banner, profession dashboard, options
   Guides/                      route, dungeon and profession data (CC BY-SA 4.0)
@@ -137,7 +141,7 @@ CI runs the tests on Lua 5.1 and 5.4 and runs luacheck. The in-game test list is
 
 Routes: [docs/ROUTE_FORMAT.md](docs/ROUTE_FORMAT.md). Profession data:
 [docs/PROFESSION_DATA_FORMAT.md](docs/PROFESSION_DATA_FORMAT.md). Both ship as a small
-addon with `## Dependencies: ForeverLevels` and a file like this:
+addon with `## Dependencies: Pathwise` and a file like this:
 
 ```lua
 Pathwise:RegisterRoute({
@@ -168,7 +172,7 @@ have to be your own work or facts you checked.
 Copyright (C) 2026 The Pathwise Authors (leight_nn and florp, and contributors).
 
 - Code: [GPL-3.0-only](LICENSE). Modified versions you share must stay open source under the same license. See [NOTICE.md](NOTICE.md).
-- Route and profession data in `ForeverLevels/Guides/`: [CC BY-SA 4.0](ForeverLevels/Guides/LICENSE.md)
+- Route and profession data in `Pathwise/Guides/`: [CC BY-SA 4.0](Pathwise/Guides/LICENSE.md)
 - Route and profession packs that only contain data and use the registration functions can use any license (an additional permission in [NOTICE.md](NOTICE.md)). Packs that copy Pathwise code must be GPL-3.0.
 - The name "Pathwise" and the Pathwise family of add-ons are not covered by these licenses. See [TRADEMARKS.md](TRADEMARKS.md).
 - Versions published before this change (as ForeverLevels) were MIT and stay MIT for anyone who got them then.

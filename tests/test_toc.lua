@@ -2,20 +2,20 @@
 local T = ...
 
 T.Test("TOC: both TOC files are identical", function()
-	local a = assert(io.open(T.addonDir .. "/ForeverLevels.toc", "rb")):read("*a")
-	local b = assert(io.open(T.addonDir .. "/ForeverLevels_Forever.toc", "rb")):read("*a")
-	T.Equal(a, b, "ForeverLevels.toc must match ForeverLevels_Forever.toc")
+	local a = assert(io.open(T.addonDir .. "/Pathwise.toc", "rb")):read("*a")
+	local b = assert(io.open(T.addonDir .. "/Pathwise_Forever.toc", "rb")):read("*a")
+	T.Equal(a, b, "Pathwise.toc must match Pathwise_Forever.toc")
 end)
 
 T.Test("TOC: interface 16001 and SavedVariables declared", function()
-	local _, directives = T.ReadToc("ForeverLevels_Forever.toc")
+	local _, directives = T.ReadToc("Pathwise_Forever.toc")
 	T.Equal(directives["Interface"], "16001", "Interface")
 	T.Equal(directives["SavedVariables"], "ForeverLevelsDB", "SavedVariables")
 	T.Equal(directives["SavedVariablesPerCharacter"], "ForeverLevelsCharDB", "SavedVariablesPerCharacter")
 end)
 
 T.Test("TOC: every listed file exists, Init first, Boot last", function()
-	local files = T.ReadToc("ForeverLevels_Forever.toc")
+	local files = T.ReadToc("Pathwise_Forever.toc")
 	for _, file in ipairs(files) do
 		local handle = io.open(T.addonDir .. "/" .. file, "r")
 		T.True(handle, "missing file listed in TOC: " .. file)
@@ -55,12 +55,12 @@ T.Test("License: GPL-3.0 text, notice and addon copy stay in sync", function()
 	T.True(notice:find("section 7(e)", 1, true), "trademark term")
 	local shipped = ReadAll(T.addonDir .. "/LICENSE.txt")
 	T.Equal(shipped, notice .. "\n\n" .. gpl, "addon LICENSE.txt is NOTICE.md followed by LICENSE")
-	local _, directives = T.ReadToc("ForeverLevels_Forever.toc")
+	local _, directives = T.ReadToc("Pathwise_Forever.toc")
 	T.Equal(directives["X-License"], "GPL-3.0-only (code), CC BY-SA 4.0 (bundled guide data)", "TOC license line")
 end)
 
 T.Test("License: every addon Lua file declares its license", function()
-	local files = T.ReadToc("ForeverLevels_Forever.toc")
+	local files = T.ReadToc("Pathwise_Forever.toc")
 	for _, file in ipairs(files) do
 		local first = ReadAll(T.addonDir .. "/" .. file):match("^[^\n]*")
 		local expected = file:find("^Guides/") and "CC%-BY%-SA%-4%.0" or "GPL%-3%.0%-only"

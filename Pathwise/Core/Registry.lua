@@ -2,7 +2,7 @@
 -- ForeverLevels: route and dungeon registry.
 -- This is the public extension point: any addon that depends on ForeverLevels can call
 --   ForeverLevels:RegisterRoute({ ... })
--- at file load time. See docs/ROUTE_FORMAT.md and examples/ForeverLevels_ExampleRoute.
+-- at file load time. See docs/ROUTE_FORMAT.md and examples/Pathwise_ExampleRoute.
 
 local _, FL = ...
 

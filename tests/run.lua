@@ -8,8 +8,8 @@ package.path = root .. "/tests/?.lua;" .. package.path
 
 local Stub = require("wowstub")
 
-local ADDON_DIR = root .. "/ForeverLevels"
-local ADDON_NAME = "ForeverLevels"
+local ADDON_DIR = root .. "/Pathwise"
+local ADDON_NAME = "Pathwise"
 
 local T = { Stub = Stub, root = root, addonDir = ADDON_DIR }
 
@@ -49,7 +49,7 @@ function T.Boot(opts)
 	_G.ForeverLevelsCharDB = opts.saved and opts.saved.char or nil
 
 	local namespace = {}
-	local files = T.ReadToc("ForeverLevels_Forever.toc")
+	local files = T.ReadToc("Pathwise_Forever.toc")
 	for _, file in ipairs(files) do
 		T.LoadFile(ADDON_DIR .. "/" .. file, namespace)
 	end

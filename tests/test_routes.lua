@@ -95,7 +95,7 @@ T.Test("Validator: unknown race tokens warn instead of failing (new Forever race
 end)
 
 T.Test("Registry: community route from another addon registers and is selectable", function()
-	local FL = T.Boot({ extraFiles = { T.root .. "/examples/ForeverLevels_ExampleRoute/ExampleRoute.lua" } })
+	local FL = T.Boot({ extraFiles = { T.root .. "/examples/Pathwise_ExampleRoute/ExampleRoute.lua" } })
 	local route = FL:GetRoute("example.horde.undead.deathknell-sprint")
 	T.True(route, "example route registered")
 	T.True(FL.Engine:SelectRoute(route.id), "example route selectable")

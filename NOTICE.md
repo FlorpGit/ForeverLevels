@@ -19,9 +19,9 @@ is in the file LICENSE (LICENSE.txt in the addon folder).
 
 GUIDE DATA
 
-Route, dungeon and profession data in ForeverLevels/Guides/ is licensed under the
+Route, dungeon and profession data in Pathwise/Guides/ is licensed under the
 Creative Commons Attribution-ShareAlike 4.0 International license (CC BY-SA 4.0).
-See ForeverLevels/Guides/LICENSE.md.
+See Pathwise/Guides/LICENSE.md.
 
 ADDITIONAL TERMS UNDER GNU GPL VERSION 3, SECTION 7
 

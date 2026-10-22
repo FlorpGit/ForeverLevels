@@ -1,8 +1,8 @@
 # Route format
 
 A route is a Lua table passed to `ForeverLevels:RegisterRoute()`. Bundled routes
-live in `ForeverLevels/Guides/`; community routes ship as their own addon
-(see `examples/ForeverLevels_ExampleRoute`). Check a route offline with:
+live in `Pathwise/Guides/`; community routes ship as their own addon
+(see `examples/Pathwise_ExampleRoute`). Check a route offline with:
 
 ```sh
 lua tools/validate_routes.lua path/to/MyRoute.lua

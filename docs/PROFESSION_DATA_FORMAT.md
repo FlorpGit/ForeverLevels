@@ -2,7 +2,7 @@
 
 Profession data is a Lua table passed to `Pathwise:RegisterProfessionData()` (the same
 function exists on the `ForeverLevels` global). Bundled data is in
-`ForeverLevels/Guides/Professions/`. Community data ships as its own addon; see
+`Pathwise/Guides/Professions/`. Community data ships as its own addon; see
 `examples/Pathwise_ExampleProfessionData`.
 
 Check a file offline:
@@ -91,7 +91,7 @@ unverified.
 
 1. Copy `examples/Pathwise_ExampleProfessionData` to a new folder and rename the folder,
    the `.toc` and the pack id.
-2. Keep `## Dependencies: ForeverLevels` in the `.toc` (the folder name of Pathwise).
+2. Keep `## Dependencies: Pathwise` in the `.toc`.
 3. Add recipes you verified. Give sources.
 4. Run `lua tools/validate_routes.lua YourFile.lua`.
 5. Pick a license. Bundled data is CC BY-SA 4.0; your pack can use any license and

@@ -2,8 +2,8 @@
 -- Turn a ForeverLevels recorder log into a route skeleton.
 --
 -- 1. In game: /fl record on, play, then /reload or log out.
--- 2. Find WTF/Account/<ACCOUNT>/SavedVariables/ForeverLevels.lua
--- 3. lua tools/recorder_to_route.lua path/to/ForeverLevels.lua > MyRoute.lua
+-- 2. Find WTF/Account/<ACCOUNT>/SavedVariables/Pathwise.lua
+-- 3. lua tools/recorder_to_route.lua path/to/Pathwise.lua > MyRoute.lua
 --
 -- Each accept/turn-in becomes one step with recorded coordinates. Consecutive
 -- events at the same spot (within 2 map units) are merged into one step.
@@ -11,7 +11,7 @@
 
 local path = arg[1]
 if not path then
-	io.stderr:write("usage: lua tools/recorder_to_route.lua <SavedVariables/ForeverLevels.lua> [route-id]\n")
+	io.stderr:write("usage: lua tools/recorder_to_route.lua <SavedVariables/Pathwise.lua> [route-id]\n")
 	os.exit(2)
 end
 local routeId = arg[2] or "my.route"

@@ -26,7 +26,7 @@ All of these functions and events are listed with sources in
 
 ## Data and verification
 
-Bundled data lives in `ForeverLevels/Guides/Professions/`. Every fact was either checked
+Bundled data lives in `Pathwise/Guides/Professions/`. Every fact was either checked
 against Wowhead's World of Warcraft: Forever database or is marked as unverified.
 
 - Verified: recipe IDs and names, direct reagents (item IDs and quantities), created

@@ -1,12 +1,12 @@
 ## Interface: 16001
-## Title: Pathwise
-## Notes: Every quest. Every craft. Every level. Leveling guide for World of Warcraft: Forever.
+## Title: Pathwise: Leveling Guide & Professions
+## Notes: Every quest. Every craft. Every level. Leveling and profession guide for World of Warcraft: Forever.
 ## Author: leight_nn & florp
-## Version: 0.2.0-alpha.2
+## Version: 0.2.0-alpha.3
 ## SavedVariables: ForeverLevelsDB
 ## SavedVariablesPerCharacter: ForeverLevelsCharDB
 ## X-License: GPL-3.0-only (code), CC BY-SA 4.0 (bundled guide data)
-## X-Website: https://github.com/FlorpGit/ForeverLevels
+## X-Website: https://github.com/FlorpGit/Pathwise
 
 Core\Init.lua
 Core\Config.lua

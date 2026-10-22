@@ -1,8 +1,8 @@
-# In-game test checklist (Pathwise 0.2.0-alpha.2)
+# In-game test checklist (Pathwise 0.2.0-alpha.3)
 
 Run sections 1-11 on a new Undead character, and 12-16 on an Undead Mage with Tailoring and Enchanting, on the Forever client (or beta). Note the
 build first: `/run print(GetBuildInfo())`. Turn on the recorder for the whole run
-(`/pathwise record on`) and attach `WTF/Account/<ACCOUNT>/SavedVariables/ForeverLevels.lua`
+(`/pathwise record on`) and attach `WTF/Account/<ACCOUNT>/SavedVariables/Pathwise.lua`
 to your report. That file is what lets us fix coordinates.
 
 Before you start, the offline checks should pass:
@@ -14,7 +14,7 @@ lua tools/validate_routes.lua
 
 ## 1. Install and load
 
-- [ ] The `ForeverLevels` folder is in `_forever_/Interface/AddOns/` (or `_classic_beta_/...`), with `ForeverLevels_Forever.toc` directly inside it.
+- [ ] The `Pathwise` folder is in `_forever_/Interface/AddOns/` (or `_classic_beta_/...`), with `Pathwise_Forever.toc` directly inside it.
 - [ ] After a full game restart, the AddOns list on the character screen shows Pathwise and does not mark it out of date.
 - [ ] Login shows no Lua errors (`/console scriptErrors 1` first, or use BugSack).
 - [ ] No "does not report itself as World of Warcraft: Forever" warning.
@@ -32,10 +32,10 @@ lua tools/validate_routes.lua
 ## 3. Waypoint and arrow
 
 - [ ] A Blizzard map pin appears at the step location on the world map, and the in-world navigation marker shows.
-- [ ] The ForeverLevels arrow points at the target. Turn on the spot: the arrow turns the opposite way and goes green when you face the target.
+- [ ] The Pathwise arrow points at the target. Turn on the spot: the arrow turns the opposite way and goes green when you face the target.
 - [ ] Distance counts down while you walk toward the target and shows "arrived" within about 10 yards.
 - [ ] `/pathwise waypoint off` removes our map pin but keeps the arrow; `/pathwise arrow off` hides the arrow.
-- [ ] If you had placed your own map pin, ForeverLevels only replaces it when a step sets a new target (note any surprises).
+- [ ] If you had placed your own map pin, Pathwise only replaces it when a step sets a new target (note any surprises).
 - [ ] `/pathwise where` prints a map ID, "Tirisfal Glades" and coordinates.
 
 ## 4. Quest detection and automation
@@ -85,7 +85,7 @@ Test at least one of each, on separate characters if you can:
 
 ## 10. Options panel
 
-- [ ] Esc > Options > AddOns > ForeverLevels shows toggle buttons, and `/pathwise options` opens it.
+- [ ] Esc > Options > AddOns > Pathwise shows toggle buttons, and `/pathwise options` opens it.
 - [ ] Each toggle flips ON/OFF and matches the slash-command state.
 
 ## 11. Instances and edge cases

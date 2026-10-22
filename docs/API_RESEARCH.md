@@ -1,6 +1,6 @@
 # Forever API research
 
-This file records what ForeverLevels relies on, where each piece was verified,
+This file records what Pathwise relies on, where each piece was verified,
 and which wanted features the WoW: Forever API does not support. Re-check it
 whenever Blizzard ships a new Forever build.
 
@@ -16,7 +16,7 @@ build 1.60.1 (70450), 2026-10-16. Supporting sources:
 - WoW: Forever is a separate game flavor (game type `forever`, which equals the older
   name `camelot`). `WOW_PROJECT_ID == WOW_PROJECT_CAMELOT` (18) identifies it.
 - TOC: `## Interface: 16001`. The `_Forever.toc` suffix (alias `_Camelot.toc`)
-  picks the TOC for this flavor. ForeverLevels ships an identical `ForeverLevels.toc`
+  picks the TOC for this flavor. Pathwise ships an identical `Pathwise.toc`
   as a fallback; the tests keep the two the same.
 - API surface: Forever runs the modern Mainline API (`C_QuestLog`, `C_Map`,
   `C_SuperTrack`, `C_GossipInfo` and so on), not the Classic Era 1.15 API. Its quest
@@ -76,17 +76,17 @@ so each recipe was checked on its own page. Those pages do not show skill levels
 
 Things I wanted but the current API does not allow, and what the addon does instead.
 
-| Wanted feature | Status | Why / what ForeverLevels does instead |
+| Wanted feature | Status | Why / what Pathwise does instead |
 |---|---|---|
 | Arrow direction inside dungeons, raids and battlegrounds | Not supported | `GetPlayerFacing()` returns nil in instances, and `C_Map.GetPlayerMapPosition` returns nil there too. The arrow hides its pointer and shows distance when it can, or nothing. |
 | Walking paths / pathfinding | Not supported | No navmesh or route API. `C_Navigation` only reports distance and screen position of the target Blizzard is super-tracking. The arrow points in a straight line. (Some community addons ship their own walking maps built from client data; that is out of scope here.) |
 | Looking up NPC or object positions | Not supported | No API returns where an NPC stands. Coordinates must be written into routes or recorded with `/fl record`. Forever also hides the server/spawn part of creature GUIDs (1.60.1 beta 5), so spawns cannot be identified either. |
 | Forever uiMapIDs | Not documented | Forever's map IDs are not public. Routes name zones in English and the addon finds the ID through `C_Map.GetMapChildrenInfo` at runtime. Non-English clients will need `map = <id>` (or `route.maps`) in route files; `/fl where` prints the ID. |
 | Talking to NPCs or accepting quests remotely | Not supported | Automation only answers dialogs the player opened by clicking an NPC. Interacting with units is protected. |
-| Picking between quest rewards | Deliberately not automated | ForeverLevels stops and asks. Quests that cost money are never auto-completed. |
+| Picking between quest rewards | Deliberately not automated | Pathwise stops and asks. Quests that cost money are never auto-completed. |
 | Setting the hearthstone, taking flight paths, training | Not automated | These are confirmations or protected actions. Routes show them as manual notes. |
 | Using quest items from the guide | Not in MVP | `UseItem`-style actions are protected; a future version could add a secure action button (out of combat only). |
-| Party sync during encounters or for trial accounts | Limited | Nothing is sent during chat-messaging lockdown or when outgoing addon messages are restricted (Forever 1.60.1: trial accounts cannot send addon messages). Every party member needs ForeverLevels. Horde and Alliance cannot group on Forever. |
+| Party sync during encounters or for trial accounts | Limited | Nothing is sent during chat-messaging lockdown or when outgoing addon messages are restricted (Forever 1.60.1: trial accounts cannot send addon messages). Every party member needs Pathwise. Horde and Alliance cannot group on Forever. |
 | Reading party members' quest logs without the addon | Partly possible, not used yet | `C_QuestLog.IsUnitOnQuest` exists and could show which members are on a quest. Objective counts still need the addon on their side. |
 | Checkbox options | Not used | `UICheckButtonTemplate` is not in Forever's Mainline `SharedUIPanelTemplates.xml`, so the options panel uses toggle buttons. |
 | Slash commands with a gamepad | Limited (community report) | Typing an addon slash command in chat with the gamepad UI active can block gamepad input. Everything is also available from the guide window and Settings panel. |

@@ -1,9 +1,9 @@
 ## Interface: 16001
-## Title: ForeverLevels - Example Route
+## Title: Pathwise - Example Route
 ## Notes: Template for a community route pack. Copy, rename and edit.
 ## Author: Your Name
 ## Version: 0.1.0
-## Dependencies: ForeverLevels
+## Dependencies: Pathwise
 ## X-License: CC0 1.0 (example route data)
 
 ExampleRoute.lua

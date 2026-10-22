@@ -10,8 +10,8 @@ local root = (arg[0]:gsub("[/\\]?tools[/\\]validate_routes%.lua$", ""))
 if root == "" then root = "." end
 
 local FL = { ROUTE_API_VERSION = 1, routes = {}, professionPacks = {} }
-assert(loadfile(root .. "/ForeverLevels/Core/Validator.lua"))("ForeverLevels", FL)
-assert(loadfile(root .. "/ForeverLevels/Core/ProfessionData.lua"))("ForeverLevels", FL)
+assert(loadfile(root .. "/Pathwise/Core/Validator.lua"))("Pathwise", FL)
+assert(loadfile(root .. "/Pathwise/Core/ProfessionData.lua"))("Pathwise", FL)
 
 function FL:RegisterRoute(route)
 	self.routes[#self.routes + 1] = route
@@ -29,11 +29,11 @@ local files = {}
 for i = 1, #arg do files[#files + 1] = arg[i] end
 if #files == 0 then
 	files = {
-		root .. "/ForeverLevels/Guides/Horde/Undead_01_Deathknell.lua",
-		root .. "/ForeverLevels/Guides/Horde/Undead_02_Brill.lua",
-		root .. "/ForeverLevels/Guides/Professions/Tailoring.lua",
-		root .. "/ForeverLevels/Guides/Professions/Enchanting.lua",
-		root .. "/examples/ForeverLevels_ExampleRoute/ExampleRoute.lua",
+		root .. "/Pathwise/Guides/Horde/Undead_01_Deathknell.lua",
+		root .. "/Pathwise/Guides/Horde/Undead_02_Brill.lua",
+		root .. "/Pathwise/Guides/Professions/Tailoring.lua",
+		root .. "/Pathwise/Guides/Professions/Enchanting.lua",
+		root .. "/examples/Pathwise_ExampleRoute/ExampleRoute.lua",
 		root .. "/examples/Pathwise_ExampleProfessionData/ExampleProfessionData.lua",
 	}
 end
@@ -46,7 +46,7 @@ for _, file in ipairs(files) do
 		failures = failures + 1
 	else
 		local before = #FL.routes + #FL.professionPacks
-		local ok, runError = pcall(chunk, "ForeverLevels", FL)
+		local ok, runError = pcall(chunk, "Pathwise", FL)
 		if not ok then
 			print("ERROR  " .. file .. ": " .. tostring(runError))
 			failures = failures + 1
