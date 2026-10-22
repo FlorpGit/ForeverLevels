@@ -33,6 +33,7 @@ if #files == 0 then
 		root .. "/ForeverLevels/Guides/Professions/Tailoring.lua",
 		root .. "/ForeverLevels/Guides/Professions/Enchanting.lua",
 		root .. "/examples/ForeverLevels_ExampleRoute/ExampleRoute.lua",
+		root .. "/examples/Pathwise_ExampleProfessionData/ExampleProfessionData.lua",
 	}
 end
 

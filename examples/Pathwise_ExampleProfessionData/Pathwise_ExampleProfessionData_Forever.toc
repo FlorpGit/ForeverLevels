@@ -1,0 +1,9 @@
+## Interface: 16001
+## Title: Pathwise - Example Profession Data
+## Notes: Template for a community profession data pack. Copy, rename and edit.
+## Author: Your Name
+## Version: 0.1.0
+## Dependencies: ForeverLevels
+## X-License: CC0 1.0 (example data)
+
+ExampleProfessionData.lua

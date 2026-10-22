@@ -49,6 +49,26 @@ functions were matched against those docs or against Blizzard's own Forever UI c
 | Secret values | `issecretvalue` | FrameScriptDocumentation |
 | Options panel | `Settings.RegisterCanvasLayoutCategory`, `RegisterAddOnCategory`, `OpenToCategory` | `Blizzard_Settings_Shared/Blizzard_Settings.lua` |
 | Misc | `IsShiftKeyDown`, `GetBuildInfo`, `UIPanelButtonTemplate`, `UIPanelCloseButton`, `BackdropTemplate` | Input / Build docs, `SharedUIPanelTemplates.xml`, `Backdrop.lua` |
+| Window styles | `BACKDROP_DARK_DIALOG_32_32`, `Interface\Tooltips\UI-Tooltip-Border`, `UI-Tooltip-Background` | `Blizzard_SharedXML/Backdrop.lua` |
+
+### Profession APIs (added in Phase 2, verified on the same build)
+
+| Feature | API | Verified in |
+|---|---|---|
+| Professions, skill, cap | `GetProfessions()` returns prof1, prof2, first aid, fishing, cooking; `GetProfessionInfo(index)` returns name, icon, rank, maxRank, numSpells, spellOffset, skillLine, rankModifier, ... | Forever's `Blizzard_ProfessionsBook/Camelot/Blizzard_ProfessionsBook.lua` (the order differs from retail, where the third slot is archaeology) |
+| Skill list fallback | `C_SkillInfo.GetNumSkillLines`, `GetSkillLineInfo(index)` returning `SkillLineAttributes` (skillID, name, isHeader, rank, maxRank, modifier, ...) | SkillInfoDocumentation |
+| Skill changes | `SKILL_LINES_CHANGED`, `LEARNED_SPELL_IN_SKILL_LINE`, `TRAINER_SHOW`, `TRAINER_CLOSED` | SkillInfo, SpellBook and Trainer docs |
+| Recipe state | `C_TradeSkillUI.GetRecipeInfo(recipeID)` returning `TradeSkillRecipeInfo` (learned, relativeDifficulty, canSkillUp, numSkillUps, ...); `Enum.TradeskillRelativeDifficulty` Optimal 0, Medium 1, Easy 2, Trivial 3 | TradeSkillUI and TradeSkillUITypes docs; called by Forever's `Blizzard_Professions/Camelot` code |
+| Client reagent lists | `C_TradeSkillUI.GetRecipeSchematic(recipeID, isRecraft)` returning `reagentSlotSchematics` with `reagents[].itemID`, `quantityRequired`, `required` | TradeSkillUIDocumentation |
+| Which profession window is open | `C_TradeSkillUI.GetBaseProfessionInfo()` returning `ProfessionInfo` (professionID, professionName, skillLevel, maxSkillLevel) | TradeSkillUIDocumentation |
+| Recipe window events | `TRADE_SKILL_SHOW`, `TRADE_SKILL_LIST_UPDATE`, `NEW_RECIPE_LEARNED(recipeID)` | TradeSkillUIDocumentation |
+| Item counts and names | `C_Item.GetItemCount(item, includeBank)`, `C_Item.GetItemNameByID(item)`, `BAG_UPDATE_DELAYED` | Item and Container docs |
+| Detour re-checks | `ZONE_CHANGED_NEW_AREA` | MapDocumentation |
+| Trainer name for the recorder | `UnitName("npc")` | UnitDocumentation |
+
+Data facts (recipes, reagents, trainers) were checked on Wowhead's Forever database
+(wowhead.com/forever). Its recipe lists are rendered by JavaScript and could not be read,
+so each recipe was checked on its own page. Those pages do not show skill levels.
 
 ## Features the Forever API does not support (or limits)
 
@@ -68,6 +88,11 @@ Things I wanted but the current API does not allow, and what the addon does inst
 | Reading party members' quest logs without the addon | Partly possible, not used yet | `C_QuestLog.IsUnitOnQuest` exists and could show which members are on a quest. Objective counts still need the addon on their side. |
 | Checkbox options | Not used | `UICheckButtonTemplate` is not in Forever's Mainline `SharedUIPanelTemplates.xml`, so the options panel uses toggle buttons. |
 | Slash commands with a gamepad | Limited (community report) | Typing an addon slash command in chat with the gamepad UI active can block gamepad input. Everything is also available from the guide window and Settings panel. |
+| Listing every recipe of a profession | Not available | Retail's `C_TradeSkillUI.GetAllRecipeIDs` and `GetFilteredRecipeIDs` are not in Forever's documentation. Pathwise only knows recipes that are in its data packs and asks the client about those. |
+| Recipe state for a closed profession | Limited | `GetRecipeInfo` answers for the profession whose window is open. Pathwise reads recipes only while that profession's window is open and caches the result; it never marks a recipe unlearned from another profession's window. |
+| Live skill-up chance | Partly | The client gives a difficulty color, not a percentage, and only for your current skill. The planner labels every chance with its source. See MATERIAL_PLANNER.md. |
+| Skill thresholds, rank caps, trainer coordinates | Not available from the API | No API returns them. Data packs carry them, marked verified or not. The client's current cap from `GetProfessionInfo` always wins. |
+| Crafting, buying, selling, destroying or disenchanting from the planner | Deliberately not done | Pathwise only reads. Crafting and disenchanting are protected player actions in any case. |
 
 ## Content gaps (data, not API)
 
@@ -77,6 +102,8 @@ Things I wanted but the current API does not allow, and what the addon does inst
   unknown race tokens with a warning so routes can add it once known.
 - Forever's new 30-60 zones and nine new dungeons are not in the data.
 - Bundled coordinates are approximate and have not been walked on Forever yet.
+- Forever changed Enchanting (Mote of Magic, renamed enchants, new reagent lists), so
+  2004-era profession data cannot be reused. Profession data starts small and verified.
 
 ## Re-verifying on a new build
 

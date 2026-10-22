@@ -1,6 +1,6 @@
 # Guide data license
 
-The route and dungeon data in this folder (`Guides/`) is licensed under the
+The route, dungeon and profession data in this folder (`Guides/`) is licensed under the
 Creative Commons Attribution-ShareAlike 4.0 International license
 (CC BY-SA 4.0): https://creativecommons.org/licenses/by-sa/4.0/legalcode
 

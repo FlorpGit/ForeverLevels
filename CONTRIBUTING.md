@@ -31,6 +31,21 @@ New routes for other races, zones or level ranges can go in this repository (und
 `ForeverLevels/Guides/`, add the file to both TOCs) or in your own addon
 (see `examples/ForeverLevels_ExampleRoute`, and `docs/ROUTE_FORMAT.md`).
 
+## Fixing or adding profession data
+
+1. Open each profession window in game. Pathwise stores the client's reagent lists in
+   `ForeverLevelsDB.professionCache` and your recipe states per character.
+2. With `/pathwise record on`, opening a trainer window logs the trainer's name and
+   position.
+3. Compare with `ForeverLevels/Guides/Professions/*.lua`, or start a separate pack from
+   `examples/Pathwise_ExampleProfessionData`. The format is in
+   `docs/PROFESSION_DATA_FORMAT.md`.
+4. Only set a `verified` field to true for something you checked on Forever (in game,
+   or a source that covers Forever such as wowhead.com/forever). Leave unknown values
+   out instead of guessing; Forever already changed some recipes compared with the
+   2004 game.
+5. Run `lua tools/validate_routes.lua` and `lua tests/run.lua`.
+
 ## Code
 
 - Lua 5.1 (what WoW embeds). No `goto`, integer division or bit operators.
@@ -39,3 +54,6 @@ New routes for other races, zones or level ranges can go in this repository (und
 - Add or update a test in `tests/` for behavior changes. `lua tests/run.lua` must pass,
   and CI also runs on Lua 5.1 with luacheck.
 - Keep both TOC files identical.
+- Don't rename `ForeverLevels` internals (folder, files, globals, SavedVariables, the sync
+  prefix) for branding. Public text says Pathwise; internal names stay for compatibility.
+- Profession code must not change route state. Detours and plans only read the engine.

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0-alpha.1 - Phase 2 test build (unreleased)
+
+- Renamed to Pathwise ("Every quest. Every craft. Every level.", by leight_nn & florp). `/pathwise` is the main command; `/fl`, `/foreverlevels`, `ForeverLevels:RegisterRoute()`, the addon folder and saved progress all keep working. About section in the options panel.
+- Profession tracking: detects professions, skill and cap; reads learned recipes, difficulty and the client's reagent lists while a profession window is open; counts materials in bags (bank optional).
+- Profession data registry (`Pathwise:RegisterProfessionData`) with validation and verification flags. Starter Tailoring and Enchanting data checked against Wowhead's Forever database; unverified values are labeled.
+- Material planner: next craft, expected crafts with the source of every estimate, owned and missing materials, intermediate expansion, reservations across steps, one-time material reminders.
+- Optional profession detours under the guide window (Go, Later, Skip; Done, Cancel). They never change route progress, step numbers or Back/Next; an active detour with coordinates temporarily takes over the arrow.
+- Profession dashboard in all three window styles, with profession settings.
+- SavedVariables version 2 with an in-place upgrade from version 1.
+- Recorder also logs trainer positions.
+- Example profession data pack; the offline validator checks profession data too.
+
 ## 0.1.0 - MVP (unreleased)
 
 - Classic window style (dialog border used by the classic UI) as the default, plus tooltip and minimal styles. `/fl style` or the options panel.

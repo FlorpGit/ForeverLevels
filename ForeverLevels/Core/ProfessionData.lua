@@ -193,6 +193,11 @@ function FL:GetProfessionData(key)
 	return professions[key]
 end
 
+-- The pack as it was registered (author, license, sources), by pack id.
+function FL:GetProfessionPack(id)
+	return packs[id]
+end
+
 function FL:GetAllProfessionData()
 	local list = {}
 	for _, data in pairs(professions) do list[#list + 1] = data end
