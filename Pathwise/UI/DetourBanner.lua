@@ -64,6 +64,8 @@ function Banner:Update()
 	end
 
 	local pad = FL.GuideFrame.ApplyBackdrop(frame)
+	FL.GuideFrame.ColorText(frame.label, "heading")
+	FL.GuideFrame.ColorText(frame.title, "title")
 	local width = (frame:GetWidth() or 320) - pad * 2
 	if width <= 0 then width = 320 - pad * 2 end
 
@@ -97,6 +99,7 @@ function Banner:Update()
 		})
 	end
 	for i, button in ipairs(frame.buttons) do
+		FL.GuideFrame.StyleButton(button)
 		button:ClearAllPoints()
 		button:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", pad + (i - 1) * 88, pad)
 	end

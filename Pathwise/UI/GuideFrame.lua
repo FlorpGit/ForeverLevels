@@ -14,15 +14,29 @@ local MAX_PARTY = 4
 
 -- Window styles. "classic" and "tooltip" use the same art as Forever's own classic
 -- dialogs and tooltips (see Blizzard_SharedXML/Backdrop.lua on the forever branch).
+-- "pathwise" is the same dialog art recolored to the Pathwise logo: blue-black
+-- background, cool silver frame, silver headings, ice-blue titles and steel-blue
+-- buttons (Blizzard's button art desaturated and tinted, not replaced).
+-- Optional per-style colors: heading, title, buttonText ({ r, g, b }) and tint
+-- (button texture tint). Styles without them use Blizzard's gold.
+local DIALOG_BACKDROP = BACKDROP_DARK_DIALOG_32_32 or {
+	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+	tile = true, tileEdge = true, tileSize = 32, edgeSize = 32,
+	insets = { left = 11, right = 12, top = 12, bottom = 11 },
+}
+
 local STYLES = {
+	pathwise = {
+		label = "Pathwise",
+		backdrop = DIALOG_BACKDROP,
+		pad = 18, bg = { 0.42, 0.52, 0.70, 0.96 }, border = { 0.78, 0.86, 1, 1 }, close = { -5, -5 },
+		heading = { 0.80, 0.85, 0.91 }, title = { 0.43, 0.80, 1 },
+		tint = { 0.55, 0.72, 0.95 }, buttonText = { 0.88, 0.94, 1 },
+	},
 	classic = {
 		label = "Classic",
-		backdrop = BACKDROP_DARK_DIALOG_32_32 or {
-			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
-			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-			tile = true, tileEdge = true, tileSize = 32, edgeSize = 32,
-			insets = { left = 11, right = 12, top = 12, bottom = 11 },
-		},
+		backdrop = DIALOG_BACKDROP,
 		pad = 18, bg = { 1, 1, 1, 0.92 }, border = { 1, 1, 1, 1 }, close = { -5, -5 },
 	},
 	tooltip = {
@@ -42,9 +56,51 @@ local STYLES = {
 	},
 }
 GuideFrame.STYLES = STYLES
-GuideFrame.STYLE_ORDER = { "classic", "tooltip", "minimal" }
+GuideFrame.STYLE_ORDER = { "pathwise", "classic", "tooltip", "minimal" }
+GuideFrame.DEFAULT_STYLE = "pathwise"
 
-local pad = STYLES.classic.pad
+local GOLD = { 1, 0.82, 0 }   -- GameFontNormal
+
+local pad = STYLES.pathwise.pad
+
+function GuideFrame.GetStyle()
+	return STYLES[FL.db.profile.frame.style] or STYLES[GuideFrame.DEFAULT_STYLE]
+end
+
+-- Colors a font string for its role ("heading" or "title") in the current style.
+function GuideFrame.ColorText(fontString, role)
+	local c = GuideFrame.GetStyle()[role] or GOLD
+	fontString:SetTextColor(c[1], c[2], c[3])
+end
+
+-- Inline color code for highlighted text in the current style, e.g. "|cff6ecbff".
+function GuideFrame.AccentCode()
+	local c = GuideFrame.GetStyle().title or GOLD
+	return string.format("|cff%02x%02x%02x", math.floor(c[1] * 255 + 0.5), math.floor(c[2] * 255 + 0.5), math.floor(c[3] * 255 + 0.5))
+end
+
+-- Recolors a Blizzard template button (UIPanelButtonTemplate, UIPanelCloseButton) for
+-- the current style. Textures are desaturated and tinted; nothing is replaced, so
+-- switching back to a gold style restores the original look.
+function GuideFrame.StyleButton(button)
+	local style = GuideFrame.GetStyle()
+	local tint = style.tint
+	for _, region in ipairs({ button:GetRegions() }) do
+		if region:GetObjectType() == "Texture" then
+			region:SetDesaturated(tint ~= nil)
+			if tint then
+				region:SetVertexColor(tint[1], tint[2], tint[3])
+			else
+				region:SetVertexColor(1, 1, 1)
+			end
+		end
+	end
+	local text = button:GetFontString()
+	if text then
+		local c = style.buttonText or GOLD
+		text:SetTextColor(c[1], c[2], c[3])
+	end
+end
 
 local COLOR_DONE = "|cff55dd55"
 local COLOR_OPEN = "|cffdddddd"
@@ -152,7 +208,7 @@ end
 -- Applies the current window style's backdrop to any BackdropTemplate frame and
 -- returns the style's padding. Other Pathwise windows use this to match the guide.
 function GuideFrame.ApplyBackdrop(target)
-	local style = STYLES[FL.db.profile.frame.style] or STYLES.classic
+	local style = GuideFrame.GetStyle()
 	target:SetBackdrop(style.backdrop)
 	target:SetBackdropColor(style.bg[1], style.bg[2], style.bg[3], style.bg[4])
 	target:SetBackdropBorderColor(style.border[1], style.border[2], style.border[3], style.border[4])
@@ -184,6 +240,12 @@ function GuideFrame:ApplyStyle()
 	local inner = WIDTH - pad * 2
 	for _, text in ipairs(frame.texts) do
 		text:SetWidth(inner)
+	end
+	GuideFrame.ColorText(frame.header, "heading")
+	GuideFrame.ColorText(frame.title, "title")
+	GuideFrame.ColorText(frame.dungeon, "heading")
+	for _, button in ipairs({ frame.prev, frame.nextButton, frame.professionsButton, frame.close }) do
+		GuideFrame.StyleButton(button)
 	end
 	self:Update()
 	FL:Fire("STYLE_CHANGED", FL.db.profile.frame.style)

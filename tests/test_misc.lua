@@ -58,21 +58,47 @@ T.Test("GuideFrame: renders a step with goals and the unverified notice", functi
 	T.True(guide.note.text:find("Not yet verified"), "verification notice")
 end)
 
-T.Test("GuideFrame: classic style by default, switchable and saved", function()
+T.Test("GuideFrame: Pathwise style by default, switchable and saved", function()
 	local FL = T.Boot()
 	local guide
 	for _, frame in ipairs(T.Stub.frames) do
 		if rawget(frame, "nextButton") then guide = frame end
 	end
-	T.Equal(FL.db.profile.frame.style, "classic", "default style")
-	T.Equal(guide.backdrop.edgeFile, [[Interface\DialogFrame\UI-DialogBox-Border]], "classic dialog border")
+	T.Equal(FL.db.profile.frame.style, "pathwise", "default style")
+	T.Equal(guide.backdrop.edgeFile, [[Interface\DialogFrame\UI-DialogBox-Border]], "dialog border, recolored")
 	FL.HandleSlash("style tooltip")
 	T.Equal(guide.backdrop.edgeFile, [[Interface\Tooltips\UI-Tooltip-Border]], "tooltip border")
 	FL.HandleSlash("style")
 	T.Equal(FL.db.profile.frame.style, "minimal", "cycled to minimal")
 	FL.HandleSlash("style")
-	T.Equal(FL.db.profile.frame.style, "classic", "cycled back to classic")
+	T.Equal(FL.db.profile.frame.style, "pathwise", "cycled back to pathwise")
+	FL.HandleSlash("style")
+	T.Equal(FL.db.profile.frame.style, "classic", "then classic")
 	FL.HandleSlash("style nope")
 	T.Equal(FL.db.profile.frame.style, "classic", "unknown style ignored")
 	T.True(T.ChatContains("usage: /pathwise style"), "usage shown")
+end)
+
+T.Test("GuideFrame: Pathwise colors apply to text and buttons, and switching back restores gold", function()
+	local FL = T.Boot()
+	local guide
+	for _, frame in ipairs(T.Stub.frames) do
+		if rawget(frame, "nextButton") then guide = frame end
+	end
+	local function Near(c, r, g, b) return math.abs(c[1] - r) < 1e-6 and math.abs(c[2] - g) < 1e-6 and math.abs(c[3] - b) < 1e-6 end
+	T.True(Near(guide.title.textColor, 0.43, 0.80, 1), "title is ice blue")
+	T.True(Near(guide.header.textColor, 0.80, 0.85, 0.91), "header is silver")
+	T.True(Near(guide.nextButton:GetFontString().textColor, 0.88, 0.94, 1), "button text is pale blue")
+	-- Blizzard button art is desaturated and tinted, not replaced.
+	local button = guide.prev
+	local art = button:CreateTexture()
+	FL.GuideFrame.StyleButton(button)
+	T.Equal(art.desaturated, true, "button art desaturated")
+	T.True(Near(art.vertexColor, 0.55, 0.72, 0.95), "button art tinted steel blue")
+	T.Equal(FL.GuideFrame.AccentCode(), "|cff6eccff", "accent color code")
+	FL.HandleSlash("style classic")
+	T.True(Near(guide.title.textColor, 1, 0.82, 0), "classic title back to gold")
+	T.Equal(art.desaturated, false, "button art restored")
+	T.True(Near(art.vertexColor, 1, 1, 1), "button tint removed")
+	T.Equal(FL.GuideFrame.AccentCode(), "|cffffd100", "gold accent")
 end)

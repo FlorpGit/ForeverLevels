@@ -81,7 +81,7 @@ function Options.Refresh()
 		button:SetText(ButtonText(button.toggle))
 	end
 	local style = FL.GuideFrame.STYLES[FL.db.profile.frame.style]
-	Options.panel.styleButton:SetText("Window style: " .. (style and style.label or "Classic"))
+	Options.panel.styleButton:SetText("Window style: " .. (style and style.label or "Pathwise"))
 end
 
 function Options:Create()

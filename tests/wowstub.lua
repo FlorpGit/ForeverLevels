@@ -93,13 +93,29 @@ function FrameMethods:GetStringHeight() return 12 end
 function FrameMethods:SetRotation(angle) self.rotation = angle end
 function FrameMethods:SetAtlas(atlas) self.atlas = atlas end
 function FrameMethods:SetBackdrop(backdrop) self.backdrop = backdrop end
+function FrameMethods:SetTextColor(r, g, b) self.textColor = { r, g, b } end
+function FrameMethods:SetVertexColor(r, g, b) self.vertexColor = { r, g, b } end
+function FrameMethods:SetDesaturated(on) self.desaturated = on end
+function FrameMethods:GetObjectType() return rawget(self, "objectType") or "Frame" end
+function FrameMethods:GetRegions() return (table.unpack or unpack)(rawget(self, "regions") or {}) end
+function FrameMethods:GetFontString()
+	if not rawget(self, "fontString") then rawset(self, "fontString", setmetatable({ scripts = {}, events = {}, shown = true }, FrameMethods)) end
+	return rawget(self, "fontString")
+end
 
 local function NewObject()
 	local object = setmetatable({ scripts = {}, events = {}, shown = true }, FrameMethods)
 	return object
 end
 function FrameMethods:CreateFontString() return NewObject() end
-function FrameMethods:CreateTexture() return NewObject() end
+function FrameMethods:CreateTexture()
+	local texture = NewObject()
+	rawset(texture, "objectType", "Texture")
+	local regions = rawget(self, "regions") or {}
+	regions[#regions + 1] = texture
+	rawset(self, "regions", regions)
+	return texture
+end
 
 function Stub.FireEvent(event, ...)
 	for _, frame in ipairs(Stub.frames) do

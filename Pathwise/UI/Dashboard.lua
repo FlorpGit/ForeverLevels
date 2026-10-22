@@ -13,7 +13,6 @@ local WIDTH = 380
 local MAX_LINES = 60
 local MAX_BUTTONS = 8
 
-local GOLD = "|cffffd100"
 local GOOD = "|cff55dd55"
 local BAD = "|cffff6655"
 local DIM = "|cff888888"
@@ -66,6 +65,7 @@ local function Gathering(lines, rows, seen)
 end
 
 function Dashboard.BuildLines()
+	local GOLD = FL.GuideFrame.AccentCode()
 	local lines = {}
 	local settings = FL.db.profile.professions
 	local professions = FL.Professions:List(false)
@@ -242,6 +242,8 @@ function Dashboard:Update()
 	frame.header:ClearAllPoints()
 	frame.header:SetPoint("TOPLEFT", pad, -pad)
 	frame.header:SetText(FL.BRAND .. " Professions")
+	FL.GuideFrame.ColorText(frame.header, "title")
+	FL.GuideFrame.StyleButton(frame.close)
 	frame.close:ClearAllPoints()
 	frame.close:SetPoint("TOPRIGHT", -(pad - 12), -(pad - 12))
 
@@ -251,6 +253,11 @@ function Dashboard:Update()
 		local line = lines[i]
 		if line then
 			text:SetFontObject(line.kind == "heading" and "GameFontNormal" or "GameFontHighlightSmall")
+			if line.kind == "heading" then
+				FL.GuideFrame.ColorText(text, "heading")
+			else
+				text:SetTextColor(1, 1, 1)
+			end
 			text:SetText(line.text)
 			text:SetWidth(inner)
 			text:ClearAllPoints()
@@ -269,6 +276,7 @@ function Dashboard:Update()
 		if entry then
 			button:SetWidth(buttonWidth)
 			button:SetText(entry.label .. ": " .. (entry.on and "On" or "Off"))
+			FL.GuideFrame.StyleButton(button)
 			button:SetScript("OnClick", function()
 				entry.click()
 				Dashboard:Update()

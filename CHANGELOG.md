@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.2.0-alpha.3 - Phase 2 test build (unreleased)
+## 0.2.0-alpha.4 (unreleased)
+
+- New default window style "Pathwise" in the logo's colors (blue-black background, silver frame and headings, ice-blue titles, steel-blue buttons), used by the guide, detour banner, dashboard, Feedback Center and arrow label. Classic, tooltip and minimal remain (`/pathwise style`). Settings saved by earlier builds keep the style they had; switch with `/pathwise style pathwise`.
+
+## 0.2.0-alpha.3 - Phase 2 test build (pre-release, 2026-10-22)
 
 - Renamed to "Pathwise: Leveling Guide & Professions". The addon folder and TOC files are now `Pathwise`; the GitHub repository is FlorpGit/Pathwise. Internal names (`ForeverLevelsDB`, the `ForeverLevels` global, `/fl`, the sync prefix) are unchanged. Testers of earlier builds: see Compatibility in the README.
 

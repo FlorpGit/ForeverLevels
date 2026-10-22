@@ -220,6 +220,13 @@ function Center:Refresh()
 	local draft = Feedback.GetCurrentDraft()
 	if not draft then return end
 	local pad = FL.GuideFrame.ApplyBackdrop(frame)
+	FL.GuideFrame.ColorText(frame.header, "title")
+	FL.GuideFrame.ColorText(frame.previewTitle, "heading")
+	for _, label in pairs(frame.labels) do FL.GuideFrame.ColorText(label, "heading") end
+	for _, button in ipairs({ frame.typeButton, frame.categoryButton, frame.positionButton, frame.characterButton,
+		frame.diagnosticsButton, frame.prepareButton, frame.discardButton, frame.close }) do
+		FL.GuideFrame.StyleButton(button)
+	end
 	local inner = WIDTH - pad * 2
 
 	frame.header:ClearAllPoints()

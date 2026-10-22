@@ -129,9 +129,11 @@ function Arrow:Update()
 	local show = FL.db.profile.arrow and target ~= nil
 	if show then
 		frame.label:SetText(target.title or "")
+		FL.GuideFrame.ColorText(frame.label, "title")
 		elapsedSinceUpdate = UPDATE_INTERVAL
 	end
 	frame:SetShown(show)
 end
 
 FL:On("WAYPOINT_CHANGED", function() Arrow:Update() end)
+FL:On("STYLE_CHANGED", function() Arrow:Update() end)

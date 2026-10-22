@@ -2,7 +2,7 @@
 ## Title: Pathwise: Leveling Guide & Professions
 ## Notes: Every quest. Every craft. Every level. Leveling and profession guide for World of Warcraft: Forever.
 ## Author: leight_nn & florp
-## Version: 0.2.0-alpha.3
+## Version: 0.2.0-alpha.4
 ## SavedVariables: ForeverLevelsDB
 ## SavedVariablesPerCharacter: ForeverLevelsCharDB
 ## X-License: GPL-3.0-only (code), CC BY-SA 4.0 (bundled guide data)

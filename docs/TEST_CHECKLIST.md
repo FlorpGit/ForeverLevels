@@ -1,4 +1,4 @@
-# In-game test checklist (Pathwise 0.2.0-alpha.3)
+# In-game test checklist (Pathwise 0.2.0-alpha.4)
 
 Run sections 1-11 on a new Undead character, and 12-16 on an Undead Mage with Tailoring and Enchanting, on the Forever client (or beta). Note the
 build first: `/run print(GetBuildInfo())`. Turn on the recorder for the whole run
@@ -26,7 +26,7 @@ lua tools/validate_routes.lua
 - [ ] Dragging moves it; position survives `/reload`.
 - [ ] `/pathwise lock` prevents dragging; `/pathwise unlock` allows it again.
 - [ ] `/pathwise scale 1.3` resizes it; the close button hides it; `/pathwise` shows it again.
-- [ ] The window uses the classic stone dialog border by default. `/pathwise style` cycles to tooltip and minimal; the choice survives `/reload`. Note if the border art looks wrong on Forever.
+- [ ] The window uses the Pathwise style by default: silver frame, blue-black background, ice-blue title, steel-blue buttons. `/pathwise style` cycles through classic, tooltip and minimal and back; the choice survives `/reload`. Note if the border art looks wrong on Forever.
 - [ ] Back and Next buttons work, and "(viewing)" appears after Back.
 
 ## 3. Waypoint and arrow
@@ -138,7 +138,7 @@ Test at least one of each, on separate characters if you can:
 
 ## 17. Feedback Center and Report This Step
 
-- [ ] The ticket icon sits right of Back in all three styles (`/pathwise style classic|tooltip|minimal`) and at `/pathwise scale 0.8` and `1.3`, without overlapping the Professions button.
+- [ ] The ticket icon sits right of Back in all four styles (`/pathwise style pathwise|classic|tooltip|minimal`) and at `/pathwise scale 0.8` and `1.3`, without overlapping the Professions button.
 - [ ] Hovering it shows "Report an issue with this guide step."
 - [ ] Clicking it opens the Feedback Center with this step's route, step number, title, quest IDs and waypoint. The guide stays on the same step and nothing is accepted, skipped or completed.
 - [ ] With no route active (for example on a non-Undead character) the icon is hidden, and `/pathwise report` says so and opens a general report.

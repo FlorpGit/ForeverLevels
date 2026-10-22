@@ -10,7 +10,7 @@ clicks for quests on the route, and plans your professions alongside it.
 Code is GPL-3.0, bundled guides are CC BY-SA 4.0. Routes and profession data are written for
 this project; nothing is taken from paid guides.
 
-Current state: 0.2.0-alpha.3, a test build. The addon works and has offline tests, but
+Current state: 0.2.0-alpha.4, a test build. The addon works and has offline tests, but
 nothing has been run on the live Forever client yet. The Undead 1-10 route is a draft
 (quest IDs correct, coordinates rough), and profession data is a small verified starter
 set for Tailoring and Enchanting. If you play with it, please send feedback (see
@@ -22,7 +22,7 @@ work; see Compatibility.
 ## Features
 
 Leveling
-- Guide window you can move, lock and scale. Shows the current step, quest objectives as they update, notes, and Back/Next buttons. Three looks: classic (the stone dialog border from the old UI, default), tooltip, or minimal.
+- Guide window you can move, lock and scale. Shows the current step, quest objectives as they update, notes, and Back/Next buttons. Four looks: Pathwise (matches the logo: blue-black, silver and ice blue; default), classic (the gold and stone look of the old UI), tooltip, or minimal.
 - Waypoints: puts Blizzard's map pin and in-world marker on the target, plus its own arrow with distance.
 - Detects quest accept, objectives done, turn-in and "reach level X" goals. Moves to the next step on its own and skips steps you already did when you log in.
 - Accepts and turns in quests that are on the route when you talk to the NPC. Hold Shift to skip that for one NPC. It won't choose between rewards for you or complete quests that cost gold.

@@ -17,7 +17,7 @@ local HELP = {
 	"/pathwise reset - restart the current route",
 	"/pathwise lock | unlock - lock the guide and arrow in place",
 	"/pathwise scale <0.5-2> - guide window scale",
-	"/pathwise style [classic|tooltip|minimal] - guide window look",
+	"/pathwise style [pathwise|classic|tooltip|minimal] - window look",
 	"/pathwise arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
 	"/pathwise where - print map ID, zone and coordinates",
 	"/pathwise options - open the Settings panel",
@@ -114,7 +114,7 @@ commands.style = function(arg)
 	local name = arg ~= "" and arg:lower() or nil
 	if name then
 		if not FL.GuideFrame:SetStyle(name) then
-			FL:Print("usage: /pathwise style classic | tooltip | minimal")
+			FL:Print("usage: /pathwise style pathwise | classic | tooltip | minimal")
 			return
 		end
 	else
