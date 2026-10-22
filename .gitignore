@@ -1,0 +1,6 @@
+# Local game installs and SavedVariables dumps used for testing
+WTF/
+*.bak
+.DS_Store
+Thumbs.db
+/dist/

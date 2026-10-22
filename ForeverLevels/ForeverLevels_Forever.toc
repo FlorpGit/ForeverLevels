@@ -1,0 +1,31 @@
+## Interface: 16001
+## Title: ForeverLevels
+## Notes: Open-source step-by-step leveling guide for World of Warcraft: Forever.
+## Author: ForeverLevels contributors
+## Version: 0.1.0
+## SavedVariables: ForeverLevelsDB
+## SavedVariablesPerCharacter: ForeverLevelsCharDB
+## X-License: MIT (code), CC BY-SA 4.0 (bundled guide data)
+## X-Website: https://github.com/FlorpGit/ForeverLevels
+
+Core\Init.lua
+Core\Config.lua
+Core\Validator.lua
+Core\Registry.lua
+Core\Player.lua
+Core\Quests.lua
+Core\Engine.lua
+Core\Waypoint.lua
+Core\AutoQuest.lua
+Core\Sync.lua
+Core\Recorder.lua
+UI\GuideFrame.lua
+UI\Arrow.lua
+UI\Options.lua
+Core\Commands.lua
+
+Guides\Dungeons.lua
+Guides\Horde\Undead_01_Deathknell.lua
+Guides\Horde\Undead_02_Brill.lua
+
+Core\Boot.lua

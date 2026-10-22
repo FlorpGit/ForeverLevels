@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # WoW embeds Lua 5.1; 5.4 catches anything that only works by accident.
+        lua: ["5.1", "5.4"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: ${{ matrix.lua }}
+      - uses: leafo/gh-actions-luarocks@v4
+      - name: Unit tests
+        run: lua tests/run.lua
+      - name: Validate routes
+        run: lua tools/validate_routes.lua
+      - name: Lint
+        if: matrix.lua == '5.1'
+        run: |
+          luarocks install luacheck
+          luacheck ForeverLevels examples tools tests
