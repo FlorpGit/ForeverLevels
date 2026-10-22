@@ -159,6 +159,7 @@ function Professions:ReadOpenProfession()
 	local recipes = FL.char.professions.recipes
 	local schematics = FL.db.professionCache.schematics
 	local build = select(2, GetBuildInfo())
+	local current = self.known[data.profession]
 	for _, recipe in ipairs(data.recipes) do
 		local info = C_TradeSkillUI.GetRecipeInfo(recipe.id)
 		if info then
@@ -167,6 +168,7 @@ function Professions:ReadOpenProfession()
 				difficulty = info.relativeDifficulty,
 				canSkillUp = info.canSkillUp,
 				numSkillUps = info.numSkillUps,
+				atRank = current and current.rank or nil,   -- difficulty is only current at this skill
 				at = time(),
 			}
 			local reagents = ReadSchematic(recipe.id)

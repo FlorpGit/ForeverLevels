@@ -22,6 +22,7 @@ Core\Sync.lua
 Core\Recorder.lua
 Core\Inventory.lua
 Core\Professions.lua
+Core\Planner.lua
 UI\GuideFrame.lua
 UI\Arrow.lua
 UI\Options.lua
