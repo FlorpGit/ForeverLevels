@@ -15,12 +15,10 @@ end)
 
 T.Test("TOC: every listed file exists, Init first, Boot last", function()
 	local files = T.ReadToc("ForeverLevels_Forever.toc")
-	local listed = {}
 	for _, file in ipairs(files) do
 		local handle = io.open(T.addonDir .. "/" .. file, "r")
 		T.True(handle, "missing file listed in TOC: " .. file)
 		handle:close()
-		listed[file] = true
 	end
 	T.Equal(files[1], "Core/Init.lua", "Init.lua must load first")
 	T.Equal(files[#files], "Core/Boot.lua", "Boot.lua must load last")

@@ -108,7 +108,7 @@ local timerFrame = CreateFrame("Frame")
 local timers = {}
 local debounced = {}
 
-local function OnTimerUpdate(_, elapsed)
+local function OnTimerUpdate()
 	local now = GetTime()
 	for i = #timers, 1, -1 do
 		local timer = timers[i]

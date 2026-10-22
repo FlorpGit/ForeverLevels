@@ -127,7 +127,7 @@ local function ShortName(sender)
 	return (sender:gsub("%-.*$", ""))
 end
 
-FL:RegisterEvent("CHAT_MSG_ADDON", function(_, prefix, message, channel, sender)
+FL:RegisterEvent("CHAT_MSG_ADDON", function(_, prefix, message, _channel, sender)
 	if prefix ~= Sync.PREFIX or not FL.db or not FL.db.profile.sync then return end
 	if FL.IsSecret(message) or FL.IsSecret(sender) then return end
 	local name = ShortName(sender)

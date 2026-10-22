@@ -57,11 +57,11 @@ function GuideFrame:Create()
 	frame:SetMovable(true)
 	frame:EnableMouse(true)
 	frame:RegisterForDrag("LeftButton")
-	frame:SetScript("OnDragStart", function(self)
-		if not FL.db.profile.frame.locked then self:StartMoving() end
+	frame:SetScript("OnDragStart", function(f)
+		if not FL.db.profile.frame.locked then f:StartMoving() end
 	end)
-	frame:SetScript("OnDragStop", function(self)
-		self:StopMovingOrSizing()
+	frame:SetScript("OnDragStop", function(f)
+		f:StopMovingOrSizing()
 		SavePosition()
 	end)
 	frame:SetBackdrop({
