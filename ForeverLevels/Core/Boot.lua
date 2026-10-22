@@ -11,6 +11,7 @@ end)
 FL:RegisterEvent("PLAYER_LOGIN", function()
 	-- All non-load-on-demand addons (including community route packs) are loaded now.
 	FL:UpdatePlayer()
+	FL.Professions:Refresh()
 	FL.Sync:Init()
 	FL.GuideFrame:Create()
 	FL.Arrow:Create()

@@ -9,10 +9,12 @@ ignore = {
 
 globals = {
 	"ForeverLevels",
+	"Pathwise",
 	"ForeverLevelsDB",
 	"ForeverLevelsCharDB",
 	"SLASH_FOREVERLEVELS1",
 	"SLASH_FOREVERLEVELS2",
+	"SLASH_FOREVERLEVELS3",
 	SlashCmdList = { other_fields = true },
 }
 
@@ -21,6 +23,7 @@ globals = {
 read_globals = {
 	-- namespaces
 	"C_AddOns", "C_ChatInfo", "C_GossipInfo", "C_Map", "C_QuestLog", "C_SuperTrack", "C_Texture",
+	"C_Item", "C_SkillInfo", "C_TradeSkillUI", "GetProfessions", "GetProfessionInfo",
 	"Enum", "Settings", "UiMapPoint",
 	-- frames and utilities
 	"CreateFrame", "UIParent", "DEFAULT_CHAT_FRAME", "CreateVector2D", "wipe", "GetTime", "time",

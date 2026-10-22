@@ -25,6 +25,14 @@ function Stub.Reset()
 	Stub.playerPos = { x = 0.30, y = 0.70 }
 	Stub.userWaypoint = nil
 	Stub.superTracked = false
+	-- Professions: list order = GetProfessions() slots (prof1, prof2, first aid, fishing, cooking).
+	Stub.professions = {}       -- { [slot] = { name, skillLine, rank, maxRank } }
+	Stub.items = {}             -- [itemID] = count in bags
+	Stub.bankItems = {}         -- [itemID] = count in bank
+	Stub.recipeInfo = {}        -- [recipeID] = TradeSkillRecipeInfo-like table
+	Stub.schematics = {}        -- [recipeID] = { { itemID, qty }, ... }
+	Stub.openProfession = nil   -- { professionID, professionName } while a profession window is open
+	Stub.npcName = nil
 	-- Tiny map tree: world 1 -> continent 1000 -> Tirisfal 2001.
 	-- Map positions convert to world yards with a 1000-yard square zone.
 	Stub.maps = {
@@ -141,7 +149,49 @@ function Stub.Install(env)
 	env.UnitRace = function() return "Race", Stub.player.race end
 	env.UnitFactionGroup = function() return Stub.player.faction end
 	env.UnitLevel = function() return Stub.player.level end
-	env.UnitName = function() return Stub.player.name end
+	env.UnitName = function(unit)
+		if unit == "npc" then return Stub.npcName end
+		return Stub.player.name
+	end
+
+	-- Profession APIs (signatures from Forever's Blizzard_ProfessionsBook/Camelot and
+	-- TradeSkillUI, Item and SkillInfo documentation).
+	env.GetProfessions = function()
+		local p = Stub.professions
+		return p[1] and 1 or nil, p[2] and 2 or nil, p[3] and 3 or nil, p[4] and 4 or nil, p[5] and 5 or nil
+	end
+	env.GetProfessionInfo = function(index)
+		local p = Stub.professions[index]
+		if not p then return nil end
+		return p.name, 136249, p.rank, p.maxRank, 1, 0, p.skillLine, 0
+	end
+	env.C_SkillInfo = {
+		GetNumSkillLines = function() return #Stub.professions end,
+		GetSkillLineInfo = function(i)
+			local p = Stub.professions[i]
+			if not p then return nil end
+			return { skillID = p.skillLine, name = p.name, isHeader = false, rank = p.rank, maxRank = p.maxRank, modifier = 0 }
+		end,
+	}
+	env.C_TradeSkillUI = {
+		GetBaseProfessionInfo = function() return Stub.openProfession end,
+		GetRecipeInfo = function(id) return Stub.recipeInfo[id] end,
+		GetRecipeSchematic = function(id)
+			local reagents = Stub.schematics[id]
+			if not reagents then return { recipeID = id, reagentSlotSchematics = {} } end
+			local slots = {}
+			for i, r in ipairs(reagents) do
+				slots[i] = { reagents = { { itemID = r[1] } }, quantityRequired = r[2], required = true }
+			end
+			return { recipeID = id, reagentSlotSchematics = slots }
+		end,
+	}
+	env.C_Item = {
+		GetItemCount = function(itemID, includeBank)
+			return (Stub.items[itemID] or 0) + (includeBank and (Stub.bankItems[itemID] or 0) or 0)
+		end,
+		GetItemNameByID = function() return nil end,
+	}
 	env.IsShiftKeyDown = function() return Stub.shift end
 	env.IsInGroup = function() return Stub.inGroup end
 	env.IsInRaid = function() return false end

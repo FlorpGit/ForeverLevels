@@ -52,6 +52,17 @@ end
 FL:On("QUEST_ACCEPTED", function(questID) Log("accept", questID) end)
 FL:On("QUEST_TURNED_IN", function(questID) Log("turnin", questID) end)
 
+-- Trainer positions, so profession data can get verified coordinates.
+FL:RegisterEvent("TRAINER_SHOW", function()
+	if not (FL.db and FL.db.profile.record) then return end
+	local npc = UnitName("npc")
+	if not npc or FL.IsSecret(npc) then return end
+	local mapID, zone, x, y = Recorder.GetPosition()
+	local log = FL.db.recorder
+	log[#log + 1] = { kind = "trainer", npc = npc, mapID = mapID, zone = zone, x = x, y = y, time = time(), build = select(2, GetBuildInfo()) }
+	FL:Print(string.format("recorded trainer %s at %s (%s) %.1f, %.1f", npc, tostring(zone), tostring(mapID), x or -1, y or -1))
+end)
+
 function Recorder:Clear()
 	wipe(FL.db.recorder)
 end

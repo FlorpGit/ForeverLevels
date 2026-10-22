@@ -12,6 +12,7 @@ Core\Init.lua
 Core\Config.lua
 Core\Validator.lua
 Core\Registry.lua
+Core\ProfessionData.lua
 Core\Player.lua
 Core\Quests.lua
 Core\Engine.lua
@@ -19,6 +20,8 @@ Core\Waypoint.lua
 Core\AutoQuest.lua
 Core\Sync.lua
 Core\Recorder.lua
+Core\Inventory.lua
+Core\Professions.lua
 UI\GuideFrame.lua
 UI\Arrow.lua
 UI\Options.lua
@@ -27,5 +30,7 @@ Core\Commands.lua
 Guides\Dungeons.lua
 Guides\Horde\Undead_01_Deathknell.lua
 Guides\Horde\Undead_02_Brill.lua
+Guides\Professions\Tailoring.lua
+Guides\Professions\Enchanting.lua
 
 Core\Boot.lua
