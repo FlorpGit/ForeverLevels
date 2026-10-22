@@ -4,7 +4,7 @@
 
 local _, FL = ...
 
-FL.DB_VERSION = 2
+FL.DB_VERSION = 3
 
 FL.defaults = {
 	profile = {
@@ -29,8 +29,13 @@ FL.defaults = {
 			tracked = {},            -- [professionKey] = false hides a profession
 		},
 		dashboard = { point = "CENTER", relPoint = "CENTER", x = -200, y = 40, scale = 1, locked = false, shown = false },
+		feedbackFrame = { point = "CENTER", relPoint = "CENTER", x = 0, y = 0 },
 	},
 	recorder = {},
+	feedback = {
+		drafts = {},                 -- [draftKey] = unfinished report; kept until discarded
+		current = nil,               -- draft shown in the Feedback Center
+	},
 	professionCache = {
 		schematics = {},             -- [recipeID] = { reagents = { { itemID, qty } }, build } read from the client
 	},
@@ -56,6 +61,8 @@ FL.charDefaults = {
 FL.Migrations = {
 	-- 2: profession tracking. New tables only; route progress is untouched.
 	[2] = function() end,
+	-- 3: Feedback Center drafts. New tables only.
+	[3] = function() end,
 }
 
 -- Copies keys from src that are missing in dst (recursively). Never overwrites user values.

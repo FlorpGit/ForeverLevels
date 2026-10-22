@@ -123,7 +123,21 @@ function GuideFrame:Create()
 
 	frame.prev = CreateButton(frame, "Back", 70, function() Engine:Prev() end)
 	frame.nextButton = CreateButton(frame, "Next", 70, function() Engine:Next() end)
-	frame.professionsButton = CreateButton(frame, "Professions", 96, function() FL.Dashboard:Toggle() end)
+	frame.professionsButton = CreateButton(frame, "Professions", 92, function() FL.Dashboard:Toggle() end)
+
+	-- Report button next to Back. Opens the Feedback Center with this step filled in;
+	-- it only reads the step and never changes it.
+	frame.reportButton = CreateFrame("Button", nil, frame)
+	frame.reportButton:SetSize(20, 20)
+	frame.reportButton:SetNormalTexture("Interface\\HelpFrame\\OpenTicketIcon")
+	frame.reportButton:SetHighlightTexture("Interface\\HelpFrame\\OpenTicketIcon", "ADD")
+	frame.reportButton:SetScript("OnClick", function() FL.FeedbackCenter:OpenForStep() end)
+	frame.reportButton:SetScript("OnEnter", function(button)
+		GameTooltip:SetOwner(button, "ANCHOR_TOP")
+		GameTooltip:SetText("Report an issue with this guide step.")
+		GameTooltip:Show()
+	end)
+	frame.reportButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 	self:ApplyStyle()
 	frame:SetShown(saved.shown)
@@ -163,6 +177,8 @@ function GuideFrame:ApplyStyle()
 	frame.nextButton:SetPoint("BOTTOMRIGHT", -pad, pad)
 	frame.professionsButton:ClearAllPoints()
 	frame.professionsButton:SetPoint("BOTTOM", 0, pad)
+	frame.reportButton:ClearAllPoints()
+	frame.reportButton:SetPoint("LEFT", frame.prev, "RIGHT", 2, 0)
 
 	local inner = WIDTH - pad * 2
 	for _, text in ipairs(frame.texts) do
@@ -297,6 +313,7 @@ function GuideFrame:Update()
 
 	if not route or not step then
 		frame.header:SetText(FL.BRAND)
+		frame.reportButton:Hide()
 		frame.counter:SetText("")
 		frame.title:SetText("No route selected")
 		frame.body:SetText("Type /pathwise routes to list installed routes, then /pathwise route <id>.")
@@ -306,6 +323,7 @@ function GuideFrame:Update()
 	end
 
 	frame.header:SetText(FL.BRAND .. " - " .. route.title)
+	frame.reportButton:Show()
 	frame.counter:SetText(string.format("%d/%d", Engine.index, #route.steps))
 
 	local state = Engine.GetStepState(step, player)

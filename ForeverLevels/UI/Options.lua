@@ -157,6 +157,12 @@ function Options:Create()
 	dashboardButton:SetText("Open profession dashboard")
 	dashboardButton:SetScript("OnClick", function() FL.Dashboard:SetShown(true) end)
 
+	local feedbackButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	feedbackButton:SetSize(380, 24)
+	feedbackButton:SetPoint("TOPLEFT", dashboardButton, "BOTTOMLEFT", 0, -10)
+	feedbackButton:SetText("Report a bug or make a suggestion")
+	feedbackButton:SetScript("OnClick", function() FL.FeedbackCenter:Open(nil) end)
+
 	panel:SetScript("OnShow", Options.Refresh)
 
 	self.panel = panel

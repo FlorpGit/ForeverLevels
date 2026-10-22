@@ -148,14 +148,14 @@ T.Test("Profession data: a community pack adds recipes without touching bundled 
 	T.Equal(FL:GetProfessionPack("community.tailoring.extra").license, "CC0 1.0", "pack license kept")
 end)
 
-T.Test("SavedVariables: version 1 data migrates to version 2 without losing progress", function()
+T.Test("SavedVariables: version 1 data migrates to the current version without losing progress", function()
 	local saved = {
 		db = { profile = { autoAccept = false }, recorder = { { kind = "accept", questID = 363 } }, dbVersion = 1 },
 		char = { routeId = "fl.horde.undead.01-deathknell", progress = { ["fl.horde.undead.01-deathknell"] = { step = 4, skipped = { ["dk-mordo"] = true } } }, turnedIn = { [363] = true }, dbVersion = 1 },
 	}
 	local FL = T.BootCrafter({ saved = saved })
-	T.Equal(FL.db.dbVersion, 2, "account db upgraded")
-	T.Equal(FL.char.dbVersion, 2, "character db upgraded")
+	T.Equal(FL.db.dbVersion, FL.DB_VERSION, "account db upgraded")
+	T.Equal(FL.char.dbVersion, FL.DB_VERSION, "character db upgraded")
 	T.Equal(FL.char.progress["fl.horde.undead.01-deathknell"].skipped["dk-mordo"], true, "skips kept")
 	T.Equal(FL.char.turnedIn[363], true, "turn-ins kept")
 	T.Equal(#FL.db.recorder, 1, "recorder log kept")

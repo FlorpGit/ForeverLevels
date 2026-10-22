@@ -26,7 +26,7 @@ read_globals = {
 	"C_Item", "C_SkillInfo", "C_TradeSkillUI", "GetProfessions", "GetProfessionInfo",
 	"Enum", "Settings", "UiMapPoint",
 	-- frames and utilities
-	"CreateFrame", "UIParent", "DEFAULT_CHAT_FRAME", "CreateVector2D", "wipe", "GetTime", "time",
+	"CreateFrame", "UIParent", "DEFAULT_CHAT_FRAME", "GameTooltip", "CreateVector2D", "wipe", "GetTime", "time",
 	"GetBuildInfo", "issecretvalue", "WOW_PROJECT_ID", "WOW_PROJECT_CAMELOT", "BACKDROP_DARK_DIALOG_32_32",
 	-- unit / player
 	"UnitClass", "UnitRace", "UnitFactionGroup", "UnitLevel", "UnitName", "GetPlayerFacing",

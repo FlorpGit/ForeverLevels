@@ -20,6 +20,8 @@ local HELP = {
 	"/pathwise arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
 	"/pathwise where - print map ID, zone and coordinates",
 	"/pathwise options - open the Settings panel",
+	"/pathwise feedback - report a bug or make a suggestion",
+	"/pathwise report - report a problem with the current guide step",
 	"/pathwise prof - profession dashboard",
 	"/pathwise tracking | reminders [on|off] - profession tracking, material reminders",
 	"/pathwise track <profession> [on|off] - show or hide one profession",
@@ -142,6 +144,10 @@ commands.detour = function(arg)
 	end
 end
 commands.detours = commands.detour
+
+commands.feedback = function() FL.FeedbackCenter:Open(nil) end
+commands.bug = commands.feedback
+commands.report = function() FL.FeedbackCenter:OpenForStep() end
 
 commands.prof = function() FL.Dashboard:Toggle() end
 commands.professions = commands.prof

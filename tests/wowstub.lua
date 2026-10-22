@@ -274,6 +274,7 @@ function Stub.Install(env)
 		AreOutgoingAddonChatMessagesRestricted = function() return Stub.addonRestricted end,
 	}
 	env.Settings = nil
+	env.GameTooltip = { SetOwner = function(self, owner) self.owner = owner end, SetText = function(self, text) self.text = text end, Show = function(self) self.shown = true end, Hide = function(self) self.shown = false end }
 end
 
 return Stub
