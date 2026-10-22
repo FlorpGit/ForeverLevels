@@ -15,6 +15,7 @@ FL:RegisterEvent("PLAYER_LOGIN", function()
 	FL.Sync:Init()
 	FL.GuideFrame:Create()
 	FL.DetourBanner:Create(FL.GuideFrame.GetFrame())
+	FL.Dashboard:Create()
 	FL.Arrow:Create()
 	FL.Options:Create()
 

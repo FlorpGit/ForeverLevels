@@ -37,9 +37,42 @@ function Options.Set(key, value)
 	if Options.panel then Options.Refresh() end
 end
 
+-- Profession settings live under profile.professions.
+Options.PROFESSION_TOGGLES = {
+	{ key = "enabled", label = "Profession tracking" },
+	{ key = "detours", label = "Profession detours next to the route" },
+	{ key = "reminders", label = "Material reminders in chat" },
+	{ key = "countBank", label = "Count bank items in material plans" },
+}
+
+function Options.SetProfession(key, value)
+	local settings = FL.db.profile.professions
+	if key == "detours" then
+		FL.Detours:SetEnabled(value)
+	else
+		settings[key] = value
+		if key == "enabled" and not value then FL.Detours:Evaluate() end
+		FL.Professions:Refresh()
+	end
+	FL.Dashboard:Update()
+	if Options.panel then Options.Refresh() end
+end
+
+function Options.SetTracked(professionKey, tracked)
+	FL.db.profile.professions.tracked[professionKey] = tracked and true or false
+	FL.Detours:Evaluate()
+	FL.Dashboard:Update()
+end
+
+local function OnOff(on)
+	return on and "|cff55dd55ON|r" or "|cffff5555OFF|r"
+end
+
 local function ButtonText(toggle)
-	local on = FL.db.profile[toggle.key]
-	return toggle.label .. ": " .. (on and "|cff55dd55ON|r" or "|cffff5555OFF|r")
+	if toggle.profession then
+		return toggle.label .. ": " .. OnOff(FL.db.profile.professions[toggle.key])
+	end
+	return toggle.label .. ": " .. OnOff(FL.db.profile[toggle.key])
 end
 
 function Options.Refresh()
@@ -100,6 +133,29 @@ function Options:Create()
 		Options.Refresh()
 	end)
 	panel.styleButton = styleButton
+	previous = styleButton
+
+	local professionTitle = panel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	professionTitle:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -16)
+	professionTitle:SetText("Professions")
+	previous = professionTitle
+	for _, entry in ipairs(self.PROFESSION_TOGGLES) do
+		local toggle = { key = entry.key, label = entry.label, profession = true }
+		local button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+		button:SetSize(380, 24)
+		button:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, previous == professionTitle and -8 or -4)
+		button.toggle = toggle
+		button:SetScript("OnClick", function()
+			Options.SetProfession(toggle.key, not FL.db.profile.professions[toggle.key])
+		end)
+		panel.buttons[#panel.buttons + 1] = button
+		previous = button
+	end
+	local dashboardButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	dashboardButton:SetSize(380, 24)
+	dashboardButton:SetPoint("TOPLEFT", previous, "BOTTOMLEFT", 0, -10)
+	dashboardButton:SetText("Open profession dashboard")
+	dashboardButton:SetScript("OnClick", function() FL.Dashboard:SetShown(true) end)
 
 	panel:SetScript("OnShow", Options.Refresh)
 

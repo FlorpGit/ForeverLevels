@@ -123,6 +123,7 @@ function GuideFrame:Create()
 
 	frame.prev = CreateButton(frame, "Back", 70, function() Engine:Prev() end)
 	frame.nextButton = CreateButton(frame, "Next", 70, function() Engine:Next() end)
+	frame.professionsButton = CreateButton(frame, "Professions", 96, function() FL.Dashboard:Toggle() end)
 
 	self:ApplyStyle()
 	frame:SetShown(saved.shown)
@@ -160,6 +161,8 @@ function GuideFrame:ApplyStyle()
 	frame.prev:SetPoint("BOTTOMLEFT", pad, pad)
 	frame.nextButton:ClearAllPoints()
 	frame.nextButton:SetPoint("BOTTOMRIGHT", -pad, pad)
+	frame.professionsButton:ClearAllPoints()
+	frame.professionsButton:SetPoint("BOTTOM", 0, pad)
 
 	local inner = WIDTH - pad * 2
 	for _, text in ipairs(frame.texts) do

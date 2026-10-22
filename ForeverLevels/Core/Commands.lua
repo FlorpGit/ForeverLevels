@@ -20,6 +20,10 @@ local HELP = {
 	"/pathwise arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
 	"/pathwise where - print map ID, zone and coordinates",
 	"/pathwise options - open the Settings panel",
+	"/pathwise prof - profession dashboard",
+	"/pathwise tracking | reminders [on|off] - profession tracking, material reminders",
+	"/pathwise track <profession> [on|off] - show or hide one profession",
+	"/pathwise detour go | later | skip | done | cancel | on | off - profession detours",
 	"/fl works as a short alias for every command.",
 }
 
@@ -138,6 +142,32 @@ commands.detour = function(arg)
 	end
 end
 commands.detours = commands.detour
+
+commands.prof = function() FL.Dashboard:Toggle() end
+commands.professions = commands.prof
+commands.dashboard = commands.prof
+
+local function ProfessionToggle(key, label)
+	return function(arg)
+		local value = ParseOnOff((arg or ""):lower(), FL.db.profile.professions[key])
+		FL.Options.SetProfession(key, value)
+		FL:Print(label, value and "on" or "off")
+	end
+end
+commands.tracking = ProfessionToggle("enabled", "profession tracking")
+commands.reminders = ProfessionToggle("reminders", "material reminders")
+
+commands.track = function(arg)
+	local name, state = (arg or ""):lower():match("^(%S+)%s*(%S*)$")
+	local info = name and FL.Professions:Get(name)
+	if not info then
+		FL:Print("usage: /pathwise track <profession> [on|off]  (e.g. /pathwise track tailoring off)")
+		return
+	end
+	local value = ParseOnOff(state, FL.db.profile.professions.tracked[name] ~= false)
+	FL.Options.SetTracked(name, value)
+	FL:Print(info.name, value and "tracked" or "hidden")
+end
 
 commands.where = function()
 	local mapID, zone, x, y = FL.Recorder.GetPosition()

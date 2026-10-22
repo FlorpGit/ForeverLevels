@@ -26,6 +26,7 @@ Core\Planner.lua
 Core\Detours.lua
 UI\GuideFrame.lua
 UI\DetourBanner.lua
+UI\Dashboard.lua
 UI\Arrow.lua
 UI\Options.lua
 Core\Commands.lua
