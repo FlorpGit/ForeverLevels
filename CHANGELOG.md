@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0-alpha.1 - Phase 2 test build (unreleased)
+## 0.2.0-alpha.2 - Phase 2 test build (unreleased)
 
 - Renamed to Pathwise ("Every quest. Every craft. Every level.", by leight_nn & florp). `/pathwise` is the main command; `/fl`, `/foreverlevels`, `ForeverLevels:RegisterRoute()`, the addon folder and saved progress all keep working. About section in the options panel.
 - Profession tracking: detects professions, skill and cap; reads learned recipes, difficulty and the client's reagent lists while a profession window is open; counts materials in bags (bank optional).
@@ -11,6 +11,7 @@
 - SavedVariables version 2 with an in-place upgrade from version 1.
 - Recorder also logs trainer positions.
 - Example profession data pack; the offline validator checks profession data too.
+- Feedback Center (`/pathwise feedback`) for bug reports, suggestions and guide step reports, with a "Report this step" ticket button next to Back that fills in the current step. Reports are prepared as copyable text for pathwise.nn@gmail.com and never sent automatically. Character details and diagnostics are opt-in. Drafts are saved per step. SavedVariables version 3.
 
 ## 0.1.0 - MVP (unreleased)
 

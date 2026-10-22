@@ -1,4 +1,4 @@
-# In-game test checklist (Pathwise 0.2.0-alpha.1)
+# In-game test checklist (Pathwise 0.2.0-alpha.2)
 
 Run sections 1-11 on a new Undead character, and 12-16 on an Undead Mage with Tailoring and Enchanting, on the Forever client (or beta). Note the
 build first: `/run print(GetBuildInfo())`. Turn on the recorder for the whole run
@@ -135,6 +135,18 @@ Test at least one of each, on separate characters if you can:
 - [ ] The dashboard can be dragged, and its position survives `/reload`.
 - [ ] The settings buttons (Tracking, Detours, Reminders, one per profession) change behavior right away.
 - [ ] Use `/pathwise record on` and open the Tailoring and Enchanting trainer windows; the trainer positions appear in the SavedVariables file.
+
+## 17. Feedback Center and Report This Step
+
+- [ ] The ticket icon sits right of Back in all three styles (`/pathwise style classic|tooltip|minimal`) and at `/pathwise scale 0.8` and `1.3`, without overlapping the Professions button.
+- [ ] Hovering it shows "Report an issue with this guide step."
+- [ ] Clicking it opens the Feedback Center with this step's route, step number, title, quest IDs and waypoint. The guide stays on the same step and nothing is accepted, skipped or completed.
+- [ ] With no route active (for example on a non-Undead character) the icon is hidden, and `/pathwise report` says so and opens a general report.
+- [ ] The "Information in this report" section lists character and diagnostics as "not included" until you turn them on.
+- [ ] "Prepare report" without a description, or without a problem type, shows what is missing.
+- [ ] The prepared text can be selected with Ctrl+A and copied with Ctrl+C into an email; typing in that box does not change it. The window says "not sent".
+- [ ] Typed text survives `/reload`; each step keeps its own draft; "Discard draft" removes only the current one.
+- [ ] `/pathwise feedback` and `/fl feedback` open the same window; the options panel button does too.
 
 ## Reporting
 

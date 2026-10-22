@@ -50,6 +50,8 @@ functions were matched against those docs or against Blizzard's own Forever UI c
 | Options panel | `Settings.RegisterCanvasLayoutCategory`, `RegisterAddOnCategory`, `OpenToCategory` | `Blizzard_Settings_Shared/Blizzard_Settings.lua` |
 | Misc | `IsShiftKeyDown`, `GetBuildInfo`, `UIPanelButtonTemplate`, `UIPanelCloseButton`, `BackdropTemplate` | Input / Build docs, `SharedUIPanelTemplates.xml`, `Backdrop.lua` |
 | Window styles | `BACKDROP_DARK_DIALOG_32_32`, `Interface\Tooltips\UI-Tooltip-Border`, `UI-Tooltip-Background` | `Blizzard_SharedXML/Backdrop.lua` |
+| Feedback Center inputs | `InputBoxTemplate`, `UIPanelScrollFrameTemplate`; EditBox `SetMultiLine`, `HighlightText`, `SetAutoFocus`, `SetMaxLetters`, `SetFontObject`, `ClearFocus` | `Blizzard_SharedXML/Shared/InputBox/InputBoxTemplates.xml`, SharedXML scroll frame templates, SimpleEditBoxAPIDocumentation |
+| Report button | Texture `Interface\HelpFrame\OpenTicketIcon`; Button `SetNormalTexture`, `SetHighlightTexture`; `GameTooltip:SetOwner` | `Blizzard_HelpFrame/HelpFrame.xml`, SimpleButtonAPIDocumentation, Forever's `Minimap.lua` |
 
 ### Profession APIs (added in Phase 2, verified on the same build)
 
@@ -92,6 +94,7 @@ Things I wanted but the current API does not allow, and what the addon does inst
 | Recipe state for a closed profession | Limited | `GetRecipeInfo` answers for the profession whose window is open. Pathwise reads recipes only while that profession's window is open and caches the result; it never marks a recipe unlearned from another profession's window. |
 | Live skill-up chance | Partly | The client gives a difficulty color, not a percentage, and only for your current skill. The planner labels every chance with its source. See MATERIAL_PLANNER.md. |
 | Skill thresholds, rank caps, trainer coordinates | Not available from the API | No API returns them. Data packs carry them, marked verified or not. The client's current cap from `GetProfessionInfo` always wins. |
+| Sending feedback from the game | Not possible | Addons cannot send email or make web requests, and must not hold credentials. The Feedback Center prepares text for the player to copy and email. A bug or flag icon used by Forever's own UI was not found, so the report button uses Blizzard's help-ticket icon. |
 | Crafting, buying, selling, destroying or disenchanting from the planner | Deliberately not done | Pathwise only reads. Crafting and disenchanting are protected player actions in any case. |
 
 ## Content gaps (data, not API)

@@ -10,7 +10,7 @@ clicks for quests on the route, and plans your professions alongside it.
 Code is MIT, bundled guides are CC BY-SA 4.0. Routes and profession data are written for
 this project; nothing is taken from paid guides.
 
-Current state: 0.2.0-alpha.1, a test build. The addon works and has offline tests, but
+Current state: 0.2.0-alpha.2, a test build. The addon works and has offline tests, but
 nothing has been run on the live Forever client yet. The Undead 1-10 route is a draft
 (quest IDs correct, coordinates rough), and profession data is a small verified starter
 set for Tailoring and Enchanting. If you play with it, please send feedback (see
@@ -37,6 +37,9 @@ Professions (new in 0.2)
 - Material planner that estimates how many crafts a skill range takes and says how sure it is.
 - Optional profession detours under the guide window (visit a trainer, craft something you have materials for) that never change your route progress.
 - Profession data packs register themselves, so more recipes and professions can be added without changing Pathwise.
+
+Feedback
+- Feedback Center for bug reports, suggestions and guide step reports. The ticket button next to Back fills in the current step (route, step, quest IDs, waypoint). Pathwise prepares the text; you copy it and email it to pathwise.nn@gmail.com. Nothing is sent automatically. See [docs/FEEDBACK_SYSTEM.md](docs/FEEDBACK_SYSTEM.md).
 
 Progress is saved per character, settings per account. `/pathwise record` logs where you accept and turn in quests and where trainers stand, and there are scripts to turn that into route files.
 
@@ -69,6 +72,8 @@ There are example packs in `examples/` (a route pack and a profession data pack)
 | `/pathwise lock`, `/pathwise unlock`, `/pathwise scale 1.2` | Window position and size |
 | `/pathwise style [classic\|tooltip\|minimal]` | Window look |
 | `/pathwise arrow`, `waypoint`, `auto`, `sync`, `dungeons` `[on\|off]` | Turn features on or off |
+| `/pathwise feedback` | Report a bug or make a suggestion |
+| `/pathwise report` | Report a problem with the current guide step |
 | `/pathwise prof` | Profession dashboard |
 | `/pathwise tracking`, `/pathwise reminders` `[on\|off]` | Profession tracking, material reminders |
 | `/pathwise track <profession> [on\|off]` | Show or hide one profession |
@@ -149,6 +154,9 @@ More about professions: [docs/PROFESSIONS.md](docs/PROFESSIONS.md),
 [docs/PROFESSION_DETOURS.md](docs/PROFESSION_DETOURS.md).
 
 ## Contributing
+
+Found a wrong step? Click the ticket button next to Back and email the report to
+pathwise.nn@gmail.com.
 
 What helps most right now is someone playing on Forever with `/pathwise record on`,
 opening their profession windows, and sending their SavedVariables file, or a PR fixing
