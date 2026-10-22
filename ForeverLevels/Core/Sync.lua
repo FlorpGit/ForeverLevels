@@ -1,6 +1,6 @@
 -- ForeverLevels: optional party progress sharing over addon messages.
 --
--- Off by default (/fl sync on). Each member broadcasts which route step they are on
+-- Off by default (/pathwise sync on). Each member broadcasts which route step they are on
 -- and objective counts for that step's quests. Nothing is sent when:
 --   * not in a group,
 --   * the client is in chat messaging lockdown (Midnight-era restriction, active on Forever),

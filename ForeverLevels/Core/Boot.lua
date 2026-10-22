@@ -17,7 +17,7 @@ FL:RegisterEvent("PLAYER_LOGIN", function()
 	FL.Options:Create()
 
 	if not FL:IsForeverClient() then
-		FL:Print("|cffffcc55warning:|r this client does not report itself as World of Warcraft: Forever. ForeverLevels targets Forever only.")
+		FL:Print("|cffffcc55warning:|r this client does not report itself as World of Warcraft: Forever. Pathwise targets Forever only.")
 	end
 
 	FL.Engine:AutoSelectRoute()

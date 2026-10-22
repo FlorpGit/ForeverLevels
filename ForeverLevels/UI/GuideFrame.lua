@@ -282,16 +282,16 @@ function GuideFrame:Update()
 	frame.title:SetPoint("TOPLEFT", frame, "TOPLEFT", pad, -pad - 18)
 
 	if not route or not step then
-		frame.header:SetText("ForeverLevels")
+		frame.header:SetText(FL.BRAND)
 		frame.counter:SetText("")
 		frame.title:SetText("No route selected")
-		frame.body:SetText("Type /fl routes to list installed routes, then /fl route <id>.")
+		frame.body:SetText("Type /pathwise routes to list installed routes, then /pathwise route <id>.")
 		Stack(frame.body, frame.title, 6)
 		frame:SetHeight(110)
 		return
 	end
 
-	frame.header:SetText(route.title)
+	frame.header:SetText(FL.BRAND .. " - " .. route.title)
 	frame.counter:SetText(string.format("%d/%d", Engine.index, #route.steps))
 
 	local state = Engine.GetStepState(step, player)

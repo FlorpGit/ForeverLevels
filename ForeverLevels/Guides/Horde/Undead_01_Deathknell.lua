@@ -6,7 +6,7 @@
 -- STATUS: draft. Quest IDs match the 2004 game and are present in Forever's quest
 -- data, but coordinates are approximate and have not been walked on Forever yet.
 -- Forever adds new Deathknell quests (including an Undead Paladin path) that are
--- not in this route yet. Use /fl record to help verify and extend it.
+-- not in this route yet. Use /pathwise record to help verify and extend it.
 
 local _, FL = ...
 

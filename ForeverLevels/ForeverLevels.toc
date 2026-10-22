@@ -1,8 +1,8 @@
 ## Interface: 16001
-## Title: ForeverLevels
-## Notes: Open-source step-by-step leveling guide for World of Warcraft: Forever.
-## Author: ForeverLevels contributors
-## Version: 0.1.0
+## Title: Pathwise
+## Notes: Every quest. Every craft. Every level. Leveling guide for World of Warcraft: Forever.
+## Author: leight_nn & florp
+## Version: 0.2.0-alpha.1
 ## SavedVariables: ForeverLevelsDB
 ## SavedVariablesPerCharacter: ForeverLevelsCharDB
 ## X-License: MIT (code), CC BY-SA 4.0 (bundled guide data)

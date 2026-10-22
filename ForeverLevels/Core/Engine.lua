@@ -118,7 +118,7 @@ function Engine:AutoSelectRoute()
 	if route then
 		return self:SelectRoute(route.id)
 	end
-	FL:Print("no installed route fits this character yet. Type /fl routes to see what is installed.")
+	FL:Print("no installed route fits this character yet. Type /pathwise routes to see what is installed.")
 	return false
 end
 

@@ -1,4 +1,5 @@
--- ForeverLevels: slash commands (/fl and /foreverlevels).
+-- ForeverLevels: slash commands. /pathwise is the main one; /fl and /foreverlevels
+-- are kept so older macros and habits keep working.
 -- Polestar's README mentions that Forever's gamepad UI can freeze after an addon slash
 -- command is typed in chat. Everything here is also reachable from the guide window
 -- and the Settings panel, so gamepad players do not need slash commands.
@@ -8,17 +9,18 @@ local _, FL = ...
 local Engine = FL.Engine
 
 local HELP = {
-	"/fl - show or hide the guide",
-	"/fl next | back | skip - move between steps",
-	"/fl routes - list installed routes",
-	"/fl route <id> - switch route",
-	"/fl reset - restart the current route",
-	"/fl lock | unlock - lock the guide and arrow in place",
-	"/fl scale <0.5-2> - guide window scale",
-	"/fl style [classic|tooltip|minimal] - guide window look",
-	"/fl arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
-	"/fl where - print map ID, zone and coordinates",
-	"/fl options - open the Settings panel",
+	"/pathwise - show or hide the guide",
+	"/pathwise next | back | skip - move between steps",
+	"/pathwise routes - list installed routes",
+	"/pathwise route <id> - switch route",
+	"/pathwise reset - restart the current route",
+	"/pathwise lock | unlock - lock the guide and arrow in place",
+	"/pathwise scale <0.5-2> - guide window scale",
+	"/pathwise style [classic|tooltip|minimal] - guide window look",
+	"/pathwise arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
+	"/pathwise where - print map ID, zone and coordinates",
+	"/pathwise options - open the Settings panel",
+	"/fl works as a short alias for every command.",
 }
 
 local TOGGLE_ALIASES = {
@@ -68,7 +70,7 @@ end
 
 commands.route = function(id)
 	if not id or id == "" then
-		FL:Print("usage: /fl route <id>  (see /fl routes)")
+		FL:Print("usage: /pathwise route <id>  (see /pathwise routes)")
 		return
 	end
 	Engine:SelectRoute(id)
@@ -94,7 +96,7 @@ end
 commands.scale = function(arg)
 	local scale = tonumber(arg)
 	if not scale or scale < 0.5 or scale > 2 then
-		FL:Print("usage: /fl scale 0.5-2")
+		FL:Print("usage: /pathwise scale 0.5-2")
 		return
 	end
 	FL.db.profile.frame.scale = scale
@@ -105,7 +107,7 @@ commands.style = function(arg)
 	local name = arg ~= "" and arg:lower() or nil
 	if name then
 		if not FL.GuideFrame:SetStyle(name) then
-			FL:Print("usage: /fl style classic | tooltip | minimal")
+			FL:Print("usage: /pathwise style classic | tooltip | minimal")
 			return
 		end
 	else
@@ -129,7 +131,7 @@ commands.recorder = function(arg)
 		FL.Recorder:Clear()
 		FL:Print("recorder log cleared")
 	else
-		FL:Print(#FL.db.recorder .. " recorded entries (saved on /reload or logout). /fl recorder clear to wipe.")
+		FL:Print(#FL.db.recorder .. " recorded entries (saved on /reload or logout). /pathwise recorder clear to wipe.")
 	end
 end
 
@@ -158,8 +160,9 @@ local function Handle(input)
 	end
 end
 
-SLASH_FOREVERLEVELS1 = "/fl"
-SLASH_FOREVERLEVELS2 = "/foreverlevels"
+SLASH_FOREVERLEVELS1 = "/pathwise"
+SLASH_FOREVERLEVELS2 = "/fl"
+SLASH_FOREVERLEVELS3 = "/foreverlevels"
 SlashCmdList.FOREVERLEVELS = Handle
 
 FL.HandleSlash = Handle

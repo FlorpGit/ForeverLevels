@@ -3,10 +3,17 @@
 
 local addonName, FL = ...
 
--- Public namespace. Community route addons call ForeverLevels:RegisterRoute().
+-- Public namespace. The product is called Pathwise; the folder, SavedVariables and
+-- the original ForeverLevels global keep their names so existing installs, saved
+-- progress and community route packs keep working. Both globals are the same table,
+-- so ForeverLevels:RegisterRoute() and Pathwise:RegisterRoute() are identical.
 _G.ForeverLevels = FL
+_G.Pathwise = FL
 
 FL.name = addonName
+FL.BRAND = "Pathwise"
+FL.TAGLINE = "Every quest. Every craft. Every level."
+FL.CREATORS = "leight_nn & florp"
 FL.ROUTE_API_VERSION = 1
 
 local function GetMetadata(field)
@@ -35,7 +42,7 @@ end
 -- Output
 ------------------------------------------------------------------------
 
-local PREFIX = "|cff4fc3f7ForeverLevels|r: "
+local PREFIX = "|cff4fc3f7Pathwise|r: "
 
 function FL:Print(...)
 	local parts = {}

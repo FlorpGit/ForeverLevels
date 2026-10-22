@@ -1,6 +1,6 @@
 -- ForeverLevels: route-author recorder.
 --
--- With /fl record on, every quest accept and turn-in is logged with the quest ID,
+-- With /pathwise record on, every quest accept and turn-in is logged with the quest ID,
 -- title, uiMapID, zone name and player coordinates into ForeverLevelsDB.recorder.
 -- After /reload or logout, tools/recorder_to_route.lua turns that log into a
 -- route skeleton. This is how coordinates in bundled routes get verified on Forever.

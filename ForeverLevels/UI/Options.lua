@@ -1,6 +1,6 @@
 -- ForeverLevels: options panel in the game's Settings window (AddOns tab).
 -- Uses Settings.RegisterCanvasLayoutCategory, present in Forever's Blizzard_Settings_Shared.
--- Every option is also reachable through /fl, so the panel is a convenience.
+-- Every option is also reachable through /pathwise, so the panel is a convenience.
 
 local _, FL = ...
 
@@ -52,21 +52,32 @@ end
 
 function Options:Create()
 	if not (Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory) then
-		FL:Debug("Settings API unavailable; use /fl commands")
+		FL:Debug("Settings API unavailable; use /pathwise commands")
 		return
 	end
 
 	local panel = CreateFrame("Frame")
-	panel.name = "ForeverLevels"
+	panel.name = FL.BRAND
 	panel.buttons = {}
 
 	local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	title:SetPoint("TOPLEFT", 16, -16)
-	title:SetText("ForeverLevels " .. FL.version)
+	title:SetText(FL.BRAND .. " " .. FL.version)
+
+	-- About
+	local about = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	about:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
+	about:SetJustifyH("LEFT")
+	about:SetText(FL.TAGLINE .. "\nBy " .. FL.CREATORS .. ". Code MIT, bundled guides CC BY-SA 4.0.")
+	local compat = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+	compat:SetPoint("TOPLEFT", about, "BOTTOMLEFT", 0, -4)
+	compat:SetJustifyH("LEFT")
+	compat:SetText("Formerly ForeverLevels. /fl and ForeverLevels:RegisterRoute() still work.")
+	panel.about = about
 
 	local hint = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	hint:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
-	hint:SetText("Click to toggle. All options are also available with /fl help.")
+	hint:SetPoint("TOPLEFT", compat, "BOTTOMLEFT", 0, -10)
+	hint:SetText("Click to toggle. All options are also available with /pathwise help.")
 
 	local previous = hint
 	for _, toggle in ipairs(self.TOGGLES) do
@@ -93,7 +104,7 @@ function Options:Create()
 	panel:SetScript("OnShow", Options.Refresh)
 
 	self.panel = panel
-	self.category = Settings.RegisterCanvasLayoutCategory(panel, "ForeverLevels")
+	self.category = Settings.RegisterCanvasLayoutCategory(panel, FL.BRAND)
 	Settings.RegisterAddOnCategory(self.category)
 end
 
@@ -101,6 +112,6 @@ function Options:Open()
 	if self.category and Settings.OpenToCategory then
 		Settings.OpenToCategory(self.category:GetID())
 	else
-		FL:Print("options panel unavailable; use /fl help")
+		FL:Print("options panel unavailable; use /pathwise help")
 	end
 end
