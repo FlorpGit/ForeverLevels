@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: slash commands. /pathwise is the main one; /fl and /foreverlevels
 -- are kept so older macros and habits keep working.
 -- Polestar's README mentions that Forever's gamepad UI can freeze after an addon slash

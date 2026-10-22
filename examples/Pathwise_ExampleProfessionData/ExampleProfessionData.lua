@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: CC0-1.0
 -- Example community profession data pack for Pathwise.
 -- Copy this folder, rename it (folder name, .toc name and pack id), and edit.
 -- Full format: docs/PROFESSION_DATA_FORMAT.md in the Pathwise repository.

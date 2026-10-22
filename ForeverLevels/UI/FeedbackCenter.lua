@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: the Feedback Center window. The single place to prepare bug reports,
 -- suggestions and guide step reports. Opened by /pathwise feedback, the options panel,
 -- or the report button on the guide window (which fills in the current step).

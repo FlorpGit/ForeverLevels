@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: CC-BY-SA-4.0
 -- ForeverLevels: dungeon suggestions by level.
 -- Guide data license: CC BY-SA 4.0 (see Guides/LICENSE.md).
 --

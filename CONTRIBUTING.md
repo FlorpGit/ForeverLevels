@@ -14,8 +14,14 @@ on the live Forever client.
    add a call, cite where you verified it in `docs/API_RESEARCH.md` (Blizzard's API
    docs or UI source on the `forever` branch of Gethe/wow-ui-source). If a feature
    needs an API that does not exist, add it to the "not supported" table instead.
-3. Licenses. Code contributions are MIT. Contributions to `ForeverLevels/Guides/`
-   are CC BY-SA 4.0. By opening a pull request you agree to license your work that way.
+3. Licenses. Code contributions are GPL-3.0-only, including the additional terms in
+   NOTICE.md. Contributions to `ForeverLevels/Guides/` are CC BY-SA 4.0. By opening a
+   pull request you agree to license your work that way, and you confirm you have the
+   right to (it is your own work, or compatible with these licenses and credited).
+   Your contribution becomes part of the work copyrighted by "The Pathwise Authors";
+   the Git history records who wrote what.
+4. Names. Community add-ons should not be named so they look like official Pathwise
+   add-ons. See TRADEMARKS.md.
 
 ## Fixing or adding route data
 

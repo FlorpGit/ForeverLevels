@@ -1,6 +1,7 @@
+-- SPDX-License-Identifier: CC-BY-SA-4.0
 -- ForeverLevels route: Undead 1-6, Deathknell.
 -- Guide data license: CC BY-SA 4.0 (see Guides/LICENSE.md). Original route by
--- ForeverLevels contributors. Quest IDs are game facts; the ordering, text and
+-- The Pathwise Authors. Quest IDs are game facts; the ordering, text and
 -- notes are written for this project.
 --
 -- STATUS: draft. Quest IDs match the 2004 game and are present in Forever's quest
@@ -13,7 +14,7 @@ local _, FL = ...
 FL:RegisterRoute({
 	id = "fl.horde.undead.01-deathknell",
 	title = "Undead 1-6: Deathknell",
-	author = "ForeverLevels contributors",
+	author = "The Pathwise Authors",
 	license = "CC BY-SA 4.0",
 	faction = "Horde",
 	races = { "Scourge" },

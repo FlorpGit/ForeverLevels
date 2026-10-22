@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- Turn a ForeverLevels recorder log into a route skeleton.
 --
 -- 1. In game: /fl record on, play, then /reload or log out.

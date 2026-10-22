@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: profession detection.
 --
 -- Skills come from GetProfessions()/GetProfessionInfo() (used by Forever's own

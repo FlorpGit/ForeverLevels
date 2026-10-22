@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- Offline test runner. From the repository root:  lua tests/run.lua
 -- Loads the addon exactly in TOC order against tests/wowstub.lua.
 

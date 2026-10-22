@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- Minimal fake of the WoW: Forever client API, enough to load ForeverLevels and
 -- drive it from tests. Signatures follow Blizzard's API documentation on the
 -- Gethe/wow-ui-source "forever" branch (1.60.1). This is not a game emulator.

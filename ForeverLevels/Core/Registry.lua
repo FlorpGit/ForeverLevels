@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: route and dungeon registry.
 -- This is the public extension point: any addon that depends on ForeverLevels can call
 --   ForeverLevels:RegisterRoute({ ... })

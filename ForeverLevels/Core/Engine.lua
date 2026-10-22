@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: route state machine.
 -- A step's goals are quest IDs under accept / complete / turnin, plus an optional
 -- level. A step is done when every goal that applies to the player is met.

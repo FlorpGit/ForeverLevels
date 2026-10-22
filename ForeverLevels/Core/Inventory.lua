@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: item counts for the material planner.
 -- C_Item.GetItemCount(item, includeBank) is in Forever's ItemDocumentation.
 -- Bags change in bursts, so BAG_UPDATE_DELAYED is merged into one INVENTORY_CHANGED.

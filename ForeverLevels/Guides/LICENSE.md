@@ -4,10 +4,10 @@ The route, dungeon and profession data in this folder (`Guides/`) is licensed un
 Creative Commons Attribution-ShareAlike 4.0 International license
 (CC BY-SA 4.0): https://creativecommons.org/licenses/by-sa/4.0/legalcode
 
-Copyright (c) 2026 ForeverLevels contributors.
+Copyright (c) 2026 The Pathwise Authors.
 
 You may share and adapt these routes, including commercially, as long as you
-credit "ForeverLevels contributors", link the license, say if you changed
+credit "The Pathwise Authors", link the license, say if you changed
 anything, and release your adapted routes under the same license.
 
 ## What is and is not covered
@@ -20,7 +20,7 @@ anything, and release your adapted routes under the same license.
 
 ## Originality
 
-Bundled routes are written independently for ForeverLevels. They must not
+Bundled routes are written independently for Pathwise. They must not
 contain text, ordering or notes copied from paid or proprietary guides, or
 from guides whose license does not permit redistribution under CC BY-SA 4.0
 (for example GPL-only guide text). See CONTRIBUTING.md.
@@ -28,5 +28,6 @@ from guides whose license does not permit redistribution under CC BY-SA 4.0
 ## Community routes
 
 Routes shipped in separate addons choose their own license, which they declare
-in the route's `license` field. ForeverLevels shows that license in
-`/fl routes`. The code license (MIT) does not apply to them.
+in the route's `license` field. Pathwise shows that license in
+`/pathwise routes`. The code license (GPL-3.0) does not apply to data-only packs; see
+the additional permission in NOTICE.md.

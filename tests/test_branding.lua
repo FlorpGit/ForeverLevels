@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 local T = ...
 
 T.Test("Branding: Pathwise and ForeverLevels globals are the same namespace", function()

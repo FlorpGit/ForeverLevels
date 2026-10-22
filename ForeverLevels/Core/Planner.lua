@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: profession planner. Recommends the next craft, counts materials and
 -- estimates how many crafts a skill range takes. Read-only: it never crafts, buys,
 -- sells, destroys or disenchants anything.

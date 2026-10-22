@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: optional profession detours.
 --
 -- A detour is a profession suggestion shown next to the leveling route: visit a

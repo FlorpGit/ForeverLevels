@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: profession data registry and validation.
 --
 -- Profession data packs register with Pathwise:RegisterProfessionData({ ... }) (the

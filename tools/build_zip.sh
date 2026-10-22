@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-only
 # Builds a local test zip containing only the committed addon folder:
 #   dist/Pathwise-<version>.zip  ->  ForeverLevels/ForeverLevels_Forever.toc ...
 # Unzip it straight into Interface/AddOns. Nothing is uploaded anywhere.

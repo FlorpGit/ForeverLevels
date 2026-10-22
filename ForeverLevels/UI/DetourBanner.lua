@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: profession detour banner, shown under the guide window.
 -- It only calls the Detours module; it never touches the route.
 

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: CC-BY-SA-4.0
 -- Pathwise profession data: Tailoring (starter set).
 -- Guide data license: CC BY-SA 4.0 (see Guides/LICENSE.md).
 --

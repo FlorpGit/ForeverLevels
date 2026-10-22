@@ -2,6 +2,7 @@
 
 ## 0.2.0-alpha.2 - Phase 2 test build (unreleased)
 
+- License change: code is now GPL-3.0-only (Copyright The Pathwise Authors), with an additional permission letting data-only route and profession packs use any license, and a section 7(e) term reserving the Pathwise names. Bundled guide data stays CC BY-SA 4.0. Earlier ForeverLevels versions remain MIT. Adds NOTICE.md, TRADEMARKS.md and CREDITS.md.
 - Renamed to Pathwise ("Every quest. Every craft. Every level.", by leight_nn & florp). `/pathwise` is the main command; `/fl`, `/foreverlevels`, `ForeverLevels:RegisterRoute()`, the addon folder and saved progress all keep working. About section in the options panel.
 - Profession tracking: detects professions, skill and cap; reads learned recipes, difficulty and the client's reagent lists while a profession window is open; counts materials in bags (bank optional).
 - Profession data registry (`Pathwise:RegisterProfessionData`) with validation and verification flags. Starter Tailoring and Enchanting data checked against Wowhead's Forever database; unverified values are labeled.

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 local T = ...
 
 local function Near(a, b) return math.abs(a - b) < 1e-6 end

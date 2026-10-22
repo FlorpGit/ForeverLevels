@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: startup. Loaded last so every module and bundled route is registered.
 
 local addonName, FL = ...

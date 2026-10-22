@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: profession dashboard. Opens from the guide window's Professions
 -- button, /pathwise prof, or the options panel. Uses the guide window's style.
 -- Content is built as plain lines first (Dashboard.BuildLines) so it can be tested

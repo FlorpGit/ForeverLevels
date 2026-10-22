@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: feedback reports (bug reports, suggestions, guide step reports).
 --
 -- Reports are prepared in game and copied by the player. Pathwise never sends

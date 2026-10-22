@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: quest state queries and quest log events.
 -- Uses only C_QuestLog functions present in the Forever 1.60.1 API documentation.
 

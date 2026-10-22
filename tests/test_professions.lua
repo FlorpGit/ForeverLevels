@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 local T = ...
 
 -- Undead Mage with Tailoring and Enchanting, the Phase 2 test character.

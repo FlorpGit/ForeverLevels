@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: options panel in the game's Settings window (AddOns tab).
 -- Uses Settings.RegisterCanvasLayoutCategory, present in Forever's Blizzard_Settings_Shared.
 -- Every option is also reachable through /pathwise, so the panel is a convenience.
@@ -101,7 +102,7 @@ function Options:Create()
 	local about = panel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	about:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
 	about:SetJustifyH("LEFT")
-	about:SetText(FL.TAGLINE .. "\nBy " .. FL.CREATORS .. ". Code MIT, bundled guides CC BY-SA 4.0.")
+	about:SetText(FL.TAGLINE .. "\nBy " .. FL.CREATORS .. ". Code GPL-3.0, bundled guides CC BY-SA 4.0.")
 	local compat = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
 	compat:SetPoint("TOPLEFT", about, "BOTTOMLEFT", 0, -4)
 	compat:SetJustifyH("LEFT")

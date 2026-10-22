@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: automatic quest accept / turn-in for quests on the active route.
 --
 -- This only reacts to quest dialogs the player opened by talking to an NPC.

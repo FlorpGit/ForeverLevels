@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: the player's faction, race, class and level.
 
 local _, FL = ...

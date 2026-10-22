@@ -1,5 +1,6 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: core namespace, event dispatch, internal messages and timers.
--- MIT License. See LICENSE.txt.
+-- Copyright (C) 2026 The Pathwise Authors. GPL-3.0-only, see LICENSE.txt and NOTICE.md.
 
 local addonName, FL = ...
 

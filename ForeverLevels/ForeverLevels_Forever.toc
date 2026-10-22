@@ -5,7 +5,7 @@
 ## Version: 0.2.0-alpha.2
 ## SavedVariables: ForeverLevelsDB
 ## SavedVariablesPerCharacter: ForeverLevelsCharDB
-## X-License: MIT (code), CC BY-SA 4.0 (bundled guide data)
+## X-License: GPL-3.0-only (code), CC BY-SA 4.0 (bundled guide data)
 ## X-Website: https://github.com/FlorpGit/ForeverLevels
 
 Core\Init.lua

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: directional arrow toward the current step's coordinates.
 --
 -- Direction needs GetPlayerFacing(), which Blizzard restricts: it returns nil in

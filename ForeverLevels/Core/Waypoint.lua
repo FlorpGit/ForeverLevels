@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: waypoint targets, map resolution and bearing math.
 --
 -- Two outputs, both optional:

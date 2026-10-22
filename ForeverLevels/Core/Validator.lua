@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: route schema validation.
 -- Pure Lua with no game API calls, so tools/validate_routes.lua can run it offline.
 -- The schema is documented in docs/ROUTE_FORMAT.md.

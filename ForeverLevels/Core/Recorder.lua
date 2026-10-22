@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: route-author recorder.
 --
 -- With /pathwise record on, every quest accept and turn-in is logged with the quest ID,

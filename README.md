@@ -7,7 +7,7 @@ Forever, made by leight_nn & florp. It tells you what to do next, points an arro
 tracks your quests as you pick them up and hand them in, handles the accept/turn-in
 clicks for quests on the route, and plans your professions alongside it.
 
-Code is MIT, bundled guides are CC BY-SA 4.0. Routes and profession data are written for
+Code is GPL-3.0, bundled guides are CC BY-SA 4.0. Routes and profession data are written for
 this project; nothing is taken from paid guides.
 
 Current state: 0.2.0-alpha.2, a test build. The addon works and has offline tests, but
@@ -165,9 +165,14 @@ have to be your own work or facts you checked.
 
 ## License
 
-- Code: [MIT](LICENSE)
+Copyright (C) 2026 The Pathwise Authors (leight_nn and florp, and contributors).
+
+- Code: [GPL-3.0-only](LICENSE). Modified versions you share must stay open source under the same license. See [NOTICE.md](NOTICE.md).
 - Route and profession data in `ForeverLevels/Guides/`: [CC BY-SA 4.0](ForeverLevels/Guides/LICENSE.md)
-- Packs from other people use whatever license they put in their `license` field
+- Route and profession packs that only contain data and use the registration functions can use any license (an additional permission in [NOTICE.md](NOTICE.md)). Packs that copy Pathwise code must be GPL-3.0.
+- The name "Pathwise" and the Pathwise family of add-ons are not covered by these licenses. See [TRADEMARKS.md](TRADEMARKS.md).
+- Versions published before this change (as ForeverLevels) were MIT and stay MIT for anyone who got them then.
+- Sources used for research: [CREDITS.md](CREDITS.md).
 
 World of Warcraft is a trademark of Blizzard Entertainment. This is a fan project and
 isn't affiliated with or endorsed by Blizzard.

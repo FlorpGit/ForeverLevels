@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 local T = ...
 
 T.Test("Routes: bundled routes register and validate without errors", function()

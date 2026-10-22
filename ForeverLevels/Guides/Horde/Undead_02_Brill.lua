@@ -1,6 +1,7 @@
+-- SPDX-License-Identifier: CC-BY-SA-4.0
 -- ForeverLevels route: Undead 6-10, the road to Brill and the town's first tasks.
 -- Guide data license: CC BY-SA 4.0 (see Guides/LICENSE.md). Original route by
--- ForeverLevels contributors.
+-- The Pathwise Authors.
 --
 -- STATUS: draft, less certain than Deathknell. NPC positions in Brill and the
 -- farm/lake locations are approximate, and Forever adds new Tirisfal quests that
@@ -11,7 +12,7 @@ local _, FL = ...
 FL:RegisterRoute({
 	id = "fl.horde.undead.02-brill",
 	title = "Undead 6-10: Brill",
-	author = "ForeverLevels contributors",
+	author = "The Pathwise Authors",
 	license = "CC BY-SA 4.0",
 	faction = "Horde",
 	races = { "Scourge" },

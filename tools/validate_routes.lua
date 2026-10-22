@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- Validate route and profession data files offline, with the same validators the addon uses.
 --
 --   lua tools/validate_routes.lua                       (all bundled routes)

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: optional party progress sharing over addon messages.
 --
 -- Off by default (/pathwise sync on). Each member broadcasts which route step they are on

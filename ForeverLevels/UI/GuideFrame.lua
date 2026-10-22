@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: the movable step-by-step guide window.
 
 local _, FL = ...

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 local T = ...
 
 T.Test("Recorder: off by default, logs accept and turn-in with position when on", function()

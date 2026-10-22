@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-3.0-only
 -- ForeverLevels: SavedVariables defaults and migration.
 -- ForeverLevelsDB          account-wide settings and recorder log
 -- ForeverLevelsCharDB      per-character route progress

@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: CC0-1.0
 -- Example community route pack for ForeverLevels.
 -- Copy this folder, rename it (folder name, .toc name and route id), and edit.
 -- Full schema: docs/ROUTE_FORMAT.md in the ForeverLevels repository.
