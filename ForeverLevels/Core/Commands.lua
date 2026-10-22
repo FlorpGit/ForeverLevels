@@ -117,6 +117,28 @@ commands.style = function(arg)
 	FL:Print("window style:", name)
 end
 
+local DETOUR_ACTIONS = {
+	go = "Accept", later = "Postpone", skip = "Skip", done = "Complete", cancel = "Cancel",
+}
+
+commands.detour = function(arg)
+	arg = (arg or ""):lower()
+	if arg == "on" or arg == "off" then
+		FL.Detours:SetEnabled(arg == "on")
+		FL:Print("profession detours", arg)
+		return
+	end
+	local method = DETOUR_ACTIONS[arg]
+	if not method then
+		FL:Print("usage: /pathwise detour go | later | skip | done | cancel | on | off")
+		return
+	end
+	if not FL.Detours[method](FL.Detours) then
+		FL:Print("no profession detour to " .. arg)
+	end
+end
+commands.detours = commands.detour
+
 commands.where = function()
 	local mapID, zone, x, y = FL.Recorder.GetPosition()
 	if not mapID then

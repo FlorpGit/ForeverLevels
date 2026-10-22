@@ -129,15 +129,25 @@ function GuideFrame:Create()
 	return frame
 end
 
+function GuideFrame.GetFrame()
+	return frame
+end
+
+-- Applies the current window style's backdrop to any BackdropTemplate frame and
+-- returns the style's padding. Other Pathwise windows use this to match the guide.
+function GuideFrame.ApplyBackdrop(target)
+	local style = STYLES[FL.db.profile.frame.style] or STYLES.classic
+	target:SetBackdrop(style.backdrop)
+	target:SetBackdropColor(style.bg[1], style.bg[2], style.bg[3], style.bg[4])
+	target:SetBackdropBorderColor(style.border[1], style.border[2], style.border[3], style.border[4])
+	return style.pad, style
+end
+
 -- Applies the saved window style: backdrop, colors, padding and anchors.
 function GuideFrame:ApplyStyle()
 	if not frame then return end
-	local style = STYLES[FL.db.profile.frame.style] or STYLES.classic
-	pad = style.pad
-
-	frame:SetBackdrop(style.backdrop)
-	frame:SetBackdropColor(style.bg[1], style.bg[2], style.bg[3], style.bg[4])
-	frame:SetBackdropBorderColor(style.border[1], style.border[2], style.border[3], style.border[4])
+	local style
+	pad, style = GuideFrame.ApplyBackdrop(frame)
 
 	frame.header:ClearAllPoints()
 	frame.header:SetPoint("TOPLEFT", pad, -pad)
@@ -156,6 +166,7 @@ function GuideFrame:ApplyStyle()
 		text:SetWidth(inner)
 	end
 	self:Update()
+	FL:Fire("STYLE_CHANGED", FL.db.profile.frame.style)
 end
 
 function GuideFrame:SetStyle(name)

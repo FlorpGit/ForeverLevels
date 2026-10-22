@@ -153,7 +153,8 @@ local function Usable(recipe, skill)
 end
 
 -- Recommends the next craft for a profession at `skill` (defaults to the current
--- skill). Returns nil when nothing useful is known.
+-- skill). opts.craftableOnly limits it to recipes you have materials for now.
+-- Returns nil when nothing useful is known.
 function Planner.Recommend(key, opts)
 	opts = opts or {}
 	local data = FL:GetProfessionData(key)
@@ -169,8 +170,8 @@ function Planner.Recommend(key, opts)
 		local usable, confirmed = Usable(recipe, skill)
 		local state = FL.Professions.GetRecipeState(recipe.id)
 		local chance, color, basis = Planner.Chance(recipe, skill, state)
-		if usable and (chance == nil or chance > 0) then
-			local craftable = Planner.CraftableCount(recipe, count, reserved)
+		local craftable = usable and Planner.CraftableCount(recipe, count, reserved) or 0
+		if usable and (chance == nil or chance > 0) and (not opts.craftableOnly or craftable > 0) then
 			-- Prefer: sure skill-ups, recipes you can make now, confirmed learned, known chance.
 			local score = (chance or 0.3) * 100 + math.min(craftable, 10) * 2
 				+ (confirmed and 5 or 0) - (recipe.kind == "enchant" and 3 or 0)
@@ -252,9 +253,11 @@ function Planner.NextMilestone(key, zone)
 	local level = FL.player.level
 	local needSkill = math.max(0, nextRank.trainAt - info.rank)
 	local needLevel = math.max(0, (nextRank.level or 0) - level)
-	local trainer
+	-- Prefer a trainer in your zone, then one with known coordinates.
+	local trainer, bestScore
 	for _, candidate in ipairs(data.trainers) do
-		if not trainer or (zone and candidate.zone == zone and trainer.zone ~= zone) then trainer = candidate end
+		local score = ((zone and candidate.zone == zone) and 2 or 0) + (candidate.x and 1 or 0)
+		if not bestScore or score > bestScore then trainer, bestScore = candidate, score end
 	end
 	return {
 		profession = key, rank = nextRank, ready = needSkill == 0 and needLevel == 0,
@@ -283,21 +286,18 @@ end
 -- Material reminders: one chat line when you newly have everything for the next craft
 ------------------------------------------------------------------------
 
-local ready = {}
+local ready = {}   -- [professionKey] = recipe ID last reported as craftable
 
 function Planner.CheckReminders()
 	local settings = FL.db and FL.db.profile.professions
 	if not (settings and settings.enabled and settings.reminders) then return end
 	for _, info in ipairs(FL.Professions:List(true)) do
-		local step = Planner.Recommend(info.key)
-		if step and step.recipe then
-			local id = info.key .. ":" .. step.recipe.id
-			local isReady = step.craftable > 0
-			if isReady and not ready[id] then
-				FL:Print(string.format("%s: you have materials for %d x %s.", info.name, step.craftable, step.recipe.name))
-			end
-			ready[id] = isReady
+		local step = Planner.Recommend(info.key, { craftableOnly = true })
+		local recipeID = step and step.recipe and step.recipe.id or nil
+		if recipeID and ready[info.key] ~= recipeID then
+			FL:Print(string.format("%s: you have materials for %d x %s.", info.name, step.craftable, step.recipe.name))
 		end
+		ready[info.key] = recipeID
 	end
 end
 

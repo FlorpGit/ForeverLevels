@@ -118,7 +118,7 @@ end
 local tests = {}
 function T.Test(name, fn) tests[#tests + 1] = { name = name, fn = fn } end
 
-local suites = { "test_toc", "test_routes", "test_engine", "test_autoquest", "test_waypoint", "test_sync", "test_misc", "test_branding", "test_professions", "test_planner" }
+local suites = { "test_toc", "test_routes", "test_engine", "test_autoquest", "test_waypoint", "test_sync", "test_misc", "test_branding", "test_professions", "test_planner", "test_detours" }
 for _, suite in ipairs(suites) do
 	local chunk = assert(loadfile(root .. "/tests/" .. suite .. ".lua"))
 	chunk(T)

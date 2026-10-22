@@ -153,8 +153,14 @@ function Waypoint:Clear()
 	FL:Fire("WAYPOINT_CHANGED", nil)
 end
 
--- Points at the current step's coordinates.
+-- Points at the current step's coordinates, or at an accepted profession detour
+-- while one is active. The route step itself is never changed by a detour.
 function Waypoint:Update()
+	local detour = FL.Detours and FL.Detours:GetNavigationTarget()
+	if detour then
+		self:SetTarget(detour.mapID, detour.x, detour.y, detour.title)
+		return
+	end
 	local Engine = FL.Engine
 	local step = Engine and Engine:GetCurrentStep()
 	if not step or not step.x then
@@ -172,3 +178,4 @@ function Waypoint:Update()
 end
 
 FL:On("STEP_CHANGED", function() Waypoint:Update() end)
+FL:On("DETOUR_CHANGED", function() Waypoint:Update() end)

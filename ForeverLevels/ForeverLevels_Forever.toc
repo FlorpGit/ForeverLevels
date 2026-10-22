@@ -23,7 +23,9 @@ Core\Recorder.lua
 Core\Inventory.lua
 Core\Professions.lua
 Core\Planner.lua
+Core\Detours.lua
 UI\GuideFrame.lua
+UI\DetourBanner.lua
 UI\Arrow.lua
 UI\Options.lua
 Core\Commands.lua
