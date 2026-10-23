@@ -1,66 +1,63 @@
 # Feedback system
 
-Pathwise has one place for feedback: the Feedback Center. Players use it to prepare
-bug reports, suggestions and guide step reports, then copy the text and email it to
-pathwise.nn@gmail.com.
+Pathwise has one place for feedback: the Feedback Center, a panel beside the
+guide window. Players use it to prepare reports about a guide step, bug reports
+and suggestions, then copy the text into Pathwise's Discord
+(https://discord.gg/hSDjBrG8EK) or an email to pathwise.nn@gmail.com.
 
-Pathwise never sends anything. A WoW addon cannot send email or make web requests, and
-it must never contain passwords or API keys. The window says "Report ready, not sent"
-and tells the player where to send it.
+Pathwise never sends anything. A WoW addon cannot send email or make web
+requests, and it must never contain passwords or API keys. The panel says
+"Report ready, not sent" and where to send it.
 
-Code: `Core/Feedback.lua` (collecting, drafts, building and formatting reports) and
-`UI/FeedbackCenter.lua` (the window).
+Code: `Core/Feedback.lua` (collecting, drafts, building and formatting reports)
+and `UI/Feedback.lua` (the panel).
 
 ## Opening it
 
 | Way | Opens |
 |---|---|
-| Report button (ticket icon) next to Back on the guide window | A guide step report with the current step filled in |
-| `/pathwise report` | Same as the button. Without an active step it explains that and opens a general report |
-| `/pathwise feedback` (also `/fl feedback`, `/pathwise bug`) | A general report (bug or suggestion) |
-| Options panel: "Report a bug or make a suggestion" | A general report |
+| The flag in the guide window's footer (Report this step) | A report about the step shown, filled in |
+| `/pw report`, the minimap button's menu, the Report key binding, Waypoint & tools | The same; without a step it says so and opens a general report |
+| `/pw feedback` (also `/pw bug`, `/fl feedback`), Settings > "Report a bug or make a suggestion", About, the page in the game's Settings window | A general report (bug or suggestion) |
 
-The report button only shows while a guide step is active. Its tooltip reads "Report an
-issue with this guide step." Clicking it only reads the step: it does not advance, skip,
-complete or otherwise change the step, route progress or quest state.
+Opening it only reads the guide: it does not move, skip or complete the step,
+the route or any quest.
 
-## Report this step workflow
+## Report this step
 
-1. Click the report button. The Feedback Center opens with type "Guide step" and the
-   step's details collected from the guide: route name and id, step number and total,
-   step title and instructions, quest IDs for the step's goals that apply to your
-   character, the step's waypoint and map, your zone, the Pathwise version, the route's
-   version if the route sets `version`, and whether the step is verified.
+1. Click the flag. The panel opens with type "Guide step" and the step from the
+   guide: route and id, step number and total, the first open step, title and
+   instructions, its goals (each with its status, and for quests whether they
+   are in the log, done or ready, with objective counts), the quest IDs, and
+   where the arrow leads (map, coordinates, name).
 2. Pick what is wrong:
    - Incorrect waypoint or coordinates
    - Wrong NPC location
    - Quest missing or unavailable
    - Quest objectives are incorrect
-   - Quest does not auto-complete or advance
+   - Quest does not complete or advance
    - Incorrect class or race requirements
    - Incorrect profession instructions
    - Missing quest or leveling step
    - Other issue
-3. Describe what happened (required). Optional: correct coordinates (with a "Use my
-   position" button), correct NPC name, suggested instructions, steps to reproduce.
-   Nobody needs to know quest IDs; Pathwise adds them.
-4. Review "Information in this report". It is read-only and shows exactly what will be
-   included. Character details (level, race, class, faction) and diagnostics (game
-   build, your map position, the arrow's current target, active detour, window style,
-   automation settings) are listed as "not included" until you turn them on.
-5. Click "Prepare report". The finished text appears in a box you can select but not
-   edit. Click it, press Ctrl+A, then Ctrl+C, and email it to pathwise.nn@gmail.com.
+3. Describe what happened (required). Optional: correct coordinates (with a
+   "Use my position" button), correct NPC name, suggested instructions.
+4. Look at "Information in this report": what will be included. Character
+   details (level, race, class, faction) and diagnostics (game build, your
+   position, the arrow's target, the active detour, the look, auto quest
+   settings, the data version) are "not included" until you turn them on.
+5. Click "Prepare report". The text appears in a box you can select but not
+   edit: click it, Ctrl+C, and paste it into Discord or an email.
 
-General reports work the same way, without the step section. Bug reports show the
-"steps to reproduce" field; suggestions only need a description.
+Bug reports have "Steps to reproduce"; suggestions only need a description.
 
 ## Drafts
 
-Drafts are saved as you type, in `ForeverLevelsDB.feedback.drafts`: one per guide step
-(keyed by route and step id) and one general draft. They survive `/reload` and logout.
-A draft stays until you click "Discard draft". Preparing a report does not delete it,
-since Pathwise cannot know whether you sent it. The 20 most recently used drafts are
-kept.
+What you type is saved as you type, in `PathwiseSettings.feedback.drafts`
+(account-wide): one draft per guide step (route and step number) and one
+general draft. They survive `/reload` and logging out until you click "Discard
+draft"; preparing a report keeps it, as Pathwise cannot know whether you sent
+it. The 20 most recently used drafts are kept.
 
 ## Report format
 
@@ -68,71 +65,65 @@ kept.
 PATHWISE - GUIDE STEP REPORT
 
 Report type: Guide step - Incorrect waypoint or coordinates
-Route: Undead 6-10: Brill (fl.horde.undead.02-brill)
-Route version: not set
-Step: 4/12 (br-inn)
-Step title: Gallows' End Tavern
-Instructions: Turn in A Rogue's Deal to Innkeeper Renee and make Brill your home.
-Quest IDs: 8 (turn in: A Rogue's Deal)
-Waypoint: 61.7, 52.0 Tirisfal Glades (map 2001)
-Step verification: Unverified
+Route: Tirisfal Glades (forever/horde/undead/01-tirisfal-glades)
+Step: 1/70 (first open step: 1)
+Step title: Undertaker Mordo
+Instructions: You rise in the crypt at the south end of Deathknell. ...
+Quest IDs: 363 (accept: Rude Awakening)
+Waypoint: 30.2, 71.7 Tirisfal Glades (map 1420), Undertaker Mordo
+Goals:
+  1. open: accept 363 Rude Awakening  [log: not in log]
 Zone: Tirisfal Glades
-Addon version: Pathwise 0.2.0-alpha.1
+Addon version: Pathwise 0.3.0-dev
 
 Player description:
-The arrow points to the wrong location.
+The arrow points to the wrong place.
 
 Correct coordinates:
-62.1, 51.4 Tirisfal Glades
+30.5, 70.9 Tirisfal Glades
 
 Character: not included
 Diagnostics: not included
 
-Report data (format 1): format=1; type=step; category=waypoint; addon=0.2.0-alpha.1; zone=Tirisfal Glades; route=fl.horde.undead.02-brill; step=4; stepId=br-inn; quests=8; verified=no; waypoint=61.7,52.0; map=2001
+Report data (format 2): format=2; type=step; category=waypoint; addon=0.3.0-dev; zone=Tirisfal Glades; route=forever/horde/undead/01-tirisfal-glades; step=1; live=1; quests=363; waypoint=30.2,71.7; map=1420
 
-Send to: pathwise.nn@gmail.com
+Send to: Pathwise's Discord (https://discord.gg/hSDjBrG8EK) or pathwise.nn@gmail.com
 ```
 
-(Values are an example; the map number comes from the player's client.)
+(The values are an example.)
 
-The "Report data" line repeats the key facts as `key=value` pairs separated by `; `.
-Inside values, `\n`, `\e` and `\s` stand for a newline, `=` and `;`, and `\\` for a
-backslash. `Feedback.ParseKeyValue()` reads it back.
+The "Report data" line repeats the key facts as `key=value` pairs separated by
+`; `. Inside values, `\n`, `\e` and `\s` stand for a newline, `=` and `;`, and
+`\\` for a backslash. `Feedback.ParseKeyValue()` reads it back. Format 2 (this
+one) numbers steps and adds `live`; format 1, from the ForeverLevels builds,
+had `stepId`, `routeVersion` and `verified`.
 
 ## Structured report (for a future portal)
 
-`Feedback.Build(draft)` returns one table that the text format is rendered from. A
-future Pathwise Feedback Portal can accept the same fields:
+`Feedback.Build(draft)` returns one table that the text is rendered from:
 
 | Field | Meaning |
 |---|---|
-| `format` | Report format version (1) |
+| `format` | Report format version (2) |
 | `type` | `step`, `bug` or `suggestion` |
 | `category` | Step problem key, e.g. `waypoint`, `npc_location`, `no_advance` |
-| `description` | Player's text |
+| `description` | The player's text |
 | `corrections` | `coordinates`, `npc`, `instructions`, `reproduction` (may be empty) |
-| `step` | `routeId`, `routeTitle`, `routeVersion`, `stepIndex`, `stepCount`, `stepId`, `stepTitle`, `stepText`, `quests[]` (`id`, `kind`, `name`), `waypoint` (`x`, `y`, `zone`, `mapID`), `verified` |
+| `step` | `routeId`, `routeTitle`, `stepIndex`, `stepCount`, `liveStep`, `stepTitle`, `stepText`, `quests[]` (`id`, `kind`, `name`), `goals[]` (`verb`, `status`, `text`, `quest`, `name`, `log`), `waypoint` (`map`, `x`, `y`, `zone`, `name`), `extra` |
 | `addonVersion`, `zone` | Always present |
-| `character` | Only when the player opted in |
-| `diagnostics` | Only when the player opted in |
-| `recipient` | pathwise.nn@gmail.com |
+| `character` | Only when the player turned it on |
+| `diagnostics` | Only when the player turned it on |
 
 ## Future feedback portal (not built)
 
-Not implemented until separately approved. The design the formatter is prepared for:
-
-- Accept bug reports, suggestions and guide step reports, either pasted text (parsed
-  from the "Report data" line plus the readable sections) or a web form with the same
-  fields.
-- Give each report a ticket ID and forward a notification to pathwise.nn@gmail.com.
-- Categorize by route, step and problem type, and group likely duplicates by
-  `route + stepId + category`.
-- Let maintainers set a status: Open, Investigating, Fixed, Closed.
-- Keep all credentials on the server. The addon keeps working offline: it only ever
-  prepares text, and at most could show a portal address for the player to visit.
+Not implemented until separately agreed. What the format is prepared for: a web
+form or pasted text that gives each report a ticket, groups likely duplicates
+by `route + step + category`, and lets maintainers mark them Open,
+Investigating, Fixed or Closed, with every credential on the server. The addon
+keeps working offline: it only ever prepares text.
 
 ## Privacy
 
-Nothing leaves the game unless the player copies it. Character details and diagnostics
-are off by default and shown in the preview before they are included. Reports contain
-no account name, character name, realm or chat text.
+Nothing leaves the game unless the player copies it. Character details and
+diagnostics are off by default and shown in the preview before they are
+included. Reports contain no account name, character name, realm or chat text.

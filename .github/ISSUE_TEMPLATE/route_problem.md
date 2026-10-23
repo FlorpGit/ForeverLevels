@@ -5,7 +5,8 @@ labels: route
 ---
 
 **Report from the game**
-In game, click the flag in the guide window (Report this step), click the box,
+In game, click the flag in the guide window (Report this step), describe what went
+wrong, click Prepare report, then click the box,
 press Ctrl+C and paste it here:
 
 ```

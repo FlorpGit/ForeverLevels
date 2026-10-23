@@ -11,8 +11,8 @@ the Pathwise project.
 - The tagline "Every quest. Every craft. Every level."
 - Pathwise logos and icons, if any are published.
 - The Pathwise family: add-ons published by the Pathwise project (leight_nn and florp)
-  whose names start with or contain "Pathwise", for example "Pathwise" itself and
-  official data or companion add-ons.
+  whose names start with or contain "Pathwise", for example "Pathwise" itself,
+  "Pathwise Gear", "Pathwise Bags", and official data or companion add-ons.
 
 These are used as trademarks of the Pathwise project.
 
@@ -34,4 +34,4 @@ These are used as trademarks of the Pathwise project.
 
 ## Questions
 
-Email pathwise.nn@gmail.com.
+Email pathwise.nn@gmail.com, or ask on Pathwise's Discord: https://discord.gg/hSDjBrG8EK

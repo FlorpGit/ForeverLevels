@@ -1,8 +1,8 @@
 # Profession data format
 
-Profession data is a Lua table passed to `Pathwise:RegisterProfessionData()` (the same
-function exists on the `ForeverLevels` global). Bundled data is in
-`Pathwise/Guides/Professions/`. Community data ships as its own addon; see
+Profession data is a Lua table passed to `Pathwise.RegisterProfessionData()` (also
+`Pathwise:RegisterProfessionData()`, and the same under the older name `ForeverLevels`).
+Pathwise's checked starter data is in `Pathwise/Guides/Professions/`. Community data ships as its own addon; see
 `examples/Pathwise_ExampleProfessionData`.
 
 Check a file offline:
@@ -11,22 +11,21 @@ Check a file offline:
 lua tools/validate_routes.lua path/to/MyProfessionData.lua
 ```
 
-## Why profession data is not part of routes
+## Routes and packs
 
-Two options were considered: optional profession fields on route steps, or a separate
-profession layer. Route steps drive quest progress and saved step numbers, so profession
-fields there would either be ignored by the engine or risk changing how steps complete.
-A separate layer leaves the route format, the bundled Undead routes and every existing
-route pack untouched, and lets profession data be added or removed on its own. Pathwise
-uses the separate layer: profession packs plus detours that only read the route
-position. The route format is unchanged.
+The profession routes (`Pathwise/Routes/Professions.lua`) are the plan: which trainer,
+which materials, what to craft until which skill. A pack adds facts the routes do not
+carry or that you checked: skill levels, where a recipe is learned, ranks, trainers,
+item names, and the reagents of recipes the routes do not use. Packs and routes meet
+in one recipe record per recipe (`Professions/Recipes.lua`), so the planner, the
+panel and the detours read both. A pack never changes the routes or quest progress.
 
 ## Pack fields
 
 | Field | Required | Meaning |
 |---|---|---|
 | `id` | yes | Unique pack id, e.g. `myname.tailoring.wool`. |
-| `profession` | yes | Lowercase key: `tailoring`, `enchanting`, `first_aid` ... |
+| `profession` | yes | Lowercase key: `tailoring`, `enchanting`, `first-aid` (`first_aid` works too) ... |
 | `name` | yes | English profession name as the client shows it. |
 | `author`, `license` | yes | Credit and the data license. |
 | `skillLine` | no | Skill line ID (Tailoring 197, Enchanting 333). Used to match the client's profession. |
@@ -53,12 +52,14 @@ character level needed.
 
 ```lua
 { name = "Bowen Brisboise", npc = 3523, title = "Journeyman Tailor", zone = "Tirisfal Glades",
-  x = 61.2, y = 52.4, faction = "Horde",
+  map = 1420, x = 52.6, y = 55.5, faction = "Horde",
   verified = { name = true, zone = true, coords = true, teaches = false } }
 ```
 
-Coordinates are optional. Without them a trainer detour shows text but no waypoint.
-Record them in game with `/pathwise record on` and opening the trainer window.
+Coordinates are optional; with them, `map` (a uiMapID, as `/pw where` prints it) is
+required. The profession routes already name trainers with places; a pack's trainers
+are used where there is no route. Record positions in game with `/pw record on` and
+opening the trainer window.
 
 ## Recipes
 
@@ -84,7 +85,7 @@ profession (Bolt of Linen Cloth), list that recipe too; the planner expands it.
 `verified` is a table of field = true/false. Set a field to true only when you checked it
 on Forever: in game, or in a source that covers Forever (such as wowhead.com/forever).
 Leave out fields you did not check rather than guessing values. The dashboard shows
-unverified values as estimates, and the validator lists recipes whose skill levels are
+unverified values as estimates, and the validator counts recipes whose skill levels are
 unverified.
 
 ## Writing a pack

@@ -1,7 +1,7 @@
 **What this changes for players**
 
 **How it was checked**
-- [ ] `npm test` passes
+- [ ] `npm test`, `npm run validate` and `npm run lint` pass
 - [ ] Checked in game (say what) / not checked in game
 
 **Game facts** (quest, NPC, item IDs, coordinates, APIs)

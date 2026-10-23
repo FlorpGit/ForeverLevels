@@ -1,16 +1,19 @@
 Pathwise
-Copyright (c) 2026 leight_nn and florp
+Copyright (C) 2026 The Pathwise Authors (leight_nn and florp, and the
+contributors recorded in the Git history)
 
 Pathwise is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
-Foundation, version 3.
+Foundation, version 3 of the License only (GPL-3.0-only).
 
 Pathwise is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
 A PARTICULAR PURPOSE. See the GNU General Public License below for more
 details.
 
-Third-party components keep their own licences; see THIRD_PARTY.md.
+Additional terms under section 7 (a permission for data-only packs, and the
+Pathwise names) are in NOTICE.md. Third-party components keep their own
+licences; see THIRD_PARTY.md.
 
 
                     GNU GENERAL PUBLIC LICENSE

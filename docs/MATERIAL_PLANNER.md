@@ -1,79 +1,72 @@
 # Material planner
 
-The planner (`Core/Planner.lua`) picks the next craft for each tracked profession, counts
-materials and estimates how many crafts a skill range takes. It only reads. It never
-crafts, buys, sells, destroys or disenchants items.
+The planner (`Professions/Planner.lua`) puts numbers on a profession's next
+step. The profession route is the plan; the planner works out how sure a
+skill-up is, how many crafts a skill range takes, which materials those crafts
+use, the next rank to train and recipes to learn. With no open craft in the
+route, it recommends one from the recipes Pathwise knows. It only reads: it
+never crafts, buys, sells, destroys or disenchants items.
 
 ## Skill-up chance
 
-A craft does not always give a skill point. The planner uses the best information it
-has, in this order, and every result carries its basis so the dashboard can say how sure
-it is:
+A craft does not always give a skill point. The planner uses the best it has,
+in this order, and every result carries its basis so the panel can say how
+sure it is:
 
 | Basis | Source | Shown as |
 |---|---|---|
-| `client` | Difficulty color the client reported at your current skill | chance from your client |
-| `thresholds` | Recipe skill levels marked verified | chance from verified skill levels |
-| `thresholds-unverified` | Recipe skill levels that are a fallback | estimate from unverified skill levels |
-| `client-stale` | Difficulty read at a lower skill | rough |
-| `unknown` | Nothing known | skill-up chance unknown until you open the profession window |
+| `client` | The colour the profession window showed at your current skill | from your profession window |
+| `thresholds` | A pack's skill levels, marked checked | from checked skill levels |
+| `thresholds-unverified` | A pack's skill levels kept as a fallback | from skill levels not yet checked on Forever |
+| `client-stale` | A colour read at a lower skill | from a colour read at a lower skill |
+| `unknown` | Nothing known | not known yet: open the profession window |
 
-With skill levels `{ orange, yellow, green, grey }` the chance at skill `s` is 1 below
-yellow, 0 at grey and above, and `(grey - s) / (grey - yellow)` in between. This is the
-commonly used estimate for the classic game and is not verified for Forever.
+With skill levels `{ orange, yellow, green, grey }` the chance at skill `s` is
+1 below yellow, 0 at grey and above, and `(grey - s) / (grey - yellow)` in
+between: the usual estimate for the classic game, not checked for Forever.
+With only a colour, rough values: orange 1, yellow 0.75, green 0.25, grey 0.
 
-With only a client color, the planner uses rough values: orange 1, yellow 0.75,
-green 0.25, grey 0. With nothing known it suggests a batch of 5 crafts and asks you to
-open the profession window so it can re-check.
+## Crafts to a target
 
-## Expected crafts
-
-For a skill range the planner adds `1 / chance` for each skill point. Example: Bolt of
-Linen Cloth from 25 to 27 is about 2.04 crafts, not 2. The dashboard rounds up and the
-estimate is labeled.
-
-A recommendation takes a recipe until its chance drops below 50 percent, 10 points, or
-your cap, whichever comes first.
-
-## Choosing a recipe
-
-Usable recipes are learned ones, or recipes the client has not reported as unlearned
-yet, whose skill requirement you meet and which can still give skill. Among those the
-planner prefers a sure skill-up, then recipes you can make now, then recipes the client
-confirmed you know. Detours and reminders only consider recipes you can make right now.
+For a skill range the planner adds `1 / chance` for each skill point. Bolt of
+Linen Cloth from 25 to 27 is about 2.04 crafts, not 2. The route's craft goals
+give the target (`untilSkill`) or a number of items to make (`count`); the
+panel rounds up and says it is an estimate.
 
 ## Materials
 
-For each recommended recipe the planner lists, per reagent:
+For the crafts planned, per reagent: required, owned (bags, and the bank
+unless turned off), missing. The reagents are the profession window's when it
+has given them, else a pack's or the route's (Recipes.lua). A missing reagent
+the same profession makes (Bolt of Linen Cloth from Linen Cloth) shows what it
+is made from, one level deep. The panel also lists the materials the route
+asks for the whole rank.
 
-- required (quantity per craft x crafts)
-- owned (bags, plus the bank when "Count bank items" is on)
-- missing
+## Holding materials back
 
-Reagents come from the client when it has reported them for that recipe, otherwise from
-the data pack, and the dashboard says which.
+A plan of several recommendations holds back what the earlier ones use, so
+later ones show what is really left (`Planner.Plan`, `Planner.Reserve`).
 
-If a missing reagent is made by the same profession (Bolt of Linen Cloth from Linen
-Cloth), the row shows what it takes to make the missing amount. That breakdown goes one
-level deep.
+## Training and recipes to learn
 
-## Reserving materials across steps
+The next rank is the route's next `train` goal above your cap, with what it
+asks (character level from the step's `level` goal; skill 50, 125, 200 for
+Journeyman, Expert, Artisan as the routes' notes give them) and the nearest
+trainer for your side. Without a route, a pack's ranks. Recipes to learn are
+the route's open `learn` goals in this rank and packs' trainer recipes the
+window says you do not know yet.
 
-The dashboard shows a two-step plan. Materials promised to the first step count as used
-for the second, so later steps show what is really left. This is the basis for reserving
-materials for upcoming recipes.
+## Recommendations without a route step
+
+When the route has no open craft (or no route), the planner picks from every
+recipe it knows for the profession: learned, or not known to be unlearned;
+your skill allows it; it can still give skill. It prefers a sure skill-up,
+then what the bags make, then recipes the window confirmed you know, and takes
+a recipe until its chance drops below 50 percent, 10 points, or your cap.
 
 ## Reminders
 
-With reminders on, Pathwise prints one line when you newly have materials for a craft
-that still gives skill, for example "Tailoring: you have materials for 5 x Bolt of Linen
-Cloth." It does not repeat until the recipe changes or you run out and get materials again.
-
-## Planned, not built yet
-
-- Disenchanting suitable equipment and reusing the resulting materials (Tailoring plus
-  Enchanting).
-- Comparing alternative crafting paths and material costs.
-- Auction House prices.
-
-These need verified data and will build on the same material rows and reservations.
+With reminders on, Pathwise prints one line when your bags newly make a
+profession's next craft, e.g. "Tailoring: you have materials for 23 Bolt of
+Linen Cloth." Not at login, and not again until the craft changes or the
+materials run out and come back.

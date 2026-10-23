@@ -1,63 +1,65 @@
 # Profession detours
 
-A detour is an optional profession task shown under the guide window while you follow a
-leveling route, for example "Train Journeyman Tailoring" or "Craft 5 x Bolt of Linen
-Cloth". Detours are a separate layer (`Core/Detours.lua`, `UI/DetourBanner.lua`).
+A detour is an optional profession task in a card under the guide's step while
+you follow a leveling route, for example "Train Journeyman Tailoring" or
+"Craft 23 Bolt of Linen Cloth". One card at a time (`Professions/Detours.lua`,
+drawn by `UI/GuideWindow.lua`).
 
 ## Guarantees
 
-- The route, its step numbers, the current step and saved route progress are never
-  changed by a detour. Detours only read which step you are on.
-- Quest steps never advance because a profession task finished.
-- Back and Next work exactly as before, with or without a detour.
-- Nothing is inserted into route files.
+- The leveling route, its steps, the step shown and Back/Next are never changed
+  by a detour. Detours only read where the route is.
+- Quest steps never move on because a profession task finished.
+- Nothing is written into route files.
 
-## Where suggestions come from
+## What the card offers
 
-Pathwise looks for one suggestion at a time, for tracked professions that have data:
+First that applies:
 
-1. Trainer visit: you can train the next rank now, or the client reported trainer
-   recipes you could learn. Only suggested when that trainer is in your current zone or
-   the route's zone.
-2. Craft: a recipe that still gives skill and that you have materials for right now.
+1. **The detour you chose with Go**, until it is done.
+2. **Train**: the next rank of one of your professions can be trained now (you
+   have the level and the skill it asks) at a trainer on the way. The trainer
+   is the nearest for your side among those the profession route names.
+3. **Craft**: your bags make the profession's next craft now, a recipe you
+   know (Planner.Next). It can be done anywhere, so it shows wherever you are.
+4. **Side guide**: the next step of the profession route you follow beside the
+   leveling route (Routes panel, or "Follow beside your route" on a profession's
+   page), unless 2 or 3 is already about that profession.
 
-Suggestions are re-checked after profession changes, bag changes, route step changes,
-level-ups and zone changes. Those events are merged into one check, so bursts do not
-cause repeated work, and there is no polling.
+Professions you leave out (`/pw track <profession> off`, or the switch on its
+page) get no train or craft detours.
+
+## On the way: the mode
+
+Settings > Profession detours:
+
+| Mode | A detour with a place shows |
+|---|---|
+| Speed | within about 150 yards |
+| Balanced (default) | within about 600 yards |
+| Crafting | always |
+| Off (the card's switch) | never |
 
 ## Buttons and states
 
 | Button | Effect |
 |---|---|
-| Go | Accepts the detour. If it has coordinates, the arrow and map pin point at it. |
-| Later | Hides it until the route moves to another step, then offers it again. |
-| Skip | Hides it for good (for that milestone). |
-| Done | Marks the active detour finished. |
-| Cancel | Drops the active detour; it is not offered again. |
+| Go | Chooses the detour. If it has a place, the arrow and the game's waypoint lead there. Becomes Stop. |
+| Stop | Goes back to the route's step; the detour can be offered again. |
+| Later | Hides it until the leveling route moves to another step, then offers it again. |
+| The cross | Skips it for good (that rank, that craft at this skill, that side step). |
 
-Saved per character in `ForeverLevelsCharDB.professions.detours`:
+Saved per character in `PathwiseCharSettings.detours`: `active` (the chosen
+detour), `states[id]` (`done` or `skipped`), `postponed[id]` (the route's
+place at "Later"). Settings > Profession detours brings skipped and postponed
+detours back.
 
-- `active`: the accepted detour
-- `states[id]`: `done` or `skipped`
-- `postponed[id]`: the route step it was postponed at
-
-Active detours finish on their own: a trainer detour when your cap goes up or you learn a
-recipe, a craft detour when you reach the target skill or run out of materials.
-
-## Navigation
-
-While a detour with coordinates is active, the arrow and Blizzard's map pin point at it
-and the arrow label starts with "Detour:". When it ends (done, cancelled or detours
-turned off) the waypoint goes back to the current route step. The bundled trainers have
-no verified coordinates yet, so their detours show text only and the arrow stays on the
-route.
-
-## Turning detours off
-
-Any of: the Detours button on the dashboard, the options panel, or
-`/pathwise detour off`. Turning them off removes the current suggestion and active
-detour without marking them done or skipped.
+A chosen detour finishes on its own: training when your cap goes up, crafting
+when you reach its target skill or the materials run out ("detour done" in
+chat); a side step when its goals are met. The arrow then goes back to the
+route's step.
 
 ## Commands
 
-`/pathwise detour go | later | skip | done | cancel | on | off` (also `/fl detour ...`).
+`/pw detour go | later | skip | done | on | off | speed | balanced | craft`
+(also as `/fl detour ...`).

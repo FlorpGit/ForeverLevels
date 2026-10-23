@@ -6,7 +6,63 @@ that version's section.
 
 ## Unreleased
 
-First version of the independent Pathwise (not yet released).
+Version 0.3.0-dev. Pathwise was two projects with one name: florp's
+ForeverLevels/Pathwise (github.com/FlorpGit/Pathwise, released up to
+0.2.0-alpha.3, history below) and leight_nn's Pathwise
+(github.com/pathwise-nn/Pathwise, not released). They are now one repository
+and one addon, with both histories. leight_nn's guide engine, data, routes and
+interface are the base; what only the ForeverLevels builds had is carried over,
+and where both had the same thing they are joined.
+
+### One addon from two
+- Auto accept and turn-in (from ForeverLevels): the route's quests are
+  accepted and handed in at their NPC, on by default; Shift skips it once,
+  each part can be turned off (Settings > Quests at their NPC, `/pw auto`).
+  Never a reward choice, never a quest that costs gold.
+- Party sync (from ForeverLevels), off by default: group members see each
+  other's step and quest counts in the guide window. Same wire format, so the
+  ForeverLevels builds still see Pathwise and the other way round.
+- The game's own map pin and in-world marker follow the arrow (from
+  ForeverLevels), on by default (`/pw waypoint`).
+- The recorder (from ForeverLevels) logs quests with their NPC and place,
+  and trainers; `tools/recorder_to_route.lua` turns the log into a route.
+- One Feedback Center: leight's Report this step and florp's Feedback
+  Center. Step reports with nine kinds of problem, bug reports and
+  suggestions; the step's goals with their status and quest log state; drafts
+  that survive a reload; character details and diagnostics only when turned
+  on; sent by the player to Discord or by email, never by the game.
+- One profession system: Polestar's twelve profession routes are the plan;
+  recipe facts from the routes, checked data packs
+  (`Pathwise.RegisterProfessionData`, with the Tailoring and Enchanting
+  starter data) and the profession window meet in one place; the planner
+  adds skill-up chances, crafts to a target, materials and intermediates, the
+  next rank and recipes to learn; one detour card offers training on the way,
+  crafting what the bags make, or the profession you follow (Go, Later,
+  Skip); material reminders; `/pw track`, `/pw reminders`, `/pw detour`.
+- Looks: Modern (leight's Signature look) and Classic (the game's dialogs,
+  gold headings, red buttons) for every window, panel, the arrow, minimap
+  buttons, Pathwise Gear and Pathwise Bags; Settings > Look or `/pw style`,
+  after a reload. They replace the ForeverLevels window styles; a third look
+  can be added.
+- Esc > Options > AddOns > Pathwise: a page leading into Pathwise's settings.
+- The `ForeverLevels` name, `/fl`, `/foreverlevels` and
+  `Pathwise:RegisterRoute()` still work. Routes in the old ForeverLevels format
+  are refused with a pointer to the route format; the example route pack is
+  rewritten. Settings are new (`PathwiseSettings`); progress is read from the
+  quest log.
+- The draft Undead 1-10 routes and the hand-written dungeon list of the
+  ForeverLevels builds are gone: Polestar's routes and QuestieDB's dungeons
+  cover them.
+- Fixed: the profession window scan asked for a list of recipes Forever's
+  client does not give (`GetAllRecipeIDs`) and would never have read one; it
+  now asks about each recipe Pathwise knows.
+- CI runs the tests on Lua 5.1 and 5.4, checks every route and data pack,
+  lints the addon apart from the test stub, and builds the release zip, which
+  now carries NOTICE.md in every addon folder.
+- Licence and credits: code GPL-3.0-only with NOTICE.md's additional terms;
+  THIRD_PARTY.md lists Polestar, QuestieDB, Inter, Wowhead and Blizzard's
+  tables (CREDITS.md is folded into it); SECURITY.md says exactly what
+  Pathwise does for the player.
 
 ### Leveling
 - Leveling routes from 1 to 60 for every starting race on both sides
@@ -93,7 +149,7 @@ First version of the independent Pathwise (not yet released).
 ### Interface
 - The Pathwise Signature look: guide window with full and compact modes,
   waypoint arrow, settings panel with sliders and exact values, window size
-  50-150%, About, and Report this step (a copyable report for Discord).
+  50-150%, About, and Report this step (now part of the Feedback Center).
 
 ### Data and credits
 - Quest facts from QuestieDB's Forever data; routes adapted from Polestar
@@ -129,3 +185,47 @@ First version of the independent Pathwise (not yet released).
 - Reading recipes from the profession window, and the Enchanting skill needed
   per item level (Classic's table, shown with "≈").
 - Most routes past the Tirisfal Glades start.
+- From the merge: auto accept and turn-in against Forever's quest dialogs,
+  the game's map pin and marker beside the arrow, party sync between two
+  players, the recorder's NPC names, the Classic look's border art and
+  templates on Forever, the page in the game's Settings window, and the
+  planner's numbers once the profession window has been read.
+
+## History of the ForeverLevels / Pathwise builds (FlorpGit/Pathwise)
+
+### 0.2.0-alpha.4 (unreleased)
+
+- New default window style "Pathwise" in the logo's colors (blue-black background, silver frame and headings, ice-blue titles, steel-blue buttons), used by the guide, detour banner, dashboard, Feedback Center and arrow label. Classic, tooltip and minimal remain (`/pathwise style`). Settings saved by earlier builds keep the style they had; switch with `/pathwise style pathwise`.
+
+### 0.2.0-alpha.3 - Phase 2 test build (pre-release, 2026-10-22)
+
+- Renamed to "Pathwise: Leveling Guide & Professions". The addon folder and TOC files are now `Pathwise`; the GitHub repository is FlorpGit/Pathwise. Internal names (`ForeverLevelsDB`, the `ForeverLevels` global, `/fl`, the sync prefix) are unchanged. Testers of earlier builds: see Compatibility in the README.
+
+- License change: code is now GPL-3.0-only (Copyright The Pathwise Authors), with an additional permission letting data-only route and profession packs use any license, and a section 7(e) term reserving the Pathwise names. Bundled guide data stays CC BY-SA 4.0. Earlier ForeverLevels versions remain MIT. Adds NOTICE.md, TRADEMARKS.md and CREDITS.md.
+- Renamed to Pathwise ("Every quest. Every craft. Every level.", by leight_nn & florp). `/pathwise` is the main command; `/fl`, `/foreverlevels`, `ForeverLevels:RegisterRoute()`, the addon folder and saved progress all keep working. About section in the options panel.
+- Profession tracking: detects professions, skill and cap; reads learned recipes, difficulty and the client's reagent lists while a profession window is open; counts materials in bags (bank optional).
+- Profession data registry (`Pathwise:RegisterProfessionData`) with validation and verification flags. Starter Tailoring and Enchanting data checked against Wowhead's Forever database; unverified values are labeled.
+- Material planner: next craft, expected crafts with the source of every estimate, owned and missing materials, intermediate expansion, reservations across steps, one-time material reminders.
+- Optional profession detours under the guide window (Go, Later, Skip; Done, Cancel). They never change route progress, step numbers or Back/Next; an active detour with coordinates temporarily takes over the arrow.
+- Profession dashboard in all three window styles, with profession settings.
+- SavedVariables version 2 with an in-place upgrade from version 1.
+- Recorder also logs trainer positions.
+- Example profession data pack; the offline validator checks profession data too.
+- Feedback Center (`/pathwise feedback`) for bug reports, suggestions and guide step reports, with a "Report this step" ticket button next to Back that fills in the current step. Reports are prepared as copyable text for pathwise.nn@gmail.com and never sent automatically. Character details and diagnostics are opt-in. Drafts are saved per step. SavedVariables version 3.
+
+### 0.1.0 - MVP (unreleased)
+
+- Classic window style (dialog border used by the classic UI) as the default, plus tooltip and minimal styles. `/fl style` or the options panel.
+
+- Movable step-by-step guide window with live quest objectives, Back/Next, lock and scale.
+- Quest detection: accept, objectives complete, turn-in and level goals; auto-advance; skip; fast-forward on login.
+- Automatic accept and turn-in for route quests (gossip, greeting and quest dialogs), Shift to pause, no reward auto-pick.
+- Waypoints: Blizzard map pin + in-world marker (super-tracked user waypoint) and a ForeverLevels direction arrow with distance.
+- Class- and race-filtered steps and goals; per-class step text.
+- Route registry with validation, route chaining and a public `ForeverLevels:RegisterRoute()` for community route addons.
+- Dungeon suggestions by level.
+- Optional party progress sync over addon messages, respecting Forever's lockdown rules.
+- SavedVariables: per-character route progress, account-wide settings.
+- Recorder for route authors plus offline tools (`validate_routes.lua`, `recorder_to_route.lua`).
+- Draft routes: Undead 1-6 Deathknell, Undead 6-10 Brill (coordinates not yet verified on Forever).
+- Offline test suite against a WoW API stub; CI on Lua 5.1 and 5.4.
