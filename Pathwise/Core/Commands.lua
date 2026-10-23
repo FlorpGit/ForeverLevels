@@ -89,6 +89,14 @@ ns.Command("arrow", function(args)
 	ns.Print(ns.Get("arrow.shown") and "arrow on (Shift-drag to move)." or "arrow off.")
 end, "show or hide the arrow; /pw arrow scale <50-200> sets its size")
 
+ns.Command("waypoint", function(args)
+	local a = (args or ""):lower()
+	local on
+	if a == "on" then on = true elseif a == "off" then on = false else on = not ns.Get("arrow.native") end
+	ns.Set("arrow.native", on)
+	ns.Print(on and "the game's map pin and marker follow the arrow." or "the game's map pin and marker off.")
+end, "the game's own map pin and in-world marker at the arrow's target: /pw waypoint [on|off]")
+
 ns.Command("reset", function()
 	ns.Set("guide.point", nil)
 	ns.Set("arrow.point", nil)

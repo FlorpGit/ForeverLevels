@@ -1121,6 +1121,8 @@ function builders.settings()
 		{ "setting", "Show the arrow", onOff(ns.Get("arrow.shown")), { { ns.Get("arrow.shown") and "Hide" or "Show", toggle("arrow.shown") } } },
 		{ "slider", "Arrow size", "arrow.scale", 0.5, 2, 0.1, pct },
 		{ "text", "Shift-drag the arrow to move it.", "muted" },
+		{ "setting", "The game's map pin and marker", onOff(ns.Get("arrow.native")), { { ns.Get("arrow.native") and "Hide" or "Show", toggle("arrow.native") } } },
+		{ "text", "The game's own waypoint at the same place: its pin on the map and its marker in the world.", "muted" },
 		{ "setting", "Minimap button", onOff(ns.Get("minimap.shown")), { { ns.Get("minimap.shown") and "Hide" or "Show", toggle("minimap.shown") } } },
 		{ "text", ns.Get("minimap.shown") and "Click it to show the guide, right-click for settings, drag to move it."
 			or "Without it, open Pathwise with a key: Game Menu > Key Bindings > Pathwise.", "muted" },

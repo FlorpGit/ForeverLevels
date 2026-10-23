@@ -33,10 +33,47 @@ function Nav.Direction(pNorth, pWest, facing, tNorth, tWest)
 	return dist, rotation, bearing
 end
 
+---------------------------------------------------------------------------
+-- Blizzard's own waypoint: with "arrow.native" on, the target is also the
+-- game's user waypoint (its map pin), super-tracked so the game draws its
+-- in-world marker and distance. Pathwise only clears a waypoint it set.
+-- APIs (MapDocumentation, SuperTrackManagerDocumentation):
+--   C_Map.CanSetUserWaypointOnMap, SetUserWaypoint, HasUserWaypoint,
+--   ClearUserWaypoint, UiMapPoint.CreateFromCoordinates,
+--   C_SuperTrack.SetSuperTrackedUserWaypoint.
+---------------------------------------------------------------------------
+
+ns.Defaults("arrow", { native = true })
+
+local ownsNative = false
+
+local function clearNative()
+	local M = C_Map
+	if ownsNative and M and M.ClearUserWaypoint and (not M.HasUserWaypoint or M.HasUserWaypoint()) then
+		pcall(M.ClearUserWaypoint)
+	end
+	ownsNative = false
+end
+
+local function setNative(t)
+	local M = C_Map
+	if not (t and ns.Get("arrow.native") and M and M.SetUserWaypoint and UiMapPoint) then return clearNative() end
+	if M.CanSetUserWaypointOnMap and not M.CanSetUserWaypointOnMap(t.map) then return clearNative() end
+	local ok = pcall(function()
+		M.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(t.map, t.x / 100, t.y / 100))
+	end)
+	if not ok then return clearNative() end
+	ownsNative = true
+	if C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
+		pcall(C_SuperTrack.SetSuperTrackedUserWaypoint, true)
+	end
+end
+
 function Nav.SetTarget(map, x, y, title)
 	if not (map and x and y) then return false end
 	local inst, north, west = ns.Compat.MapToWorld(map, x, y)
 	target = { map = map, x = x, y = y, title = title, inst = inst, north = north, west = west }
+	setNative(target)
 	ns.Fire("WAYPOINT_CHANGED", target)
 	return true
 end
@@ -44,8 +81,13 @@ end
 function Nav.Clear()
 	if not target then return end
 	target = nil
+	clearNative()
 	ns.Fire("WAYPOINT_CHANGED", nil)
 end
+
+ns.On("SETTING_CHANGED", function(path)
+	if path == "arrow.native" then setNative(target) end
+end)
 
 function Nav.Target() return target end
 

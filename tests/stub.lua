@@ -178,7 +178,14 @@ C_Map = {
 		return m.inst, CreateVector2D(m.n0 + m.ny * v.y * 100, m.w0 + m.wx * v.x * 100)
 	end,
 	GetMapInfo = function(map) local m = stub.maps[map] return m and { name = m.name } end,
+	-- The game's user waypoint: stub.userWaypoint = { map, x, y } (0-1).
+	CanSetUserWaypointOnMap = function(map) return stub.maps[map] ~= nil end,
+	SetUserWaypoint = function(p) stub.userWaypoint = p end,
+	HasUserWaypoint = function() return stub.userWaypoint ~= nil end,
+	ClearUserWaypoint = function() stub.userWaypoint = nil end,
 }
+UiMapPoint = { CreateFromCoordinates = function(map, x, y) return { map = map, x = x, y = y } end }
+C_SuperTrack = { SetSuperTrackedUserWaypoint = function(on) stub.superTracked = on end }
 -- The character: an Undead Mage by default (the reference character).
 stub.player.level, stub.player.race, stub.player.raceID, stub.player.class, stub.player.faction = 1, "Scourge", 5, "MAGE", "Horde"
 function UnitLevel() return stub.player.level end
