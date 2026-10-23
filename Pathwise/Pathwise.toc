@@ -18,6 +18,7 @@ Guide\Quests.lua
 Guide\Engine.lua
 Guide\AutoQuest.lua
 Guide\Sync.lua
+Guide\Recorder.lua
 Guide\Dungeons.lua
 Nav\Pins.lua
 UI\GuideWindow.lua

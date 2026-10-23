@@ -1010,6 +1010,11 @@ function builders.tools()
 		{ "heading", "For bug reports" },
 		{ "text", "What the arrow sees. Click, Ctrl+C, and paste it with a report." },
 		{ "copy", Nav.DebugText(), 6 },
+		{ "heading", "For route authors" },
+		{ "setting", "Record quests and trainers", ns.Get("recorder.on") and "On" or "Off", {
+			{ ns.Get("recorder.on") and "Turn off" or "Turn on", function() ns.Set("recorder.on", not ns.Get("recorder.on")) Panels.Refresh() end },
+			#ns.Recorder.Log() > 0 and { "Clear", function() ns.Recorder.Clear() Panels.Refresh() end } or nil } },
+		{ "text", ("%d entries. /reload saves them; tools/recorder_to_route.lua turns them into a route."):format(#ns.Recorder.Log()), "muted" },
 		{ "buttons", { { "Report this step", "default", function() Panels.Open("report") end }, { "Close", "default", Panels.Close } } },
 	}
 end
