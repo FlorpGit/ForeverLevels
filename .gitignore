@@ -4,3 +4,4 @@ dist/
 CLAUDE.md
 CLAUDE.local.md
 .claude/
+data/sources/
