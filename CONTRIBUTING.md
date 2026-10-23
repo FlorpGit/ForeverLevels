@@ -82,4 +82,3 @@ opening their profession windows, and sending their SavedVariables file.
 - One change per pull request, with a line on what players will notice.
 - Add a test for behaviour changes (`tests/`).
 - Add a line under "Unreleased" in CHANGELOG.md.
-- If an AI assistant helped, say which one in the description.
