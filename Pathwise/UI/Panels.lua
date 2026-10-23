@@ -826,9 +826,40 @@ function builders.professions()
 	return rows
 end
 
--- One profession's page: skill, the guide's step, the best craft now, every
--- material for this rank, following it beside the route; for Enchanting,
--- disenchanting too.
+-- How sure the planner is about the next craft, in words (Professions/Planner.lua).
+local BASIS = {
+	client = "from your profession window",
+	thresholds = "from checked skill levels",
+	["thresholds-unverified"] = "from skill levels not yet checked on Forever",
+	["client-stale"] = "from a colour read at a lower skill",
+}
+local function chanceText(c)
+	local bits = {}
+	if c.chance then bits[#bits + 1] = ("Skill-up chance %d%%"):format(math.floor(c.chance * 100 + 0.5)) end
+	if c.expected and c.untilSkill then bits[#bits + 1] = ("about %d crafts to %d"):format(math.ceil(c.expected), c.untilSkill) end
+	if #bits == 0 then return c.basis == "unknown" and "Skill-up chance not known yet: open the profession window." or nil end
+	return table.concat(bits, ", ") .. (BASIS[c.basis] and (" (" .. BASIS[c.basis] .. ")") or "") .. "."
+end
+
+-- The materials of the next crafts, with what a missing one is made from.
+local function materialRows(rows, materials)
+	if not materials or #materials == 0 then return end
+	rows[#rows + 1] = { "heading", "For the next crafts" }
+	for _, r in ipairs(materials) do
+		local line = ("%s   %d / %d"):format(r.name, math.min(r.owned, r.required), r.required)
+		if r.madeFrom then
+			local from = {}
+			for _, x in ipairs(r.madeFrom.rows) do from[#from + 1] = ("%d %s"):format(x.required, x.name) end
+			line = line .. "  ·  make from " .. table.concat(from, ", ")
+		end
+		rows[#rows + 1] = { "text", line, r.missing > 0 and "text2" or "success" }
+	end
+end
+
+-- One profession's page: skill, the guide's step, the best craft now with
+-- the planner's numbers, the next rank, recipes to learn, every material
+-- for this rank, following it beside the route, whether it takes part in
+-- detours; for Enchanting, disenchanting too.
 function builders.profession()
 	local P, E = ns.Professions, ns.Engine
 	E.Refresh()
@@ -848,7 +879,7 @@ function builders.profession()
 	else
 		local step = route.steps[st.step]
 		rows[#rows + 1] = { "text", "Now: " .. (step.title or E.GoalText(step[1]) or "the next step"), "text" }
-		local craft = P.NextCraft(prof)
+		local craft = ns.Planner.Next(prof)
 		if craft then
 			local bits = { "Best now: " .. (craft.name or "?") }
 			if craft.craftable then bits[#bits + 1] = ("%d from your bags"):format(craft.craftable) end
@@ -856,6 +887,25 @@ function builders.profession()
 			if craft.difficulty then bits[#bits + 1] = craft.difficulty end
 			if craft.known == false then bits[#bits + 1] = "learn it first" end
 			rows[#rows + 1] = { "text", table.concat(bits, "  ·  "), "text" }
+			local how = chanceText(craft)
+			if how then rows[#rows + 1] = { "text", how, "muted" } end
+			materialRows(rows, craft.materials)
+		end
+		local m = ns.Planner.Milestone(prof)
+		if m then
+			local needs = {}
+			if m.needLevel > (ns.Quests.Player().level or 1) then needs[#needs + 1] = "level " .. m.needLevel end
+			if m.needSkill > k.rank then needs[#needs + 1] = ("%s %d"):format(prof.name, m.needSkill) end
+			local where = m.trainer and m.trainer.name or m.trainerName
+			rows[#rows + 1] = { "text", ("Next rank: %s (%d)  ·  %s%s"):format(m.rankName or "?", m.rankMax,
+				#needs > 0 and ("needs " .. table.concat(needs, " and ")) or "ready to train",
+				where and ("  ·  " .. where) or ""), m.ready and "success" or "text2" }
+		end
+		local learn = ns.Planner.Learnable(prof)
+		if #learn > 0 then
+			local names = {}
+			for i, r in ipairs(learn) do if i <= 4 then names[#names + 1] = r.name end end
+			rows[#rows + 1] = { "text", "Learn at a trainer: " .. table.concat(names, ", ") .. (#learn > 4 and ", ..." or ""), "text2" }
 		end
 		if prof.kind == "craft" and not P.Recipes(prof.line) then
 			rows[#rows + 1] = { "text", ("Open your %s window once so Pathwise can read your recipes."):format(prof.name), "muted" }
@@ -878,6 +928,16 @@ function builders.profession()
 				E.SetSide(following and nil or route.id)
 				Panels.Refresh()
 			end }
+	end
+	local shownNow = P.Shown(prof)
+	rows[#rows + 1] = { "setting", "In detours and reminders", shownNow and "On" or "Off", { { shownNow and "Turn off" or "Turn on", function()
+		P.SetShown(prof, not shownNow)
+		E.Update()
+		Panels.Refresh()
+	end } } }
+	local packs = ns.Recipes.Data(prof.line).packs
+	if #packs > 0 then
+		rows[#rows + 1] = { "text", ("Recipe data: the guide, %s, and your profession window."):format(table.concat(packs, ", ")), "muted" }
 	end
 
 	-- Disenchanting and the Tailoring tip, on the Enchanting page.
@@ -1139,7 +1199,12 @@ function builders.settings()
 		{ "setting", "Share progress with your group", onOff(ns.Get("party.sync")), { { ns.Get("party.sync") and "Turn off" or "Turn on", toggle("party.sync") } } },
 		{ "text", "Group members with Pathwise see your step and quest counts in their guide window, and you see theirs.", "muted" },
 		{ "heading", "Profession detours" },
-		{ "setting", "Mode", "", (function()
+		{ "setting", "Detour card", onOff(ns.Get("professions.detour") ~= "off"), { { ns.Get("professions.detour") ~= "off" and "Turn off" or "Turn on", function()
+			ns.Set("professions.detour", ns.Get("professions.detour") == "off" and "balanced" or "off")
+			E.Update()
+			Panels.Refresh()
+		end } } },
+		ns.Get("professions.detour") ~= "off" and { "setting", "Mode", "", (function()
 			local mode = ns.Get("professions.detour")
 			local function pick(value) return function() ns.Set("professions.detour", value) E.Update() Panels.Refresh() end end
 			return {
@@ -1147,10 +1212,18 @@ function builders.settings()
 				{ "Balanced", pick("balanced"), mode == "balanced" and "accent" or "default" },
 				{ "Crafting", pick("craft"), mode == "craft" and "accent" or "default" },
 			}
-		end)() },
+		end)() } or { "divider" },
 		{ "text", ({ speed = "Only when a profession step is right on your way (about 150 yd).",
 			balanced = "When a profession step is near (about 600 yd).",
-			craft = "Always: professions come first." })[ns.Get("professions.detour")] or "", "muted" },
+			craft = "Always: professions come first.",
+			off = "No profession card under the guide's step." })[ns.Get("professions.detour")] or "", "muted" },
+		{ "text", "Training the next rank, crafting what your bags make now, or the next step of the profession you follow. Go points the arrow there, Later waits for your route to move on, the cross skips it.", "muted" },
+		{ "setting", "Material reminders", onOff(ns.Get("professions.reminders")), { { ns.Get("professions.reminders") and "Turn off" or "Turn on", toggle("professions.reminders") } } },
+		{ "setting", "Skipped detours", tostring(ns.Detours.SkippedCount()), ns.Detours.SkippedCount() > 0 and { { "Bring back", function()
+			ns.Detours.Unskip()
+			E.Update()
+			Panels.Refresh()
+		end } } or {} },
 		{ "setting", "Skipped quests", tostring(skippedN), skippedN > 0 and { { "Bring back", function()
 			for _, q in ipairs(E.Skipped()) do E.State().skipped[q] = nil end
 			E.Update()

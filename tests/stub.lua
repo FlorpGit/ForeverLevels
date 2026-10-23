@@ -323,6 +323,14 @@ C_TradeSkillUI = {
 		return ids
 	end,
 	GetRecipeInfo = function(id) return stub.tradeSkill and stub.tradeSkill.recipes[id] end,
+	-- stub.tradeSkill.reagents[id] = { { item, count }, ... }
+	GetRecipeSchematic = function(id)
+		local list = stub.tradeSkill and stub.tradeSkill.reagents and stub.tradeSkill.reagents[id]
+		if not list then return nil end
+		local slots = {}
+		for _, r in ipairs(list) do slots[#slots + 1] = { required = true, quantityRequired = r[2], reagents = { { itemID = r[1] } } } end
+		return { reagentSlotSchematics = slots }
+	end,
 }
 function GetBindLocation() return stub.bind end
 C_SkillInfo = { GetSkillLineInfoByID = function(line)

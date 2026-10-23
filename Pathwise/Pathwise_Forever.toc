@@ -26,10 +26,15 @@ UI\GuideWindow.lua
 UI\Panels.lua
 UI\Feedback.lua
 UI\MinimapButton.lua
+Professions\Recipes.lua
 Routes\Leveling.lua
 Routes\Class.lua
 Routes\Professions.lua
 Routes\Other.lua
+Guides\Professions\Tailoring.lua
+Guides\Professions\Enchanting.lua
 Professions\Professions.lua
+Professions\Planner.lua
+Professions\Detours.lua
 Core\Commands.lua
 Core\Suite.lua

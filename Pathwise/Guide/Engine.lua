@@ -91,8 +91,10 @@ function Pathwise.RegisterRoute(a, b)
 	end
 	if not routes[def.id] then routeOrder[#routeOrder + 1] = def.id end
 	routes[def.id] = def
+	Engine.routeCount = Engine.routeCount + 1 -- registrations so far: Recipes.lua rebuilds after one
 	return true
 end
+Engine.routeCount = 0
 
 function Engine.Routes()
 	local out = {}
@@ -205,7 +207,7 @@ end
 function Engine.SetSide(id)
 	if id and not routes[id] then return false end
 	local s = state()
-	s.side, s.aimSide, s.sideHidden = id, nil, nil
+	s.side = id
 	Engine.Update()
 	return true
 end
@@ -356,10 +358,7 @@ local function compute()
 		s.pin = nil
 		current = live
 	end
-	local side = Engine.Side()
-	local before = sideLive
-	sideLive = firstOpen(side)
-	if sideLive ~= before then s.aimSide, s.sideHidden = nil, nil end
+	sideLive = firstOpen(Engine.Side())
 end
 
 -- For other modules (the profession dashboard): any route's first open step,
@@ -489,13 +488,13 @@ local function leadIn(route, s)
 	return nil
 end
 
+-- The goal the arrow leads with: an extra quest first, then a profession
+-- detour the player chose with Go (Professions/Detours.lua), then the step
+-- shown. -> goal, g, onSide (the goal is the side guide's)
 local function leadGoal()
 	if extra then return { extra.verb, extra.quest } end
-	local s = state()
-	if s.aimSide and sideLive then
-		local goal, g = leadIn(Engine.Side(), sideLive)
-		if goal then return goal, g, true end
-	end
+	local aimed = ns.Detours and ns.Detours.Aimed()
+	if aimed and aimed.goal then return aimed.goal, aimed.g, aimed.kind == "side" end
 	return leadIn(Engine.Route(), current)
 end
 
@@ -576,11 +575,6 @@ local function nextSummary(route, from)
 	return nil
 end
 
--- How far a profession step may be from the player for its card to show:
--- "speed" and "balanced" only when it is on the way (yards), "craft" always.
-ns.Defaults("professions", { detour = "balanced" })
-Engine.DETOUR_YARDS = { speed = 150, balanced = 600 }
-
 -- Yards from the player to a place, or nil (no position, other continent).
 local function yardsTo(p)
 	local h = here()
@@ -590,34 +584,27 @@ local function yardsTo(p)
 	if not (i1 and i2) or i1 ~= i2 then return nil end
 	return math.sqrt((n2 - n1) ^ 2 + (w2 - w1) ^ 2)
 end
+Engine.YardsTo = yardsTo
 
--- The side guide's card: its next goal, or nil (none, hidden by the player,
--- or not on the way for the detour mode).
-local function sideCard()
+-- The side guide's next step, for the detour card (Professions/Detours.lua):
+-- { route, step, text, title, goal, g, place } or nil.
+function Engine.SideCard()
 	local side = Engine.Side()
-	local s = state()
-	if not (side and sideLive) or s.sideHidden == sideLive then return nil end
+	if not (side and sideLive) then return nil end
 	local step = side.steps[sideLive]
 	local text
 	for g, goal in ipairs(step) do
 		if goalStatus(side, sideLive, g, goal) == "open" then text = goalText(goal) break end
 	end
-	local goal = leadIn(side, sideLive)
-	local p = goal and placeOf(goal)
-	local yards = p and yardsTo(p)
-	local budget = Engine.DETOUR_YARDS[ns.Get("professions.detour")]
-	if budget and p and not s.aimSide and (not yards or yards > budget) then return nil end
-	local sub
-	if s.aimSide then sub = "The arrow leads here now"
-	elseif not p then sub = "Wherever you are"
-	elseif yards then sub = ("%s  ·  %s"):format(p.name or step.title or "On your way", ns.Nav.FormatYards(yards))
-	else sub = p.name or step.title end
+	local goal, g = leadIn(side, sideLive)
 	return {
-		label = "Optional · " .. side.title,
-		text = text or titleOf(step, side, sideLive),
-		sub = sub, aimed = s.aimSide, yards = yards,
+		route = side, step = sideLive, title = step.title, text = text or titleOf(step, side, sideLive),
+		goal = goal, g = g, place = goal and placeOf(goal) or nil,
 	}
 end
+
+-- The detour card the window shows, if any.
+local function detourCard() return ns.Detours and ns.Detours.Card() or nil end
 
 function Engine.View()
 	local route = Engine.Route()
@@ -636,19 +623,19 @@ function Engine.View()
 			progress = route and progressOf(route) or 0,
 			title = Q.Name(extra.quest),
 			text = extra.verb == "complete" and Q.Text(extra.quest) or (p and p.name and ((extra.verb == "accept" and "From " or "To ") .. p.name)) or nil,
-			coords = coordsOf(p), objectives = rows, detour = sideCard(),
+			coords = coordsOf(p), objectives = rows, detour = detourCard(),
 			next = route and live and ("Then back to the route: " .. (titleOf(route.steps[live], route, live) or "")) or nil,
 		}
 	end
 	if not route then
-		local card = sideCard()
+		local card = detourCard()
 		if not card then return nil end
 		return { route = "No leveling route", title = "Choose a route", text = "Open Routes in Settings, or Zones for your level.", objectives = {}, detour = card, progress = 0 }
 	end
 	if not current then
 		return {
 			route = route.title, index = #route.steps, count = #route.steps, progress = 1,
-			title = "Route complete", detour = sideCard(),
+			title = "Route complete", detour = detourCard(),
 			text = "Pick your next route from Zones for your level, or Routes in Settings.",
 			objectives = {},
 		}
@@ -660,7 +647,7 @@ function Engine.View()
 		route = route.title, index = current, count = #route.steps, progress = progressOf(route),
 		title = titleOf(step, route, current), text = textOf(step), coords = coordsOf(p),
 		objectives = rowsOf(route, current), next = nextSummary(route, current),
-		pinned = current ~= live, detour = sideCard(),
+		pinned = current ~= live, detour = detourCard(),
 	}
 end
 
@@ -735,20 +722,6 @@ ns.On("WAYPOINT_ARRIVED", function()
 			Engine.Schedule()
 		end
 	end
-end)
-
-ns.On("DETOUR_GO", function()
-	local s = state()
-	s.aimSide = not s.aimSide or nil
-	lastWaypoint = nil
-	Engine.Update()
-end)
-
-ns.On("DETOUR_SKIP", function()
-	local s = state()
-	s.sideHidden, s.aimSide = sideLive, nil
-	lastWaypoint = nil
-	Engine.Update()
 end)
 
 ns.On("READY", function()

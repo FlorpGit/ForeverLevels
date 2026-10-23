@@ -12,11 +12,11 @@
 -- and how items are obtained. Pathwise prefers the client's own recipe difficulty
 -- and reagent lists once you open the Tailoring window.
 
-local _, FL = ...
+-- Registered through the same public function a community pack calls.
 
 local VERIFIED_REAGENTS = { reagents = true, skill = false, source = false }
 
-FL:RegisterProfessionData({
+Pathwise.RegisterProfessionData({
 	apiVersion = 1,
 	id = "pathwise.tailoring.starter",
 	profession = "tailoring",

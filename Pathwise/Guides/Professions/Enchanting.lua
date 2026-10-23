@@ -16,11 +16,11 @@
 -- one Dust to Motes makes, rank caps, trainer coordinates, and whether a Runed Copper
 -- Rod is still needed as a tool.
 
-local _, FL = ...
+-- Registered through the same public function a community pack calls.
 
 local VERIFIED_REAGENTS = { reagents = true, skill = false, source = false }
 
-FL:RegisterProfessionData({
+Pathwise.RegisterProfessionData({
 	apiVersion = 1,
 	id = "pathwise.enchanting.starter",
 	profession = "enchanting",

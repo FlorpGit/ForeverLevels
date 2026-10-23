@@ -7,12 +7,17 @@
 --   P.NextCraft(prof)    the route's next craft and how many the bags make
 --   P.Disenchantable()   green to epic gear in the bags, with the skill it asks
 --   P.TailorEnchant()    for Tailoring + Enchanting: crafts to disenchant
+--   P.Scan()             reads the open profession window (learned, colour, reagents)
+--   P.Shown(prof)        whether a profession takes part in detours and reminders
+-- Recipes (Recipes.lua) and the planner (Planner.lua) build on this; the
+-- detours (Detours.lua) and the dashboard (UI/Panels.lua) read all three.
 -- It only advises: it never crafts, buys, sells or disenchants.
 --
 -- Client APIs (all through pcall; checked against Blizzard's Forever UI
 -- source; the recipe list is NOT verified in game yet):
 --   C_TradeSkillUI.GetBaseProfessionInfo, GetAllRecipeIDs / GetFilteredRecipeIDs,
---   GetRecipeInfo (learned, relativeDifficulty), C_Container.GetContainerNumSlots,
+--   GetRecipeInfo (learned, relativeDifficulty, numSkillUps), GetRecipeSchematic
+--   (reagentSlotSchematics), C_Container.GetContainerNumSlots,
 --   GetContainerItemInfo, C_Item.GetItemInfo (quality 3rd, level 4th, sell 11th, class 12th).
 
 local ADDON, ns = ...
@@ -43,10 +48,26 @@ for _, p in ipairs(P.LIST) do
 end
 local TAILORING, ENCHANTING = 197, 333
 
-ns.Defaults("professions", { includeBank = true })
+ns.Defaults("professions", {
+	includeBank = true, -- count materials in the bank too
+	reminders = true, -- a line in chat when the bags newly make the next craft
+})
 
 local function count(item) return C.ItemCount(item, ns.Get("professions.includeBank")) end
 P.Count = count
+
+-- Professions the player hid from detours and reminders (the dashboard
+-- still lists them): PathwiseCharSettings, per character.
+local function hidden()
+	local c = ns.CharState()
+	c.professionsHidden = type(c.professionsHidden) == "table" and c.professionsHidden or {}
+	return c.professionsHidden
+end
+function P.Shown(prof) return not hidden()[prof.key] end
+function P.SetShown(prof, on)
+	hidden()[prof.key] = not on or nil
+	ns.Fire("PROFESSIONS_CHANGED")
+end
 
 function P.Known()
 	local out = {}
@@ -147,7 +168,24 @@ local function call(fn, ...)
 	return ok and a or nil
 end
 
--- Reads the open profession window's recipes. -> skill line or nil.
+-- A recipe's reagents as the profession window lists them: { { item, count } }.
+local function schematic(T, id)
+	local s = call(T.GetRecipeSchematic, id, false)
+	if type(s) ~= "table" or type(s.reagentSlotSchematics) ~= "table" then return nil end
+	local out = {}
+	for _, slot in ipairs(s.reagentSlotSchematics) do
+		local first = slot.reagents and slot.reagents[1]
+		if slot.required ~= false and first and first.itemID and slot.quantityRequired then
+			out[#out + 1] = { first.itemID, slot.quantityRequired }
+		end
+	end
+	return #out > 0 and out or nil
+end
+
+-- Reads the open profession window: every recipe's name, whether it is
+-- learned and its colour (at the skill it was read at), and the reagents of
+-- the recipes Pathwise knows (kept for the account). Only the open
+-- profession is read, so a closed one is never marked unlearned. -> skill line or nil.
 function P.Scan()
 	local T = C_TradeSkillUI
 	if not (T and T.GetBaseProfessionInfo and T.GetRecipeInfo) then return nil end
@@ -161,11 +199,19 @@ function P.Scan()
 	if not prof then return nil end
 	local ids = call(T.GetAllRecipeIDs) or call(T.GetFilteredRecipeIDs)
 	if type(ids) ~= "table" or #ids == 0 then return nil end
+	local rank = C.SkillRank(prof.line)
 	local recipes = {}
+	local cache = ns.Recipes and ns.Recipes.Schematics()
+	local build = GetBuildInfo and select(2, GetBuildInfo()) or nil
 	for _, id in ipairs(ids) do
 		local r = call(T.GetRecipeInfo, id)
 		if type(r) == "table" then
-			recipes[id] = { name = r.name, learned = r.learned and true or false, difficulty = r.relativeDifficulty }
+			recipes[id] = { name = r.name, learned = r.learned and true or false, difficulty = r.relativeDifficulty,
+				atRank = rank, skillUps = r.numSkillUps }
+			if cache and T.GetRecipeSchematic and ns.Recipes.Get(id) then
+				local reagents = schematic(T, id)
+				if reagents then cache[id] = { reagents = reagents, build = build } end
+			end
 		end
 	end
 	store().recipes[prof.line] = recipes
@@ -175,12 +221,19 @@ end
 
 function P.Recipes(line) return store().recipes[line] end
 
+-- What the window said about one recipe, or nil (never read).
+function P.RecipeState(line, spell)
+	local list = line and store().recipes[line]
+	return list and list[spell] or nil
+end
+
 -- relativeDifficulty (Enum.TradeskillRelativeDifficulty): 0 optimal (orange),
 -- 1 medium (yellow), 2 easy (green), 3 trivial (grey).
 local DIFFICULTY = { [0] = "orange", [1] = "yellow", [2] = "green", [3] = "grey" }
 
 -- The route's next craft in this rank, and how many the bags make:
--- { name, spell, untilSkill, count, craftable, difficulty, known } or nil.
+-- { name, spell, untilSkill, count, craftable, difficulty, known, reagents,
+--   reagentsFrom, step, goal } or nil. The planner adds the numbers.
 function P.NextCraft(prof)
 	local st = P.Stage(prof)
 	if not st then return nil end
@@ -188,18 +241,22 @@ function P.NextCraft(prof)
 		local step = st.route.steps[s]
 		for g, goal in ipairs(step) do
 			if goal[1] == "craft" and ns.Engine.GoalStatus(st.route, s, g, goal) == "open" then
+				-- The reagents to count: the window's, a pack's or the route's (Recipes.lua).
+				local book = ns.Recipes and ns.Recipes.Get(goal[2])
+				local reagents, from = goal.reagents or {}, "route"
+				if book then reagents, from = ns.Recipes.Reagents(book) end
 				local craftable
-				for _, r in ipairs(goal.reagents or {}) do
+				for _, r in ipairs(reagents) do
 					local n = math.floor(count(r[1]) / (r[2] or 1))
 					craftable = craftable and math.min(craftable, n) or n
 				end
-				local scanned = P.Recipes(prof.line)
-				local recipe = scanned and scanned[goal[2]]
+				local scanned = P.RecipeState(prof.line, goal[2])
 				return {
 					name = goal.name, spell = goal[2], untilSkill = goal.untilSkill, count = goal.count,
-					craftable = craftable, reagents = goal.reagents,
-					difficulty = recipe and DIFFICULTY[recipe.difficulty],
-					known = recipe and recipe.learned or C.SpellKnown(goal[2]),
+					craftable = craftable, reagents = reagents, reagentsFrom = from,
+					difficulty = scanned and DIFFICULTY[scanned.difficulty],
+					known = scanned and scanned.learned or C.SpellKnown(goal[2]),
+					step = s, goal = goal,
 				}
 			end
 		end
@@ -294,6 +351,16 @@ end
 local function scan() if P.Scan() then return end end
 ns.RegisterEvent("TRADE_SKILL_SHOW", scan)
 ns.RegisterEvent("TRADE_SKILL_LIST_UPDATE", scan)
+-- A recipe learned (from a trainer or a recipe item) is known at once.
+ns.RegisterEvent("NEW_RECIPE_LEARNED", function(_, spell)
+	spell = C.Readable(spell)
+	local recipe = spell and ns.Recipes and ns.Recipes.Get(spell)
+	if not (recipe and recipe.line) then return end
+	local list = store().recipes[recipe.line] or {}
+	store().recipes[recipe.line] = list
+	list[spell] = list[spell] or { name = recipe.name }
+	list[spell].learned = true
+end)
 for _, ev in ipairs({ "BAG_UPDATE_DELAYED", "SKILL_LINES_CHANGED", "NEW_RECIPE_LEARNED", "CHAT_MSG_SKILL" }) do
 	ns.RegisterEvent(ev, function() ns.Fire("PROFESSIONS_CHANGED") end)
 end

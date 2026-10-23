@@ -2,7 +2,7 @@
 ## Title: Pathwise - Example Route
 ## Notes: Template for a community route pack. Copy, rename and edit.
 ## Author: Your Name
-## Version: 0.1.0
+## Version: 0.2.0
 ## Dependencies: Pathwise
 ## X-License: CC0 1.0 (example route data)
 
