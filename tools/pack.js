@@ -1,6 +1,7 @@
 'use strict';
 // Builds the release zip: dist/Pathwise-<version>.zip holding the Pathwise/
-// folder as players install it, with LICENSE and THIRD_PARTY.md inside it
+// folder (and Pathwise_Gear/, Pathwise_Bags/) as players install them, with
+// LICENSE, NOTICE.md (the GPL's additional terms) and THIRD_PARTY.md inside each
 // (the GPL asks that the licence travels with every copy). Nothing is uploaded.
 //
 //   node tools/pack.js            build the zip
@@ -42,7 +43,7 @@ function entries() {
 				else out.push({ name: `${addon}/${r}`, file: full });
 			}
 		})(dir0, '');
-		for (const name of ['LICENSE', 'THIRD_PARTY.md']) out.push({ name: `${addon}/${name}`, file: path.join(ROOT, name) });
+		for (const name of ['LICENSE', 'NOTICE.md', 'THIRD_PARTY.md']) out.push({ name: `${addon}/${name}`, file: path.join(ROOT, name) });
 	}
 	return out;
 }

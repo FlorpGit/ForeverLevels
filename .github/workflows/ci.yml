@@ -19,10 +19,23 @@ jobs:
       - uses: leafo/gh-actions-luarocks@v4
       - name: Unit tests
         run: lua tests/run.lua
-      - name: Validate routes
+      - name: Validate routes and profession data
         run: lua tools/validate_routes.lua
       - name: Lint
         if: matrix.lua == '5.1'
+        # The addon on its own: checked together with tests/stub.lua, which
+        # defines the client's globals, unknown client names would pass.
         run: |
           luarocks install luacheck
-          luacheck Pathwise examples tools tests
+          luacheck Pathwise Pathwise_Gear Pathwise_Bags examples
+          luacheck tests tools
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Release zip
+        run: node tools/pack.js

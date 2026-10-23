@@ -34,6 +34,19 @@ test("compat: the example route pack loads", function()
 	eq(#ns.Engine.Check(found), 0, "no problems")
 end)
 
+test("compat: Pathwise_Forever.toc (the Forever client's own) and Pathwise.toc are the same", function()
+	local a = assert(io.open("Pathwise/Pathwise.toc", "rb")):read("*a")
+	local b = assert(io.open("Pathwise/Pathwise_Forever.toc", "rb")):read("*a")
+	eq(b, a, "Pathwise_Forever.toc must match Pathwise.toc")
+	ok(a:find("## Interface: 16001", 1, true), "the Forever interface")
+	local versions = {}
+	for _, toc in ipairs({ "Pathwise/Pathwise.toc", "Pathwise_Gear/Pathwise_Gear.toc", "Pathwise_Bags/Pathwise_Bags.toc" }) do
+		versions[#versions + 1] = assert(io.open(toc, "rb")):read("*a"):match("## Version: (%S+)")
+	end
+	eq(versions[2], versions[1], "Gear's version")
+	eq(versions[3], versions[1], "Bags' version")
+end)
+
 test("compat: a client that is not Forever is warned about at login", function()
 	local stub = fresh()
 	WOW_PROJECT_ID = 1

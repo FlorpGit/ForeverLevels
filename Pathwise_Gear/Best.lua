@@ -278,7 +278,7 @@ end
 function Best.ListFor(maxLevel)
 	local k = key(maxLevel)
 	if lists[k] then return lists[k][1], lists[k][2] end
-	local class, level = Client.Class(), Client.Level()
+	local class = Client.Class()
 	local raids = S.Get("gear.bisRaids")
 	local p = S.Quests.Player()
 	p.professions = professions()

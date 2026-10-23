@@ -80,7 +80,7 @@ test("recorder: tools/recorder_to_route.lua makes a route the engine accepts", f
 	ok(source:find('{ "accept", 363, at = { 1420, 30.2, 71.7 }, who = "Undertaker Mordo" }', 1, true), source)
 	ok(source:find('{ "turnin", 363, at = { 1420, 30.8, 66.2 }, who = "Shadow Priest Sarvis" }, { "accept", 364', 1, true), "same spot, one step")
 	local _, ns2 = fresh()
-	assert(load(source))()
+	assert((loadstring or load)(source))() -- Lua 5.1 loads a string with loadstring
 	local route = ns2.Engine.routes["test/recorded"]
 	ok(route, "registered")
 	eq(#route.steps, 2, "two places")

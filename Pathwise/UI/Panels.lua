@@ -330,10 +330,10 @@ local function render(rows)
 			f.value:SetText(valueText)
 			-- The label takes what is left of the row, and wraps rather than
 			-- running under the value and the buttons.
-			local used = 0
-			for j = 1, #ctrls do local b = f.buttons[j] if b and b:IsShown() then used = used + (b:GetWidth() or 0) + 4 end end
-			if valueText ~= "" then used = used + (f.value:GetStringWidth() or 0) + 8 end
-			local room = inner - used - 6
+			local taken = 0
+			for j = 1, #ctrls do local b = f.buttons[j] if b and b:IsShown() then taken = taken + (b:GetWidth() or 0) + 4 end end
+			if valueText ~= "" then taken = taken + (f.value:GetStringWidth() or 0) + 8 end
+			local room = inner - taken - 6
 			f.label:ClearAllPoints()
 			f.label:SetPoint("LEFT")
 			f.label:SetWidth(math.max(60, room))
@@ -375,7 +375,7 @@ local function render(rows)
 			place(f, T.PROGRESS_H, 6)
 		elseif kind == "slider" then
 			local f = take("slider", makers.slider)
-			local label, path, lo, hi, stepBy, format = r[2], r[3], r[4], r[5], r[6], r[7]
+			local label, path, lo, hi, stepBy = r[2], r[3], r[4], r[5], r[6]
 			local count = r[8] == "count"
 			local mul = count and 1 or 100
 			f.label:SetText(label)
@@ -515,12 +515,13 @@ function Panels.Open(kind)
 	if openKind == kind and panel:IsShown() then return Panels.Close() end
 	if not builders[kind] then return end
 	local before = #history
-	if goingBack then
-		-- Panels.Back pops history itself.
-	elseif panel:IsShown() and openKind and openKind ~= kind then
-		history[#history + 1] = openKind
-	else
-		history = {}
+	-- Going back, Panels.Back pops the history itself.
+	if not goingBack then
+		if panel:IsShown() and openKind and openKind ~= kind then
+			history[#history + 1] = openKind
+		else
+			history = {}
+		end
 	end
 	local was = openKind
 	openKind = kind -- the builder asks S.CanGoBack(), which looks at this
@@ -780,7 +781,6 @@ end
 ---------------------------------------------------------------------------
 
 local SOURCE = { vendor = "vendor", farm = "farm" }
-local MAX_MATERIALS = 6
 
 -- Professions: a list of yours, each with its skill and what is next;
 -- click one for its page (Panels.Open("profession")).
@@ -1135,7 +1135,6 @@ function builders.settings()
 	local E = ns.Engine
 	local route = E.Route()
 	local skippedN = #E.Skipped()
-	local T = ns.Theme
 	local chosen = ns.Get("ui.style") or "modern"
 	local looks = {}
 	for _, key in ipairs(T.STYLE_ORDER) do
@@ -1220,12 +1219,12 @@ function builders.settings()
 			Panels.Refresh()
 		end } } },
 		ns.Get("professions.detour") ~= "off" and { "setting", "Mode", "", (function()
-			local mode = ns.Get("professions.detour")
+			local detour = ns.Get("professions.detour")
 			local function pick(value) return function() ns.Set("professions.detour", value) E.Update() Panels.Refresh() end end
 			return {
-				{ "Speed", pick("speed"), mode == "speed" and "accent" or "default" },
-				{ "Balanced", pick("balanced"), mode == "balanced" and "accent" or "default" },
-				{ "Crafting", pick("craft"), mode == "craft" and "accent" or "default" },
+				{ "Speed", pick("speed"), detour == "speed" and "accent" or "default" },
+				{ "Balanced", pick("balanced"), detour == "balanced" and "accent" or "default" },
+				{ "Crafting", pick("craft"), detour == "craft" and "accent" or "default" },
 			}
 		end)() } or { "divider" },
 		{ "text", ({ speed = "Only when a profession step is right on your way (about 150 yd).",

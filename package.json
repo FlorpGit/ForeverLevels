@@ -1,6 +1,6 @@
 {
   "name": "pathwise",
-  "version": "0.1.0-dev",
+  "version": "0.3.0-dev",
   "private": true,
   "description": "Pathwise: a leveling and profession companion for World of Warcraft: Forever",
   "license": "GPL-3.0-only",
@@ -9,6 +9,8 @@
   },
   "scripts": {
     "test": "lua5.1 tests/run.lua",
+    "validate": "lua5.1 tools/validate_routes.lua",
+    "lint": "luacheck Pathwise Pathwise_Gear Pathwise_Bags examples && luacheck tests tools",
     "media": "node tools/media.js",
     "recipes": "node tools/data/recipes.js",
     "data": "lua5.1 tools/data/build.lua",

@@ -17,8 +17,8 @@ Q.Data = D
 
 -- Data layout positions (tools/data/build.lua).
 local NAME, LEVEL, MINLEVEL, RACES, CLASSES, MAP = 1, 2, 3, 4, 5, 6
-local START_NPC, START_OBJ, START_ITEM, END_NPC, END_OBJ, OBJECTIVES = 7, 8, 9, 10, 11, 12
-local PRE_SINGLE, PRE_GROUP, EXCLUSIVE, SPECIAL, BREADCRUMB_FOR, NEXT_IN_CHAIN, TEXT = 13, 14, 15, 16, 17, 18, 19
+local START_NPC, START_OBJ, START_ITEM, END_NPC, END_OBJ, OBJECTIVES = 7, 8, 9, 10, 11, 12 -- luacheck: no unused (the layout, in full)
+local PRE_SINGLE, PRE_GROUP, EXCLUSIVE, SPECIAL, BREADCRUMB_FOR, NEXT_IN_CHAIN, TEXT = 13, 14, 15, 16, 17, 18, 19 -- luacheck: no unused
 
 -- Class bits (QuestieDB classKeys, Classic) by the client's class file name.
 local CLASS_BIT = { WARRIOR = 1, PALADIN = 2, HUNTER = 4, ROGUE = 8, PRIEST = 16, SHAMAN = 64, MAGE = 128, WARLOCK = 256, DRUID = 1024 }
@@ -170,7 +170,7 @@ local function nearest(spawns, from, prefer)
 	end
 	if from and spawns[from.map] then scan(from.map, spawns[from.map])
 	elseif prefer and spawns[prefer] then scan(prefer, spawns[prefer])
-	else for map, pts in pairs(spawns) do scan(map, pts) break end end
+	else for map, pts in pairs(spawns) do scan(map, pts) break end end -- luacheck: ignore 512 (any one map)
 	if not best then return nil end
 	local pts = spawns[bestMap]
 	return bestMap, pts[best], pts[best + 1]

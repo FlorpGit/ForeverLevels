@@ -76,7 +76,7 @@ function P.Build()
 
 	-- Spec and stat priority (Pathwise's weights).
 	local class = Gear.Client.Class()
-	local key, label, how = Gear.Spec()
+	local key, _, how = Gear.Spec()
 	rows[#rows + 1] = { "heading", "Spec" }
 	local specButtons = {}
 	for _, s in ipairs(W.Specs(class)) do
