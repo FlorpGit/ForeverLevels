@@ -290,7 +290,7 @@ local function layoutFull()
 
 	if not has then
 		place(W.empty, body, y)
-		W.empty:SetText("No route for this character yet.\n\nOpen Zones for your level (the map button above) to pick one. Routes so far: Tirisfal Glades for Undead, levels 1-10.")
+		W.empty:SetText("No route for this character yet.\n\nOpen Zones for your level (the map button above) or Routes in Settings to pick one.")
 		local h = y + height(W.empty) + PAD
 		W.divider:Hide()
 		W.card:Hide()

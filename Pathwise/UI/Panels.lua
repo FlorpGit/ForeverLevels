@@ -1107,6 +1107,7 @@ function builders.about()
 		{ "text", "Routes adapted from Polestar by the Polestar authors (GPL-3.0)." },
 		{ "text", "Quest data from QuestieDB by the Questie team and contributors." },
 		{ "text", "Typeface: Inter by Rasmus Andersson (SIL Open Font License)." },
+		{ "text", "Starter profession data checked on Wowhead's Forever database." },
 		{ "text", ("Data: %s"):format(tostring(Q.Data.SOURCE)), "muted" },
 		{ "heading", "Licence" },
 		{ "text", "Free and open source under the GNU General Public License, version 3." },

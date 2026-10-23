@@ -353,6 +353,34 @@ end
 -- Events
 ---------------------------------------------------------------------------
 
+---------------------------------------------------------------------------
+-- Commands (everything here is also on the profession pages and in Settings)
+---------------------------------------------------------------------------
+
+local function onOff(arg, current)
+	if arg == "on" then return true elseif arg == "off" then return false end
+	return not current
+end
+
+ns.Command("reminders", function(args)
+	local on = onOff((args or ""):lower():gsub("%s+", ""), ns.Get("professions.reminders"))
+	ns.Set("professions.reminders", on)
+	ns.Print(on and "material reminders on." or "material reminders off.")
+end, "a chat line when your bags make a profession's next craft: /pw reminders [on|off]")
+
+ns.Command("track", function(args)
+	local name, state = (args or ""):lower():match("^%s*(%S+)%s*(%S*)")
+	local prof = name and (P.BY_KEY[name] or P.BY_KEY[name:gsub("_", "-")])
+	if not prof then
+		ns.Print("usage: /pw track <profession> [on|off]   e.g. /pw track tailoring off")
+		return
+	end
+	local on = onOff(state, P.Shown(prof))
+	P.SetShown(prof, on)
+	if ns.Engine then ns.Engine.Update() end
+	ns.Print(("%s %s detours and reminders."):format(prof.name, on and "is back in" or "is left out of"))
+end, "leave a profession out of detours and reminders, or bring it back: /pw track <profession> [on|off]")
+
 local function scan() if P.Scan() then return end end
 ns.RegisterEvent("TRADE_SKILL_SHOW", scan)
 ns.RegisterEvent("TRADE_SKILL_LIST_UPDATE", scan)
