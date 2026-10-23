@@ -1,6 +1,18 @@
+# Build output and local tooling
+node_modules/
+dist/
+*.zip
+data/sources/
+
 # Local game installs and SavedVariables dumps used for testing
 WTF/
 *.bak
+
+# Editor and OS files
 .DS_Store
 Thumbs.db
-/dist/
+
+# Local assistant notes
+CLAUDE.md
+CLAUDE.local.md
+.claude/

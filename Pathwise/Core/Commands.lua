@@ -1,227 +1,155 @@
--- SPDX-License-Identifier: GPL-3.0-only
--- ForeverLevels: slash commands. /pathwise is the main one; /fl and /foreverlevels
--- are kept so older macros and habits keep working.
--- Polestar's README mentions that Forever's gamepad UI can freeze after an addon slash
--- command is typed in chat. Everything here is also reachable from the guide window
--- and the Settings panel, so gamepad players do not need slash commands.
+-- Pathwise slash commands (/pw, /pathwise). Loaded last: every module exists.
 
-local _, FL = ...
+local ADDON, ns = ...
+local Nav, Guide = ns.Nav, ns.Guide
 
-local Engine = FL.Engine
+ns.Command("help", function()
+	ns.Print("commands:")
+	for _, c in ipairs(ns.CommandHelp()) do
+		ns.Print(("  /pw %s  -  %s"):format(c.name, c.help or ""))
+	end
+end, "this list")
 
-local HELP = {
-	"/pathwise - show or hide the guide",
-	"/pathwise next | back | skip - move between steps",
-	"/pathwise routes - list installed routes",
-	"/pathwise route <id> - switch route",
-	"/pathwise reset - restart the current route",
-	"/pathwise lock | unlock - lock the guide and arrow in place",
-	"/pathwise scale <0.5-2> - guide window scale",
-	"/pathwise style [pathwise|classic|tooltip|minimal] - window look",
-	"/pathwise arrow | waypoint | auto | sync | dungeons | record | debug [on|off]",
-	"/pathwise where - print map ID, zone and coordinates",
-	"/pathwise options - open the Settings panel",
-	"/pathwise feedback - report a bug or make a suggestion",
-	"/pathwise report - report a problem with the current guide step",
-	"/pathwise prof - profession dashboard",
-	"/pathwise tracking | reminders [on|off] - profession tracking, material reminders",
-	"/pathwise track <profession> [on|off] - show or hide one profession",
-	"/pathwise detour go | later | skip | done | cancel | on | off - profession detours",
-	"/fl works as a short alias for every command.",
-}
-
-local TOGGLE_ALIASES = {
-	arrow = { "arrow" },
-	waypoint = { "nativeWaypoint" },
-	auto = { "autoAccept", "autoTurnIn", "autoGossip" },
-	sync = { "sync" },
-	dungeons = { "suggestDungeons" },
-	record = { "record" },
-	debug = { "debug" },
-}
-
-local function ParseOnOff(arg, current)
-	if arg == "on" then return true end
-	if arg == "off" then return false end
-	return not current
-end
-
-local commands = {}
-
-commands.help = function()
-	for _, line in ipairs(HELP) do FL:Print(line) end
-end
-
-commands.show = function() FL.GuideFrame:SetShown(true) end
-commands.hide = function() FL.GuideFrame:SetShown(false) end
-commands.next = function() Engine:Next() end
-commands.skip = commands.next
-commands.back = function() Engine:Prev() end
-commands.prev = commands.back
-commands.options = function() FL.Options:Open() end
-commands.config = commands.options
-
-commands.routes = function()
-	local routes = FL:GetRoutes()
-	if #routes == 0 then
-		FL:Print("no routes installed")
+ns.Command("way", function(args)
+	local a = (args or ""):lower()
+	if a == "" or a == "clear" or a == "off" then
+		Nav.Clear()
+		ns.Print("waypoint cleared.")
 		return
 	end
-	for _, route in ipairs(routes) do
-		local fits = FL:RouteFitsPlayer(route, FL.player) and "" or " |cff888888(not for this character)|r"
-		local active = (Engine.route == route) and " |cff55dd55<- active|r" or ""
-		FL:Print(string.format("%s - %s (%d-%d, %s)%s%s", route.id, route.title,
-			route.levels[1], route.levels[2], route.license, fits, active))
-	end
-end
-
-commands.route = function(id)
-	if not id or id == "" then
-		FL:Print("usage: /pathwise route <id>  (see /pathwise routes)")
+	-- /pw way 45.2 61.8 [title]   (on the map you are on)
+	local x, y, title = args:match("^%s*([%d%.]+)[,%s]+([%d%.]+)%s*(.*)$")
+	x, y = tonumber(x), tonumber(y)
+	if not (x and y) or x < 0 or x > 100 or y < 0 or y > 100 then
+		ns.Print("usage: /pw way <x> <y> [title]   e.g. /pw way 45.2 61.8 Inn")
 		return
 	end
-	Engine:SelectRoute(id)
-end
-
-commands.reset = function()
-	Engine:ResetRoute()
-	FL:Print("route progress reset")
-end
-
-commands.lock = function()
-	FL.db.profile.frame.locked = true
-	FL.db.profile.arrowFrame.locked = true
-	FL:Print("locked")
-end
-
-commands.unlock = function()
-	FL.db.profile.frame.locked = false
-	FL.db.profile.arrowFrame.locked = false
-	FL:Print("unlocked - drag to move")
-end
-
-commands.scale = function(arg)
-	local scale = tonumber(arg)
-	if not scale or scale < 0.5 or scale > 2 then
-		FL:Print("usage: /pathwise scale 0.5-2")
+	local map = ns.Compat.PlayerMapPosition()
+	if not map then
+		ns.Print("no map position here (inside an instance?).")
 		return
 	end
-	FL.db.profile.frame.scale = scale
-	FL.GuideFrame:ApplySettings()
-end
+	if title == "" then title = ("%.1f, %.1f"):format(x, y) end
+	Nav.SetTarget(map, x, y, title)
+	ns.Print(("waypoint set: %s on %s."):format(title, ns.Compat.MapName(map) or ("map " .. map)))
+end, "set a waypoint on this map: /pw way <x> <y> [title]; /pw way clear")
 
-commands.style = function(arg)
-	local name = arg ~= "" and arg:lower() or nil
-	if name then
-		if not FL.GuideFrame:SetStyle(name) then
-			FL:Print("usage: /pathwise style pathwise | classic | tooltip | minimal")
+ns.Command("where", function()
+	local C = ns.Compat
+	local map, x, y = C.PlayerMapPosition()
+	if not map then
+		ns.Print("no map position here (inside an instance?).")
+		return
+	end
+	ns.Print(("you are at %.1f, %.1f on %s (map %d)."):format(x, y, C.MapName(map) or "?", map))
+end, "your coordinates on this map")
+
+-- What the arrow sees, to tell a position problem from a display one.
+ns.Command("debug", function()
+	for line in Nav.DebugText():gmatch("[^\n]+") do ns.Print(line) end
+end, "what the arrow sees (also in Settings > Waypoint & tools)")
+ns.Command("tools", function() ns.Panels.Open("tools") end, "Waypoint & tools")
+
+ns.Command("compact", function()
+	Guide.SetCompact(not ns.Get("guide.compact"))
+end, "switch the guide between full and compact")
+
+ns.Command("opacity", function(args)
+	local v = tonumber(args)
+	if not v or v < 40 or v > 100 then
+		ns.Print("usage: /pw opacity <40-100>   (now " .. math.floor(ns.Get("ui.opacity") * 100 + 0.5) .. ")")
+		return
+	end
+	ns.Set("ui.opacity", v / 100)
+end, "window background opacity, 40-100")
+
+ns.Command("scale", function(args)
+	local v = tonumber(((args or ""):gsub("%%", "")))
+	if not v or v < 50 or v > 150 then
+		ns.Print(("usage: /pw scale <50-150>   (now %d%%)"):format(math.floor((ns.Get("ui.scale") or 1) * 100 + 0.5)))
+		return
+	end
+	ns.Set("ui.scale", v / 100)
+	ns.Print(("window size %d%%."):format(v))
+end, "guide window size, 50-150 (also in Settings)")
+
+ns.Command("arrow", function(args)
+	local sub, rest = (args or ""):lower():match("^(%S*)%s*(.-)%s*$")
+	if sub == "scale" then
+		local v = tonumber((rest:gsub("%%", "")))
+		if not v or v < 50 or v > 200 then
+			ns.Print(("usage: /pw arrow scale <50-200>   (now %d%%)"):format(math.floor((ns.Get("arrow.scale") or 1) * 100 + 0.5)))
 			return
 		end
-	else
-		name = FL.GuideFrame:CycleStyle()
-	end
-	if FL.Options.panel then FL.Options.Refresh() end
-	FL:Print("window style:", name)
-end
-
-local DETOUR_ACTIONS = {
-	go = "Accept", later = "Postpone", skip = "Skip", done = "Complete", cancel = "Cancel",
-}
-
-commands.detour = function(arg)
-	arg = (arg or ""):lower()
-	if arg == "on" or arg == "off" then
-		FL.Detours:SetEnabled(arg == "on")
-		FL:Print("profession detours", arg)
+		ns.Set("arrow.scale", v / 100)
+		ns.Print(("arrow size %d%%."):format(v))
 		return
 	end
-	local method = DETOUR_ACTIONS[arg]
-	if not method then
-		FL:Print("usage: /pathwise detour go | later | skip | done | cancel | on | off")
+	ns.Set("arrow.shown", not ns.Get("arrow.shown"))
+	ns.Print(ns.Get("arrow.shown") and "arrow on (Shift-drag to move)." or "arrow off.")
+end, "show or hide the arrow; /pw arrow scale <50-200> sets its size")
+
+ns.Command("reset", function()
+	ns.Set("guide.point", nil)
+	ns.Set("arrow.point", nil)
+	ns.Print("window positions reset; /reload to apply.")
+end, "reset window positions")
+
+-- A labelled sample so the layout can be checked in game before the guide
+-- engine exists. Quest names are from the Undead start in Tirisfal Glades.
+ns.Command("demo", function()
+	if Guide.View() then
+		Guide.SetView(nil)
+		ns.Print("sample cleared.")
 		return
 	end
-	if not FL.Detours[method](FL.Detours) then
-		FL:Print("no profession detour to " .. arg)
-	end
-end
-commands.detours = commands.detour
+	Guide.SetView({
+		route = "Sample · Tirisfal Glades", index = 6, count = 48, progress = 0.12,
+		title = "The Mindless Ones",
+		text = "Kill Mindless and Wretched Zombies in the fields just north of Deathknell.",
+		coords = "30.7, 64.2",
+		objectives = {
+			{ text = "Mindless Zombie", have = 5, need = 8 },
+			{ text = "Wretched Zombie", have = 8, need = 8, done = true },
+		},
+		detour = { label = "Optional · Tailoring", text = "Train Apprentice Tailoring", sub = "On your way · about 1 min" },
+		next = "Turn in The Mindless Ones at Shadow Priest Sarvis",
+	})
+	ns.Set("guide.shown", true)
+	ns.Print("showing a sample step (/pw demo again to clear).")
+end, "preview the guide window with a sample step")
 
-commands.feedback = function() FL.FeedbackCenter:Open(nil) end
-commands.bug = commands.feedback
-commands.report = function() FL.FeedbackCenter:OpenForStep() end
+ns.Command("about", function()
+	ns.Print(("Pathwise %s  ·  Every quest. Every craft. Every level.  ·  created by leight_nn & florp  _nn"):format(ns.VERSION))
+	ns.Fire("SHOW_ABOUT")
+end, "version and credits")
+ns.Command("report", function() ns.Fire("REPORT_STEP") end, "a report of this step to paste into Discord")
 
-commands.prof = function() FL.Dashboard:Toggle() end
-commands.professions = commands.prof
-commands.dashboard = commands.prof
+ns.Command("settings", function() ns.Fire("SHOW_SETTINGS") end, "open the settings panel")
+ns.Command("zones", function() ns.Fire("SHOW_ZONES") end, "zones for your level (and switching routes)")
+ns.Command("routes", function() ns.Fire("SHOW_ROUTES") end, "every route for you: leveling, class quests, professions")
+ns.Command("prof", function() ns.Fire("SHOW_PROFESSIONS") end, "your professions: skill, best craft, materials")
+ns.Command("dungeons", function() ns.Fire("SHOW_DUNGEONS") end, "dungeons and raids for your level, their quests and entrances")
+ns.Command("professions", function() ns.Fire("SHOW_PROFESSIONS") end, "same as /pw prof")
+ns.Command("skip", function() ns.Fire("GUIDE_SKIP") end, "skip the current quest, or pick one nearby instead")
 
-local function ProfessionToggle(key, label)
-	return function(arg)
-		local value = ParseOnOff((arg or ""):lower(), FL.db.profile.professions[key])
-		FL.Options.SetProfession(key, value)
-		FL:Print(label, value and "on" or "off")
-	end
-end
-commands.tracking = ProfessionToggle("enabled", "profession tracking")
-commands.reminders = ProfessionToggle("reminders", "material reminders")
-
-commands.track = function(arg)
-	local name, state = (arg or ""):lower():match("^(%S+)%s*(%S*)$")
-	local info = name and FL.Professions:Get(name)
-	if not info then
-		FL:Print("usage: /pathwise track <profession> [on|off]  (e.g. /pathwise track tailoring off)")
-		return
-	end
-	local value = ParseOnOff(state, FL.db.profile.professions.tracked[name] ~= false)
-	FL.Options.SetTracked(name, value)
-	FL:Print(info.name, value and "tracked" or "hidden")
-end
-
-commands.where = function()
-	local mapID, zone, x, y = FL.Recorder.GetPosition()
-	if not mapID then
-		FL:Print("no map position available here")
-		return
-	end
-	FL:Print(string.format("map %d (%s) %.1f, %.1f", mapID, tostring(zone), x or -1, y or -1))
-end
-
-commands.recorder = function(arg)
-	if arg == "clear" then
-		FL.Recorder:Clear()
-		FL:Print("recorder log cleared")
-	else
-		FL:Print(#FL.db.recorder .. " recorded entries (saved on /reload or logout). /pathwise recorder clear to wipe.")
-	end
-end
-
-for alias, keys in pairs(TOGGLE_ALIASES) do
-	commands[alias] = function(arg)
-		local value = ParseOnOff(arg, FL.db.profile[keys[1]])
-		for _, key in ipairs(keys) do
-			FL.Options.Set(key, value)
+ns.Command("route", function(args)
+	local E = ns.Engine
+	if args and args ~= "" then
+		for _, r in ipairs(E.Routes()) do
+			if r.id == args or r.title:lower() == args:lower() then
+				E.SetRoute(r.id)
+				ns.Print("route: " .. r.title)
+				return
+			end
 		end
-		FL:Print(alias, value and "on" or "off")
-	end
-end
-
-local function Handle(input)
-	local command, rest = (input or ""):match("^%s*(%S*)%s*(.-)%s*$")
-	command = command:lower()
-	if command == "" then
-		FL.GuideFrame:Toggle()
+		ns.Print("no route called '" .. args .. "'.")
 		return
 	end
-	local handler = commands[command]
-	if handler then
-		handler(rest)
-	else
-		commands.help()
-	end
-end
+	local r = E.Route()
+	ns.Print("route: " .. (r and (r.title .. " (" .. r.id .. ")") or "none"))
+	for _, x in ipairs(E.Routes()) do ns.Print("  " .. x.id .. "  " .. x.title) end
+end, "show or choose the route: /pw route <id or title>")
 
-SLASH_FOREVERLEVELS1 = "/pathwise"
-SLASH_FOREVERLEVELS2 = "/fl"
-SLASH_FOREVERLEVELS3 = "/foreverlevels"
-SlashCmdList.FOREVERLEVELS = Handle
-
-FL.HandleSlash = Handle
+ns.On("GUIDE_BACK", function() ns.Engine.Back() end)
+ns.On("GUIDE_NEXT", function() ns.Engine.Next() end)

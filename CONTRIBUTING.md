@@ -1,65 +1,61 @@
-# Contributing
+# Contributing to Pathwise
 
-If you want to help, the thing I need most is coordinates and quest data checked
-on the live Forever client.
+Thanks for helping. Pathwise is a free, open-source leveling and profession
+companion for World of Warcraft: Forever, under GPL-3.0.
 
-## Ground rules
+## The rules that matter most
 
-1. Original work only. Routes must be written by you: your ordering, wording and
-   notes. Do not paste or paraphrase text from paid or proprietary guides, or from
-   guides whose license does not allow redistribution under CC BY-SA 4.0 (for example
-   GPL-licensed guide text). Quest IDs, quest/NPC/zone names and coordinates you
-   measured yourself are fine.
-2. Only use functions that actually exist on Forever. If you
-   add a call, cite where you verified it in `docs/API_RESEARCH.md` (Blizzard's API
-   docs or UI source on the `forever` branch of Gethe/wow-ui-source). If a feature
-   needs an API that does not exist, add it to the "not supported" table instead.
-3. Licenses. Code contributions are GPL-3.0-only, including the additional terms in
-   NOTICE.md. Contributions to `Pathwise/Guides/` are CC BY-SA 4.0. By opening a
-   pull request you agree to license your work that way, and you confirm you have the
-   right to (it is your own work, or compatible with these licenses and credited).
-   Your contribution becomes part of the work copyrighted by "The Pathwise Authors";
-   the Git history records who wrote what.
-4. Names. Community add-ons should not be named so they look like official Pathwise
-   add-ons. See TRADEMARKS.md.
+- **Never invent game facts.** Quest IDs, NPC IDs, item IDs, coordinates,
+  recipes and client APIs come from the data (QuestieDB), the routes
+  (Polestar), Blizzard's Forever UI source (Gethe/wow-ui-source, `forever`
+  branch), or what you checked in game. If something is not verified, say so
+  in the code and the pull request.
+- **Never claim a test passed you did not run,** and never claim something
+  works in game unless you checked it in game.
+- **Do not copy RestedXP's guides** or any other paid or proprietary guide.
+- **Keep credits intact**: THIRD_PARTY.md, the headers of generated files,
+  and the About panel.
 
-## Fixing or adding route data
+## Set up
 
-1. In game: `/fl record on`, then play the section.
-2. `/reload`, then open `WTF/Account/<ACCOUNT>/SavedVariables/Pathwise.lua`.
-3. Either edit the route file by hand using the recorded `x`, `y` and `mapID`, or start
-   from a skeleton: `lua tools/recorder_to_route.lua path/to/Pathwise.lua my.route`.
-4. Set `verified = true` on each step you walked yourself on Forever.
-5. Run `lua tools/validate_routes.lua` and `lua tests/run.lua`.
-6. Open a pull request with your build number (`/run print(GetBuildInfo())`).
+You need Lua 5.1 (`lua5.1`, `luac5.1`) and Node 24 or newer.
 
-New routes for other races, zones or level ranges can go in this repository (under
-`Pathwise/Guides/`, add the file to both TOCs) or in your own addon
-(see `examples/Pathwise_ExampleRoute`, and `docs/ROUTE_FORMAT.md`).
+```bash
+npm test
+```
 
-## Fixing or adding profession data
+```bash
+npm run link
+```
 
-1. Open each profession window in game. Pathwise stores the client's reagent lists in
-   `ForeverLevelsDB.professionCache` and your recipe states per character.
-2. With `/pathwise record on`, opening a trainer window logs the trainer's name and
-   position.
-3. Compare with `Pathwise/Guides/Professions/*.lua`, or start a separate pack from
-   `examples/Pathwise_ExampleProfessionData`. The format is in
-   `docs/PROFESSION_DATA_FORMAT.md`.
-4. Only set a `verified` field to true for something you checked on Forever (in game,
-   or a source that covers Forever such as wowhead.com/forever). Leave unknown values
-   out instead of guessing; Forever already changed some recipes compared with the
-   2004 game.
-5. Run `lua tools/validate_routes.lua` and `lua tests/run.lua`.
+`npm run link` links `Pathwise/` into the game (set `WOW_FOREVER_ADDONS` to
+your `Interface\AddOns` folder first); `/reload` in game picks up changes.
 
-## Code
+## Where things are
 
-- Lua 5.1 (what WoW embeds). No `goto`, integer division or bit operators.
-- Tabs for indentation, match the style of nearby code.
-- Modules talk through `FL:Fire()` / `FL:On()` messages; keep UI out of `Core/`.
-- Add or update a test in `tests/` for behavior changes. `lua tests/run.lua` must pass,
-  and CI also runs on Lua 5.1 with luacheck.
-- Keep both TOC files identical.
-- Don't rename internal `ForeverLevels` names (the global, SavedVariables, the sync
-  prefix) for branding. Public text says Pathwise; internal names stay for compatibility.
-- Profession code must not change route state. Detours and plans only read the engine.
+| Path | What |
+|---|---|
+| `Pathwise/Core` | Start-up, settings, commands, the one place client APIs are read (`Compat.lua`) |
+| `Pathwise/Guide` | Quest facts (`Quests.lua`) and the guide engine (`Engine.lua`) |
+| `Pathwise/Professions` | The professions dashboard's logic |
+| `Pathwise/UI`, `Pathwise/Theme`, `Pathwise/Nav` | Windows, panels, the Signature theme, the arrow |
+| `Pathwise/Data/Data.lua` | Generated from QuestieDB: `npm run data` (docs/DATA.md) |
+| `Pathwise/Routes/*.lua` | Generated from Polestar: `npm run routes` (tools/port/polestar.lua) |
+| `tests/` | Lua tests against a stub of the game client |
+
+Do not edit generated files by hand: change their generator and rebuild.
+
+## Fixing a route
+
+1. In game, open the step and use **Report this step** (the flag): paste the
+   report into the issue or pull request.
+2. Hand-written routes use the format at the top of `Guide/Engine.lua`.
+   Quest goals only need the quest ID; the data fills in the rest.
+3. Run `npm test`, then play the fix.
+
+## Pull requests
+
+- One change per pull request, with a line on what players will notice.
+- Add a test for behaviour changes (`tests/`).
+- Add a line under "Unreleased" in CHANGELOG.md.
+- If an AI assistant helped, say which one in the description.
