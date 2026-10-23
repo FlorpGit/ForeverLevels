@@ -15,7 +15,8 @@
 --   { "copy", text, lines }                 selectable text to copy (Ctrl+C)
 --   { "icon", size }                        the Pathwise compass mark
 --   { "coords", onSet(x, y), onClear }      X and Y boxes with Set and Clear
---   { "input", key, lines }                 a box to type or paste into; Panels.InputText(key)
+--   { "input", key, lines, onChange(text) } a box to type or paste into; Panels.InputText(key),
+--                                           Panels.SetInput(key, text) fills it before it opens
 --   { "divider" }
 --   { "buttons", { { label, kind, onClick }, ... } }   right-aligned footer
 
@@ -215,7 +216,11 @@ function makers.input()
 	local c = T.Color("text")
 	e:SetTextColor(c[1], c[2], c[3])
 	e:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-	e:SetScript("OnTextChanged", function(self) if f.key then inputs[f.key] = self:GetText() end end)
+	e:SetScript("OnTextChanged", function(self)
+		if not f.key then return end
+		inputs[f.key] = self:GetText()
+		if f.onChange then f.onChange(inputs[f.key]) end
+	end)
 	e:SetScript("OnMouseUp", function(self) self:SetFocus() end)
 	f.box = e
 	return f
@@ -223,6 +228,7 @@ end
 
 function Panels.InputText(key) return inputs[key] end
 function Panels.ClearInput(key) inputs[key] = nil end
+function Panels.SetInput(key, text) inputs[key] = text end
 
 function makers.icon()
 	return T.Icon(host, 40)
@@ -342,8 +348,9 @@ local function render(rows)
 			place(f, 12 + (r[3] or 6) * 14, 6)
 		elseif kind == "input" then
 			local f = take("input", makers.input)
-			f.key = r[2]
+			f.key, f.onChange = r[2], nil
 			f.box:SetText(inputs[r[2]] or "")
+			f.onChange = r[4]
 			f.box:SetWidth(inner - 16)
 			place(f, 12 + (r[3] or 3) * 14, 6)
 		elseif kind == "coords" then
@@ -530,6 +537,9 @@ function Panels.Open(kind)
 	anchor()
 	panel:Show()
 end
+
+-- A panel of Pathwise's own kept in another file (UI/Feedback.lua).
+function Panels.Define(kind, builder) builders[kind] = builder end
 
 -- Another Pathwise addon's panel (Pathwise.Suite.Panel).
 -- The suite addons' panels: Back always leads somewhere from them (at least
@@ -1015,29 +1025,13 @@ function builders.tools()
 			{ ns.Get("recorder.on") and "Turn off" or "Turn on", function() ns.Set("recorder.on", not ns.Get("recorder.on")) Panels.Refresh() end },
 			#ns.Recorder.Log() > 0 and { "Clear", function() ns.Recorder.Clear() Panels.Refresh() end } or nil } },
 		{ "text", ("%d entries. /reload saves them; tools/recorder_to_route.lua turns them into a route."):format(#ns.Recorder.Log()), "muted" },
-		{ "buttons", { { "Report this step", "default", function() Panels.Open("report") end }, { "Close", "default", Panels.Close } } },
+		{ "buttons", { { "Report this step", "default", function() ns.Fire("REPORT_STEP") end }, { "Close", "default", Panels.Close } } },
 	}
 end
 
 ---------------------------------------------------------------------------
--- Report this step, and About
+-- About (the Feedback Center, with Report this step, is in UI/Feedback.lua)
 ---------------------------------------------------------------------------
-
-local DISCORD = "https://discord.gg/hSDjBrG8EK"
-
-function builders.report()
-	local text = ns.Engine.ReportText()
-	local n = 1
-	for _ in text:gmatch("\n") do n = n + 1 end
-	return {
-		{ "heading", "Report this step" },
-		{ "text", "Click the box, press Ctrl+C, and paste it into Pathwise's Discord with a line on what went wrong. Nothing is sent from the game." },
-		{ "copy", text, math.min(16, n + 1) },
-		{ "heading", "Pathwise's Discord" },
-		{ "copy", DISCORD, 1 },
-		{ "buttons", { { "Close", "default", Panels.Close } } },
-	}
-end
 
 function builders.about()
 	local Q = ns.Quests
@@ -1057,8 +1051,10 @@ function builders.about()
 		{ "heading", "Licence" },
 		{ "text", "Free and open source under the GNU General Public License, version 3." },
 		{ "heading", "Discord" },
-		{ "copy", DISCORD, 1 },
-		{ "buttons", { { "Close", "default", Panels.Close } } },
+		{ "copy", ns.Feedback.DISCORD, 1 },
+		{ "heading", "Email" },
+		{ "copy", ns.Feedback.EMAIL, 1 },
+		{ "buttons", { { "Feedback", "default", function() ns.Fire("SHOW_FEEDBACK") end }, { "Close", "default", Panels.Close } } },
 	}
 end
 
@@ -1177,6 +1173,7 @@ function builders.settings()
 		for _, m in ipairs(mods) do rows[#rows + 1] = { "choice", m.name, m.about, function() m.open() end } end
 	end
 	rows[#rows + 1] = { "choice", "Waypoint & tools", "Set a waypoint by coordinates; what the arrow sees", function() Panels.Open("tools") end }
+	rows[#rows + 1] = { "choice", "Report a bug or make a suggestion", "Pathwise prepares the text; you send it to Discord or by email", function() ns.Fire("SHOW_FEEDBACK") end }
 	rows[#rows + 1] = { "choice", "About Pathwise", ("Version %s  ·  created by leight_nn & florp   _nn"):format(ns.VERSION), function() Panels.Open("about") end }
 	return rows
 end
@@ -1186,7 +1183,6 @@ ns.On("SHOW_ZONES", function() Panels.Open("zones") end)
 ns.On("SHOW_SETTINGS", function() Panels.Open("settings") end)
 ns.On("SHOW_ROUTES", function() Panels.Open("routes") end)
 ns.On("SHOW_PROFESSIONS", function() Panels.Open("professions") end)
-ns.On("REPORT_STEP", function() Panels.Open("report") end)
 ns.On("SHOW_DUNGEONS", function() Panels.Open("dungeons") end)
 ns.On("SHOW_ABOUT", function() Panels.Open("about") end)
 ns.On("GUIDE_UPDATED", function() if Panels.IsOpen("skip") or Panels.IsOpen("professions") or Panels.IsOpen("profession") then Panels.Refresh() end end)

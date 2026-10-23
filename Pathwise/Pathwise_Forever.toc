@@ -20,9 +20,11 @@ Guide\AutoQuest.lua
 Guide\Sync.lua
 Guide\Recorder.lua
 Guide\Dungeons.lua
+Core\Feedback.lua
 Nav\Pins.lua
 UI\GuideWindow.lua
 UI\Panels.lua
+UI\Feedback.lua
 UI\MinimapButton.lua
 Routes\Leveling.lua
 Routes\Class.lua

@@ -671,6 +671,21 @@ function Engine.StepTitle(route, s)
 	return titleOf(route.steps[s], route, s)
 end
 
+-- Step s's instructions as the window shows them (reports).
+function Engine.StepText(route, s)
+	if not (route and route.steps[s]) then return nil end
+	player = player or Q.Player()
+	return textOf(route.steps[s])
+end
+
+-- Where the step shown leads (its first open goal with a place), or nil.
+-- -> place { map, x, y, name }, goal
+function Engine.StepPlace()
+	compute()
+	local goal = leadIn(Engine.Route(), current)
+	return goal and placeOf(goal) or nil, goal
+end
+
 ---------------------------------------------------------------------------
 -- Updating: the window and the arrow, after game events
 ---------------------------------------------------------------------------
@@ -791,53 +806,6 @@ function Engine.Pins()
 		end
 	end
 	return out
-end
-
----------------------------------------------------------------------------
--- A report of the step shown, for "Report this step": plain text the player
--- copies into Discord or an issue. Nothing is sent anywhere.
----------------------------------------------------------------------------
-
-function Engine.ReportText()
-	compute()
-	local lines = {}
-	local function add(s) lines[#lines + 1] = s end
-	local version = ns.VERSION
-	local build = GetBuildInfo and select(1, GetBuildInfo()) or "?"
-	add(("Pathwise %s report  ·  client %s  ·  data %s"):format(version, tostring(build), tostring(Q.Data.SOURCE)))
-	local route = Engine.Route()
-	if route then
-		add(("Route: %s (%s)  ·  step %s of %d, live step %s"):format(route.title, route.id, tostring(current), #route.steps, tostring(live)))
-		local step = current and route.steps[current]
-		if step then
-			add("Step: " .. (titleOf(step, route, current) or "?"))
-			for g, goal in ipairs(step) do
-				local verb = goal[1]
-				local what = QUEST_VERBS[verb] and ("%s %d %s"):format(verb, goal[2], qname(goal)) or goalText(goal)
-				local log = ""
-				if QUEST_VERBS[verb] then
-					local q = goal[2]
-					log = ("  [log: %s%s%s]"):format(Q.OnQuest(q) and "on quest" or "not in log", Q.Done(q) and ", done" or "",
-						Q.OnQuest(q) and Q.Ready(q) and ", ready" or "")
-					for _, o in ipairs(Q.Objectives(q) or {}) do
-						log = log .. (" %s %s/%s;"):format(o.text, tostring(o.have), tostring(o.need))
-					end
-				end
-				add(("  %d. %s: %s%s"):format(g, goalStatus(route, current, g, goal), what, log))
-			end
-		end
-	else
-		add("Route: none")
-	end
-	if extra then add(("Extra quest: %d %s (%s)"):format(extra.quest, Q.Name(extra.quest), extra.verb)) end
-	local p = Q.Player()
-	add(("Character: %s %s, level %d, %s"):format(tostring(p.race), tostring(p.class), p.level or 0, tostring(p.faction)))
-	local map, x, y = C.PlayerMapPosition()
-	add(map and ("Position: map %d (%s) %.2f, %.2f"):format(map, C.MapName(map) or "?", x, y) or "Position: none")
-	local t = ns.Nav.Target()
-	add(t and ("Arrow: %s, map %d %.2f, %.2f"):format(tostring(t.title), t.map, t.x, t.y) or "Arrow: none")
-	add("What went wrong: ")
-	return table.concat(lines, "\n")
 end
 
 ---------------------------------------------------------------------------

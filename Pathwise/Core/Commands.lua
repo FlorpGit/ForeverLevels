@@ -131,7 +131,7 @@ ns.Command("about", function()
 	ns.Print(("Pathwise %s  ·  Every quest. Every craft. Every level.  ·  created by leight_nn & florp  _nn"):format(ns.VERSION))
 	ns.Fire("SHOW_ABOUT")
 end, "version and credits")
-ns.Command("report", function() ns.Fire("REPORT_STEP") end, "a report of this step to paste into Discord")
+ns.Command("report", function() ns.Fire("REPORT_STEP") end, "report a problem with this guide step (for Discord or email)")
 
 ns.Command("settings", function() ns.Fire("SHOW_SETTINGS") end, "open the settings panel")
 ns.Command("zones", function() ns.Fire("SHOW_ZONES") end, "zones for your level (and switching routes)")

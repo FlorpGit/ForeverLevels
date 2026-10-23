@@ -1,22 +1,24 @@
--- SPDX-License-Identifier: GPL-3.0-only
--- ForeverLevels: feedback reports (bug reports, suggestions, guide step reports).
+-- Pathwise feedback: bug reports, suggestions and reports about a guide step.
 --
--- Reports are prepared in game and copied by the player. Pathwise never sends
--- anything: an addon cannot send email or make web requests, and it must never hold
--- credentials. Each report is built as a structured table (Feedback.Build) and then
--- rendered as text (Feedback.Format) with a one-line key=value block, so a future
--- Pathwise feedback portal can accept the same data. See docs/FEEDBACK_SYSTEM.md.
+-- Reports are prepared in game and copied by the player, who pastes them into
+-- Pathwise's Discord or an email. Pathwise never sends anything: an addon
+-- cannot send email or make web requests, and it must never hold
+-- credentials. A report is built as a table (Feedback.Build) and rendered as
+-- text (Feedback.Format) ending in a one-line key=value block, so a future
+-- feedback portal can read the same data. See docs/FEEDBACK_SYSTEM.md.
 --
--- Collecting a report only reads guide state. It never changes the route, the step,
--- or quest progress.
+-- Collecting a report only reads the guide. It never changes the route, the
+-- step or quest progress. Character details and diagnostics are only added
+-- when the player turns them on; the preview shows what is and is not in.
 
-local _, FL = ...
-
+local ADDON, ns = ...
+local C = ns.Compat
 local Feedback = {}
-FL.Feedback = Feedback
+ns.Feedback = Feedback
 
 Feedback.EMAIL = "pathwise.nn@gmail.com"
-Feedback.FORMAT_VERSION = 1
+Feedback.DISCORD = "https://discord.gg/hSDjBrG8EK"
+Feedback.FORMAT_VERSION = 2 -- 2: steps by number (routes have no step ids), goals with their status
 Feedback.MAX_DRAFTS = 20
 
 Feedback.TYPES = {
@@ -30,7 +32,7 @@ Feedback.STEP_CATEGORIES = {
 	{ key = "npc_location", label = "Wrong NPC location" },
 	{ key = "quest_missing", label = "Quest missing or unavailable" },
 	{ key = "objectives", label = "Quest objectives are incorrect" },
-	{ key = "no_advance", label = "Quest does not auto-complete or advance" },
+	{ key = "no_advance", label = "Quest does not complete or advance" },
 	{ key = "requirements", label = "Incorrect class or race requirements" },
 	{ key = "profession", label = "Incorrect profession instructions" },
 	{ key = "missing_step", label = "Missing quest or leveling step" },
@@ -39,95 +41,116 @@ Feedback.STEP_CATEGORIES = {
 
 Feedback.TEXT_FIELDS = { "description", "correctCoords", "correctNpc", "replacement", "repro" }
 
-local function Label(list, key)
+local QUEST_VERBS = { accept = "accept", complete = "complete", turnin = "turn in" }
+
+function Feedback.Label(list, key)
 	for _, entry in ipairs(list) do
 		if entry.key == key then return entry.label end
 	end
 end
-Feedback.Label = Label
+local label = Feedback.Label
 
-local GOAL_WORDS = { accept = "accept", complete = "complete", turnin = "turn in" }
-
-local function CurrentZone()
-	local mapID = C_Map.GetBestMapForUnit("player")
-	local info = mapID and C_Map.GetMapInfo(mapID)
-	if info and info.name and not FL.IsSecret(info.name) then return info.name end
+local function zone()
+	local map = C.PlayerMapPosition()
+	return map and C.MapName(map) or nil
 end
 
-------------------------------------------------------------------------
--- Context
-------------------------------------------------------------------------
+---------------------------------------------------------------------------
+-- What a report is about
+---------------------------------------------------------------------------
 
--- Snapshot of the current guide step, or nil when no route or step is active.
--- Quest IDs are the step's goals that apply to this character.
+local function goalLog(q)
+	local Q = ns.Quests
+	local parts = { Q.OnQuest(q) and "on quest" or "not in log" }
+	if Q.Done(q) then parts[#parts + 1] = "done" end
+	if Q.OnQuest(q) and Q.Ready(q) then parts[#parts + 1] = "ready" end
+	for _, o in ipairs(Q.Objectives(q) or {}) do
+		parts[#parts + 1] = ("%s %s/%s"):format(o.text, tostring(o.have), tostring(o.need))
+	end
+	return table.concat(parts, ", ")
+end
+
+-- The step the guide shows, or nil without a route or step: route, step
+-- number, title, instructions, its goals (quest ids with their status) and
+-- where it leads.
 function Feedback.CollectStepContext()
-	local engine = FL.Engine
-	local route, step = engine.route, engine:GetCurrentStep()
-	if not route or not step then return nil end
-	local player = FL.player
-	local quests = {}
-	for _, goal in ipairs((engine.GetGoals(step, player))) do
-		if goal.questID then
-			quests[#quests + 1] = { id = goal.questID, kind = goal.kind, name = FL.Quests.GetTitle(goal.questID, route) }
+	local E, Q = ns.Engine, ns.Quests
+	local route, s = E.Route(), E.CurrentStep()
+	if not (route and s) then return nil end
+	local player = Q.Player()
+	local goals, quests = {}, {}
+	for g, goal in ipairs(route.steps[s]) do
+		if not (goal.only and not E.Fits(goal.only, player)) then
+			local verb = goal[1]
+			local entry = { verb = verb, status = E.GoalStatus(route, s, g, goal), text = E.GoalText(goal) }
+			if QUEST_VERBS[verb] then
+				entry.quest, entry.name, entry.log = goal[2], goal.name or Q.Name(goal[2]), goalLog(goal[2])
+				quests[#quests + 1] = { id = goal[2], kind = verb, name = entry.name }
+			end
+			goals[#goals + 1] = entry
 		end
 	end
-	local waypoint
-	if step.x then
-		waypoint = {
-			x = step.x, y = step.y, zone = step.zone or route.zone,
-			mapID = FL.Waypoint.ResolveMap(step, route),
-		}
-	end
+	local place = E.StepPlace()
+	local extra = E.Extra()
 	return {
-		routeId = route.id, routeTitle = route.title, routeVersion = route.version,
-		stepIndex = engine.index, stepCount = #route.steps,
-		stepId = step.id, stepTitle = step.title, stepText = engine.GetStepText(step, player),
-		quests = quests, waypoint = waypoint,
-		verified = (step.verified or route.verified) and true or false,
+		routeId = route.id, routeTitle = route.title,
+		stepIndex = s, stepCount = #route.steps, liveStep = E.LiveStep(),
+		stepTitle = E.StepTitle(route, s) or "", stepText = E.StepText(route, s) or "",
+		goals = goals, quests = quests,
+		waypoint = place and { map = place.map, x = place.x, y = place.y, zone = C.MapName(place.map), name = place.name } or nil,
+		extra = extra and { quest = extra.quest, verb = extra.verb, name = Q.Name(extra.quest) } or nil,
 	}
 end
 
 local RACE_NAMES = { Scourge = "Undead", NightElf = "Night Elf" }
 
--- Character details. Only added to a report when the player opts in.
+-- Character details: only in a report when the player turns them on.
 function Feedback.CollectCharacter()
-	local player = FL.player
-	local class = player.class:sub(1, 1) .. player.class:sub(2):lower()
-	return { level = player.level, class = class, race = RACE_NAMES[player.race] or player.race, faction = player.faction }
+	local p = ns.Quests.Player()
+	local class = tostring(p.class or "?")
+	class = class:sub(1, 1) .. class:sub(2):lower()
+	return { level = p.level or 0, class = class, race = RACE_NAMES[p.race] or tostring(p.race), faction = tostring(p.faction) }
 end
 
--- Technical details. Only added to a report when the player opts in.
+-- Diagnostics: only in a report when the player turns them on.
 function Feedback.CollectDiagnostics()
-	local version, build = GetBuildInfo()
-	local mapID, zone, x, y = FL.Recorder.GetPosition()
-	local target = FL.Waypoint.target
-	local active = FL.Detours and FL.Detours:GetActive()
-	local profile = FL.db.profile
+	local version, build = "?", "?"
+	if GetBuildInfo then version, build = GetBuildInfo() end
+	local map, x, y = C.PlayerMapPosition()
+	local t = ns.Nav.Target()
+	local auto = {}
+	for _, k in ipairs({ "accept", "turnin", "gossip" }) do if ns.Get("auto." .. k) then auto[#auto + 1] = k end end
+	local detour = ns.Detours and ns.Detours.Active and ns.Detours.Active()
 	return {
-		gameVersion = version, build = build, forever = FL:IsForeverClient(),
-		position = mapID and string.format("%s, %s map %d (%s)", x and string.format("%.1f", x) or "?",
-			y and string.format("%.1f", y) or "?", mapID, tostring(zone)) or "unavailable",
-		arrowTarget = target and string.format("%.1f, %.1f map %d (%s)", target.x, target.y, target.mapID, tostring(target.title)) or "none",
-		detour = active and active.id or "none",
-		style = profile.frame.style,
-		automation = (profile.autoAccept and "accept " or "") .. (profile.autoTurnIn and "turn-in " or "") .. (profile.autoGossip and "gossip" or ""),
+		gameVersion = version, build = build, forever = C.IsForeverClient(),
+		position = map and ("%.1f, %.1f map %d (%s)"):format(x, y, map, tostring(C.MapName(map))) or "unavailable",
+		arrowTarget = t and ("%.1f, %.1f map %d (%s)"):format(t.x, t.y, t.map, tostring(t.title)) or "none",
+		detour = detour and detour.id or "none",
+		style = ns.Get("ui.style") or "modern",
+		automation = #auto > 0 and table.concat(auto, " ") or "off",
+		data = ns.Quests.Data.SOURCE,
 	}
 end
 
-------------------------------------------------------------------------
--- Drafts (saved account-wide; one per guide step plus one general draft)
-------------------------------------------------------------------------
+---------------------------------------------------------------------------
+-- Drafts: account-wide, one per guide step plus one general draft
+---------------------------------------------------------------------------
 
-local function Store()
-	return FL.db.feedback
+local function store()
+	local s = ns.Get("feedback.drafts")
+	if type(s) ~= "table" then
+		s = {}
+		ns.Set("feedback.drafts", s)
+	end
+	return s
 end
 
 function Feedback.DraftKey(context)
-	if context then return "step:" .. context.routeId .. ":" .. context.stepId end
+	if context then return ("step:%s:%d"):format(context.routeId, context.stepIndex) end
 	return "general"
 end
 
-local function Prune(drafts)
+local function prune(drafts)
 	local keys = {}
 	for key in pairs(drafts) do keys[#keys + 1] = key end
 	if #keys <= Feedback.MAX_DRAFTS then return end
@@ -135,131 +158,117 @@ local function Prune(drafts)
 	for i = 1, #keys - Feedback.MAX_DRAFTS do drafts[keys[i]] = nil end
 end
 
--- Opens (or creates) the draft for a step context, or the general draft.
+local function now() return time and time() or 0 end
+
+-- Opens (or starts) the draft for a step, or the general draft.
 function Feedback.OpenDraft(context)
-	local store = Store()
+	local drafts = store()
 	local key = Feedback.DraftKey(context)
-	local draft = store.drafts[key]
+	local draft = drafts[key]
 	if not draft then
-		draft = {
-			type = context and "step" or "bug", category = nil,
-			includeCharacter = false, includeDiagnostics = false,
-		}
+		draft = { type = context and "step" or "bug", includeCharacter = false, includeDiagnostics = false }
 		for _, field in ipairs(Feedback.TEXT_FIELDS) do draft[field] = "" end
-		store.drafts[key] = draft
+		drafts[key] = draft
 	end
-	if context then draft.context = context end   -- refresh the step snapshot
-	draft.updated = time()
-	store.current = key
-	Prune(store.drafts)
+	if context then draft.context = context end -- the step as it is now
+	draft.updated = now()
+	ns.Set("feedback.current", key)
+	prune(drafts)
 	return draft, key
 end
 
-function Feedback.GetCurrentDraft()
-	local store = Store()
-	local key = store.current
-	return key and store.drafts[key] or nil, key
+function Feedback.CurrentDraft()
+	local key = ns.Get("feedback.current")
+	return key and store()[key] or nil, key
 end
 
 function Feedback.SetField(field, value)
-	local draft = Feedback.GetCurrentDraft()
+	local draft = Feedback.CurrentDraft()
 	if not draft then return end
 	draft[field] = value
-	draft.updated = time()
+	draft.updated = now()
 	draft.prepared = nil
 end
 
 function Feedback.DiscardCurrent()
-	local store = Store()
-	if store.current then store.drafts[store.current] = nil end
-	store.current = nil
+	local _, key = Feedback.CurrentDraft()
+	if key then store()[key] = nil end
+	ns.Set("feedback.current", nil)
 end
 
-------------------------------------------------------------------------
+---------------------------------------------------------------------------
 -- Building and formatting
-------------------------------------------------------------------------
+---------------------------------------------------------------------------
 
-local function Trim(text)
+local function trim(text)
 	return ((text or ""):gsub("^%s+", ""):gsub("%s+$", ""))
 end
 
--- Returns report, or nil and a message explaining what is missing.
+-- -> report, or nil and what is missing.
 function Feedback.Build(draft)
 	if not draft then return nil, "Nothing to report yet." end
-	if Trim(draft.description) == "" then
-		return nil, "Describe what happened before preparing the report."
-	end
+	if trim(draft.description) == "" then return nil, "Describe what happened before preparing the report." end
 	local isStep = draft.type == "step"
-	if isStep and not draft.category then
-		return nil, "Pick what is wrong with this step."
-	end
-	if isStep and not draft.context then
-		return nil, "This report has no guide step. Use a bug report instead."
-	end
+	if isStep and not draft.category then return nil, "Pick what is wrong with this step." end
+	if isStep and not draft.context then return nil, "This report has no guide step. Make it a bug report instead." end
 	return {
 		format = Feedback.FORMAT_VERSION,
 		type = draft.type,
-		typeLabel = Label(Feedback.TYPES, draft.type) or draft.type,
+		typeLabel = label(Feedback.TYPES, draft.type) or draft.type,
 		category = isStep and draft.category or nil,
-		categoryLabel = isStep and Label(Feedback.STEP_CATEGORIES, draft.category) or nil,
-		description = Trim(draft.description),
+		categoryLabel = isStep and label(Feedback.STEP_CATEGORIES, draft.category) or nil,
+		description = trim(draft.description),
 		corrections = {
-			coordinates = Trim(draft.correctCoords), npc = Trim(draft.correctNpc),
-			instructions = Trim(draft.replacement), reproduction = Trim(draft.repro),
+			coordinates = trim(draft.correctCoords), npc = trim(draft.correctNpc),
+			instructions = trim(draft.replacement), reproduction = trim(draft.repro),
 		},
 		step = isStep and draft.context or nil,
-		addonVersion = FL.version,
-		zone = CurrentZone(),
+		addonVersion = ns.VERSION,
+		zone = zone(),
 		character = draft.includeCharacter and Feedback.CollectCharacter() or nil,
 		diagnostics = draft.includeDiagnostics and Feedback.CollectDiagnostics() or nil,
-		recipient = Feedback.EMAIL,
 	}
 end
 
-local function QuestList(quests)
+local function questList(quests)
 	if not quests or #quests == 0 then return "none for this step" end
 	local parts = {}
-	for _, quest in ipairs(quests) do
-		parts[#parts + 1] = string.format("%d (%s: %s)", quest.id, GOAL_WORDS[quest.kind] or quest.kind, quest.name)
-	end
+	for _, q in ipairs(quests) do parts[#parts + 1] = ("%d (%s: %s)"):format(q.id, QUEST_VERBS[q.kind] or q.kind, q.name) end
 	return table.concat(parts, ", ")
 end
 
-local function WaypointText(waypoint)
-	if not waypoint then return "none for this step" end
-	return string.format("%.1f, %.1f %s (map %s)", waypoint.x, waypoint.y, tostring(waypoint.zone or "?"),
-		waypoint.mapID and tostring(waypoint.mapID) or "not resolved")
+local function waypointText(w)
+	if not w then return "none for this step" end
+	return ("%.1f, %.1f %s (map %d)%s"):format(w.x, w.y, tostring(w.zone or "?"), w.map, w.name and (", " .. w.name) or "")
 end
 
--- Single-line key=value block for a future portal. Values are escaped so the line
--- can be split on "; " and "=" again.
-local function Escape(value)
+-- The key=value block for a future portal: split on "; " and "=".
+-- Inside values \n, \e and \s stand for a newline, "=" and ";", and \\ for "\".
+local function escape(value)
 	return (tostring(value):gsub("\\", "\\\\"):gsub(";", "\\s"):gsub("=", "\\e"):gsub("\r?\n", "\\n"))
 end
 
 function Feedback.ToKeyValue(report)
-	local pairsList = {
+	local list = {
 		{ "format", report.format }, { "type", report.type }, { "category", report.category },
 		{ "addon", report.addonVersion }, { "zone", report.zone },
 	}
 	local step = report.step
 	if step then
 		local ids = {}
-		for _, quest in ipairs(step.quests) do ids[#ids + 1] = quest.id end
-		pairsList[#pairsList + 1] = { "route", step.routeId }
-		pairsList[#pairsList + 1] = { "routeVersion", step.routeVersion }
-		pairsList[#pairsList + 1] = { "step", step.stepIndex }
-		pairsList[#pairsList + 1] = { "stepId", step.stepId }
-		pairsList[#pairsList + 1] = { "quests", table.concat(ids, ",") }
-		pairsList[#pairsList + 1] = { "verified", step.verified and "yes" or "no" }
+		for _, q in ipairs(step.quests) do ids[#ids + 1] = q.id end
+		list[#list + 1] = { "route", step.routeId }
+		list[#list + 1] = { "step", step.stepIndex }
+		list[#list + 1] = { "live", step.liveStep }
+		list[#list + 1] = { "quests", table.concat(ids, ",") }
 		if step.waypoint then
-			pairsList[#pairsList + 1] = { "waypoint", string.format("%.1f,%.1f", step.waypoint.x, step.waypoint.y) }
-			pairsList[#pairsList + 1] = { "map", step.waypoint.mapID }
+			list[#list + 1] = { "waypoint", ("%.1f,%.1f"):format(step.waypoint.x, step.waypoint.y) }
+			list[#list + 1] = { "map", step.waypoint.map }
 		end
 	end
 	local parts = {}
-	for _, pair in ipairs(pairsList) do
-		if pair[2] ~= nil and pair[2] ~= "" then parts[#parts + 1] = pair[1] .. "=" .. Escape(pair[2]) end
+	for _, pair in ipairs(list) do
+		if pair[2] ~= nil and pair[2] ~= "" then parts[#parts + 1] = pair[1] .. "=" .. escape(pair[2]) end
 	end
 	return table.concat(parts, "; ")
 end
@@ -267,102 +276,108 @@ end
 local UNESCAPE = { n = "\n", e = "=", s = ";", ["\\"] = "\\" }
 
 function Feedback.ParseKeyValue(line)
-	local result = {}
+	local out = {}
 	for part in (line .. "; "):gmatch("(.-); ") do
-		local key, value = part:match("^([%w]+)=(.*)$")
-		if key then
-			result[key] = (value:gsub("\\(.)", UNESCAPE))
-		end
+		local key, value = part:match("^(%w+)=(.*)$")
+		if key then out[key] = (value:gsub("\\(.)", UNESCAPE)) end
 	end
-	return result
+	return out
 end
 
 local TITLES = { step = "GUIDE STEP REPORT", bug = "BUG REPORT", suggestion = "SUGGESTION" }
 
+function Feedback.SendTo()
+	return ("Pathwise's Discord (%s) or %s"):format(Feedback.DISCORD, Feedback.EMAIL)
+end
+
 function Feedback.Format(report)
 	local out = {}
-	local function W(line) out[#out + 1] = line end
-	W("PATHWISE - " .. (TITLES[report.type] or "REPORT"))
-	W("")
-	W("Report type: " .. report.typeLabel .. (report.categoryLabel and (" - " .. report.categoryLabel) or ""))
+	local function w(line) out[#out + 1] = line end
+	w("PATHWISE - " .. (TITLES[report.type] or "REPORT"))
+	w("")
+	w("Report type: " .. report.typeLabel .. (report.categoryLabel and (" - " .. report.categoryLabel) or ""))
 	local step = report.step
 	if step then
-		W("Route: " .. step.routeTitle .. " (" .. step.routeId .. ")")
-		W("Route version: " .. (step.routeVersion or "not set"))
-		W(string.format("Step: %d/%d (%s)", step.stepIndex, step.stepCount, step.stepId))
-		W("Step title: " .. step.stepTitle)
-		W("Instructions: " .. (step.stepText ~= "" and step.stepText:gsub("\n", " ") or "none"))
-		W("Quest IDs: " .. QuestList(step.quests))
-		W("Waypoint: " .. WaypointText(step.waypoint))
-		W("Step verification: " .. (step.verified and "Verified" or "Unverified"))
+		w(("Route: %s (%s)"):format(step.routeTitle, step.routeId))
+		w(("Step: %d/%d (first open step: %s)"):format(step.stepIndex, step.stepCount, tostring(step.liveStep or "none")))
+		w("Step title: " .. step.stepTitle)
+		w("Instructions: " .. (step.stepText ~= "" and step.stepText:gsub("\n", " ") or "none"))
+		w("Quest IDs: " .. questList(step.quests))
+		w("Waypoint: " .. waypointText(step.waypoint))
+		w("Goals:")
+		for i, g in ipairs(step.goals) do
+			local what = g.quest and ("%s %d %s"):format(g.verb, g.quest, g.name) or tostring(g.text)
+			w(("  %d. %s: %s%s"):format(i, g.status, what, g.log and ("  [log: " .. g.log .. "]") or ""))
+		end
+		if step.extra then w(("Extra quest: %d %s (%s)"):format(step.extra.quest, step.extra.name, step.extra.verb)) end
 	end
-	W("Zone: " .. (report.zone or "unknown"))
-	W("Addon version: Pathwise " .. tostring(report.addonVersion))
-	W("")
-	W("Player description:")
-	W(report.description)
+	w("Zone: " .. (report.zone or "unknown"))
+	w("Addon version: Pathwise " .. tostring(report.addonVersion))
+	w("")
+	w("Player description:")
+	w(report.description)
 	local c = report.corrections
-	local labels = {
+	for _, entry in ipairs({
 		{ c.coordinates, "Correct coordinates" }, { c.npc, "Correct NPC name" },
 		{ c.instructions, "Suggested instructions" }, { c.reproduction, "Steps to reproduce" },
-	}
-	for _, entry in ipairs(labels) do
+	}) do
 		if entry[1] ~= "" then
-			W("")
-			W(entry[2] .. ":")
-			W(entry[1])
+			w("")
+			w(entry[2] .. ":")
+			w(entry[1])
 		end
 	end
-	W("")
+	w("")
 	if report.character then
 		local ch = report.character
-		W(string.format("Character: level %d %s %s, %s", ch.level, ch.race, ch.class, ch.faction))
+		w(("Character: level %d %s %s, %s"):format(ch.level, ch.race, ch.class, ch.faction))
 	else
-		W("Character: not included")
+		w("Character: not included")
 	end
 	if report.diagnostics then
 		local d = report.diagnostics
-		W("Diagnostics:")
-		W("  Game: " .. tostring(d.gameVersion) .. " build " .. tostring(d.build) .. (d.forever and " (Forever)" or " (not Forever)"))
-		W("  Position: " .. d.position)
-		W("  Arrow target: " .. d.arrowTarget)
-		W("  Active detour: " .. d.detour)
-		W("  Window style: " .. tostring(d.style) .. ", automation: " .. (d.automation ~= "" and d.automation or "off"))
+		w("Diagnostics:")
+		w("  Game: " .. tostring(d.gameVersion) .. " build " .. tostring(d.build) .. (d.forever and " (Forever)" or " (not Forever)"))
+		w("  Position: " .. d.position)
+		w("  Arrow target: " .. d.arrowTarget)
+		w("  Active detour: " .. d.detour)
+		w("  Look: " .. tostring(d.style) .. ", auto quests: " .. d.automation)
+		w("  Data: " .. tostring(d.data))
 	else
-		W("Diagnostics: not included")
+		w("Diagnostics: not included")
 	end
-	W("")
-	W("Report data (format " .. report.format .. "): " .. Feedback.ToKeyValue(report))
-	W("")
-	W("Send to: " .. report.recipient)
+	w("")
+	w(("Report data (format %d): %s"):format(report.format, Feedback.ToKeyValue(report)))
+	w("")
+	w("Send to: " .. Feedback.SendTo())
 	return table.concat(out, "\n")
 end
 
--- Read-only preview of what a report would contain, with what is and is not included.
+-- What a report would hold, read-only, saying what is and is not included.
 function Feedback.PreviewLines(draft)
 	local lines = {}
 	local step = draft and draft.type == "step" and draft.context
 	if step then
-		lines[#lines + 1] = string.format("Route: %s, step %d/%d", step.routeTitle, step.stepIndex, step.stepCount)
-		lines[#lines + 1] = "Step: " .. step.stepTitle .. (step.verified and " (verified)" or " (unverified)")
-		lines[#lines + 1] = "Quest IDs: " .. QuestList(step.quests)
-		lines[#lines + 1] = "Waypoint: " .. WaypointText(step.waypoint)
+		lines[#lines + 1] = ("Route: %s, step %d/%d"):format(step.routeTitle, step.stepIndex, step.stepCount)
+		lines[#lines + 1] = "Step: " .. step.stepTitle
+		lines[#lines + 1] = "Quest IDs: " .. questList(step.quests)
+		lines[#lines + 1] = "Waypoint: " .. waypointText(step.waypoint)
 	end
-	lines[#lines + 1] = "Zone: " .. (CurrentZone() or "unknown") .. "; Pathwise " .. tostring(FL.version)
+	lines[#lines + 1] = ("Zone: %s  ·  Pathwise %s"):format(zone() or "unknown", tostring(ns.VERSION))
 	local ch = Feedback.CollectCharacter()
-	lines[#lines + 1] = string.format("Character (%s): level %d %s %s, %s",
-		draft and draft.includeCharacter and "included" or "not included", ch.level, ch.race, ch.class, ch.faction)
+	lines[#lines + 1] = ("Character (%s): level %d %s %s, %s"):format(draft and draft.includeCharacter and "included" or "not included",
+		ch.level, ch.race, ch.class, ch.faction)
 	local d = Feedback.CollectDiagnostics()
-	lines[#lines + 1] = string.format("Diagnostics (%s): build %s, position %s, detour %s",
-		draft and draft.includeDiagnostics and "included" or "not included", tostring(d.build), d.position, d.detour)
+	lines[#lines + 1] = ("Diagnostics (%s): build %s, position %s, arrow %s"):format(
+		draft and draft.includeDiagnostics and "included" or "not included", tostring(d.build), d.position, d.arrowTarget)
 	return lines
 end
 
--- Builds and formats the current draft. Returns text, or nil and a message.
+-- Builds and formats the current draft. -> text, report; or nil, what is missing.
 function Feedback.Prepare()
-	local draft = Feedback.GetCurrentDraft()
+	local draft = Feedback.CurrentDraft()
 	local report, problem = Feedback.Build(draft)
 	if not report then return nil, problem end
-	draft.prepared = time()
+	draft.prepared = now()
 	return Feedback.Format(report), report
 end
