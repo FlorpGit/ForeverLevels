@@ -31,6 +31,7 @@ ns.Defaults("guide", {
 
 local PAD = T.SPACE.l
 local MAX_OBJECTIVES = 10
+local MAX_PARTY = 4
 
 local W = {} -- widgets
 local view -- what the window shows
@@ -164,6 +165,14 @@ local function build()
 	W.thenLabel = label(body, "Then")
 	W.thenText = T.Text(body, "meta", "text2")
 
+	-- Party sync: where the group is.
+	W.partyLabel = label(body, "Party")
+	W.party = {}
+	for i = 1, MAX_PARTY do
+		W.party[i] = T.Text(body, "small", "text2")
+		W.party[i]:SetWordWrap(false)
+	end
+
 	-- Footer.
 	W.back = T.Button(f, "Back", "default", function() ns.Fire("GUIDE_BACK") end)
 	W.skip = T.Button(f, "Skip", "default", function() ns.Fire("GUIDE_SKIP") end)
@@ -285,6 +294,8 @@ local function layoutFull()
 		W.divider:Hide()
 		W.card:Hide()
 		for _, row in ipairs(W.objectives) do row:Hide() end
+		W.partyLabel:Hide()
+		for _, fs in ipairs(W.party) do fs:Hide() end
 		body:SetHeight(h)
 		f:SetHeight(T.HEADER_H + T.PROGRESS_H + h)
 		return
@@ -370,6 +381,24 @@ local function layoutFull()
 		W.thenText:SetText(view.next)
 		place(W.thenText, W.thenLabel, 4)
 		y = y + 14 + height(W.thenLabel) + 4 + height(W.thenText)
+		anchor = W.thenText
+	end
+
+	local party = ns.Sync and ns.Sync.Lines(MAX_PARTY) or {}
+	W.partyLabel:SetShown(#party > 0)
+	if #party > 0 then
+		place(W.partyLabel, anchor, 14)
+		y = y + 14 + height(W.partyLabel)
+		anchor = W.partyLabel
+	end
+	for i, fs in ipairs(W.party) do
+		fs:SetShown(party[i] ~= nil)
+		if party[i] then
+			fs:SetText(party[i])
+			place(fs, anchor, 4)
+			y = y + 4 + height(fs)
+			anchor = fs
+		end
 	end
 
 	-- Footer: Back left; Skip, Report, Next right.
@@ -445,6 +474,7 @@ ns.On("SETTING_CHANGED", function(path)
 	elseif path == "guide.compact" then Guide.Refresh() end
 end)
 ns.On("READY", function() if ns.Get("guide.shown") then Guide.Show(true) end end)
+ns.On("PARTY_UPDATED", function() Guide.Refresh() end)
 
 -- The compact bar shows the arrow's distance when there is one.
 ns.On("WAYPOINT_CHANGED", function(target)

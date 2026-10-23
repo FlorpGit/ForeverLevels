@@ -1132,6 +1132,9 @@ function builders.settings()
 		{ "setting", "Pick them from an NPC's list", onOff(ns.Get("auto.gossip")), { { ns.Get("auto.gossip") and "Turn off" or "Turn on", toggle("auto.gossip") } } },
 		{ "setting", "Hold Shift to skip it once", onOff(ns.Get("auto.shift")), { { ns.Get("auto.shift") and "Turn off" or "Turn on", toggle("auto.shift") } } },
 		{ "text", "Only quests on your route. Pathwise never chooses a reward for you or hands in a quest that costs gold.", "muted" },
+		{ "heading", "Party" },
+		{ "setting", "Share progress with your group", onOff(ns.Get("party.sync")), { { ns.Get("party.sync") and "Turn off" or "Turn on", toggle("party.sync") } } },
+		{ "text", "Group members with Pathwise see your step and quest counts in their guide window, and you see theirs.", "muted" },
 		{ "heading", "Profession detours" },
 		{ "setting", "Mode", "", (function()
 			local mode = ns.Get("professions.detour")

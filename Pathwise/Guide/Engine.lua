@@ -664,6 +664,13 @@ function Engine.View()
 	}
 end
 
+-- Step s of a route as the window titles it (party sync, reports).
+function Engine.StepTitle(route, s)
+	if not (route and route.steps[s]) then return nil end
+	player = player or Q.Player()
+	return titleOf(route.steps[s], route, s)
+end
+
 ---------------------------------------------------------------------------
 -- Updating: the window and the arrow, after game events
 ---------------------------------------------------------------------------

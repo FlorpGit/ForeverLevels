@@ -394,6 +394,23 @@ function stub.texts()
 end
 
 function GetBuildInfo() return "1.60.1", "70532", "Oct 2026", 16001 end
+
+-- Time: stub.now seconds, moved on by stub.advance.
+function GetTime() return stub.now end
+function UnitName(unit) if unit == "player" then return "Tester" end return stub.npcName end
+
+-- The group and addon messages: stub.inGroup, stub.inRaid, stub.lockdown,
+-- stub.restricted; what was sent goes to stub.sent = { { prefix, message, channel } }.
+stub.sent, stub.prefixes = {}, {}
+function IsInGroup() return stub.inGroup == true end
+function IsInRaid() return stub.inRaid == true end
+function Ambiguate(name) return (name:gsub("%-.*$", "")) end
+C_ChatInfo = {
+	RegisterAddonMessagePrefix = function(p) stub.prefixes[#stub.prefixes + 1] = p return true end,
+	SendAddonMessage = function(prefix, message, channel) stub.sent[#stub.sent + 1] = { prefix = prefix, message = message, channel = channel } end,
+	InChatMessagingLockdown = function() return stub.lockdown == true end,
+	AreOutgoingAddonChatMessagesRestricted = function() return stub.restricted == true end,
+}
 -- The Forever client (game type "camelot").
 WOW_PROJECT_CAMELOT = 18
 WOW_PROJECT_ID = WOW_PROJECT_CAMELOT
@@ -412,6 +429,7 @@ end
 function stub.advance(seconds)
 	local dt = 1 / 60
 	for _ = 1, math.floor(seconds / dt + 0.5) do
+		stub.now = stub.now + dt
 		for _, f in ipairs(stub.frames) do
 			local fn = f.scripts.OnUpdate
 			if fn and f.shown then fn(f, dt) end

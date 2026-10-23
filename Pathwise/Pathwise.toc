@@ -17,6 +17,7 @@ Nav\Arrow.lua
 Guide\Quests.lua
 Guide\Engine.lua
 Guide\AutoQuest.lua
+Guide\Sync.lua
 Guide\Dungeons.lua
 Nav\Pins.lua
 UI\GuideWindow.lua
