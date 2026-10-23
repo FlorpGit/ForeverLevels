@@ -42,7 +42,7 @@ functions were matched against those docs or against Blizzard's own Forever UI c
 | Quest dialogs | `QUEST_DETAIL`, `QUEST_PROGRESS`, `QUEST_COMPLETE`, `QUEST_GREETING`, `GetQuestID`, `AcceptQuest`, `AcknowledgeAutoAcceptQuest`, `QuestGetAutoAccept`, `QuestFlagsPVP`, `IsQuestCompletable`, `CompleteQuest`, `GetNumQuestChoices`, `GetQuestReward`, `GetQuestMoneyToGet`, `GetActiveTitle`, `GetActiveQuestID`, `GetAvailableQuestInfo`, `Select*Quest` | Mainline `QuestFrame.lua` on the forever branch |
 | Gossip | `GOSSIP_SHOW`, `C_GossipInfo.GetActiveQuests`, `GetAvailableQuests`, `SelectActiveQuest`, `SelectAvailableQuest` | GossipInfoDocumentation |
 | Map + position | `C_Map.GetBestMapForUnit`, `GetMapInfo`, `GetPlayerMapPosition`, `GetWorldPosFromMapPos` | MapDocumentation |
-| Native waypoint | `C_Map.CanSetUserWaypointOnMap`, `SetUserWaypoint`, `HasUserWaypoint`, `ClearUserWaypoint`, `UiMapPoint.CreateFromCoordinates`, `C_SuperTrack.SetSuperTrackedUserWaypoint` | Map / SuperTrackManager docs, `Blizzard_ObjectAPI/Mainline/UiMapPoint.lua` |
+| Native waypoint | `C_Map.CanSetUserWaypointOnMap`, `SetUserWaypoint`, `GetUserWaypoint` (to leave a pin the player placed alone), `HasUserWaypoint`, `ClearUserWaypoint`, `UiMapPoint.CreateFromCoordinates`, `C_SuperTrack.SetSuperTrackedUserWaypoint` | Map / SuperTrackManager docs, `Blizzard_ObjectAPI/Mainline/UiMapPoint.lua` |
 | Arrow direction | `GetPlayerFacing()` (returns a nilable number) | PlayerScriptDocumentation |
 | Arrow art | Pathwise's own textures (`Media/arrow.tga` and the glyphs, drawn by `tools/media.js`) | none needed |
 | Timers | `C_Timer.After` (else a frame's OnUpdate) | UITimerDocumentation |

@@ -120,6 +120,20 @@ test("looks: the arrow and the minimap button take the look's colours", function
 	near(b.ring.vertex, ns.Theme.Color("border"), "its ring in the classic border colour")
 end)
 
+test("looks: in Classic the chosen button of a row stands out", function()
+	local stub, ns = login("classic")
+	ns.Fire("SHOW_SETTINGS")
+	local lit = {}
+	for _, f in ipairs(stub.frames) do
+		local t = rawget(f, "pwText")
+		if rawget(f, "template") == "UIPanelButtonTemplate" and f.shown and t and rawget(f, "pwLit") then lit[t.text] = true end
+	end
+	ok(lit.Classic, "the look in use")
+	ok(lit.Pathwise, "the accent mode in use")
+	ok(lit.Balanced, "the detour mode in use")
+	ok(not lit.Modern and not lit.Speed, "the others are not")
+end)
+
 test("looks: choosing one in Settings saves it, and it shows after a reload", function()
 	local stub, ns = fresh()
 	stub.login()

@@ -36,34 +36,48 @@ end
 ---------------------------------------------------------------------------
 -- Blizzard's own waypoint: with "arrow.native" on, the target is also the
 -- game's user waypoint (its map pin), super-tracked so the game draws its
--- in-world marker and distance. Pathwise only clears a waypoint it set.
+-- in-world marker and distance. Pathwise only replaces or clears a pin it
+-- set itself: a pin the player placed stays until the player removes it,
+-- and only then does Pathwise's come back.
 -- APIs (MapDocumentation, SuperTrackManagerDocumentation):
---   C_Map.CanSetUserWaypointOnMap, SetUserWaypoint, HasUserWaypoint,
---   ClearUserWaypoint, UiMapPoint.CreateFromCoordinates,
+--   C_Map.CanSetUserWaypointOnMap, SetUserWaypoint, GetUserWaypoint,
+--   HasUserWaypoint, ClearUserWaypoint, UiMapPoint.CreateFromCoordinates,
 --   C_SuperTrack.SetSuperTrackedUserWaypoint.
 ---------------------------------------------------------------------------
 
 ns.Defaults("arrow", { native = true })
 
-local ownsNative = false
+local mine -- { map, x, y } (0-1) of the pin Pathwise set, while it is the one shown
+
+-- Whether the game shows a pin, and whether it is the one Pathwise set.
+local function pins()
+	local M = C_Map
+	if not (M and M.HasUserWaypoint and M.HasUserWaypoint()) then return false, false end
+	if not (mine and M.GetUserWaypoint) then return true, false end
+	local ok, p = pcall(M.GetUserWaypoint)
+	if not (ok and type(p) == "table" and p.position) then return true, false end
+	local x, y
+	if p.position.GetXY then x, y = p.position:GetXY() else x, y = p.position.x, p.position.y end
+	local same = p.uiMapID == mine.map and x and y and math.abs(x - mine.x) < 1e-4 and math.abs(y - mine.y) < 1e-4
+	return true, same and true or false
+end
 
 local function clearNative()
-	local M = C_Map
-	if ownsNative and M and M.ClearUserWaypoint and (not M.HasUserWaypoint or M.HasUserWaypoint()) then
-		pcall(M.ClearUserWaypoint)
-	end
-	ownsNative = false
+	local shown, ours = pins()
+	if shown and ours then pcall(C_Map.ClearUserWaypoint) end
+	mine = nil
 end
 
 local function setNative(t)
 	local M = C_Map
 	if not (t and ns.Get("arrow.native") and M and M.SetUserWaypoint and UiMapPoint) then return clearNative() end
+	local shown, ours = pins()
+	if shown and not ours then mine = nil return end -- the player's own pin: leave it
 	if M.CanSetUserWaypointOnMap and not M.CanSetUserWaypointOnMap(t.map) then return clearNative() end
-	local ok = pcall(function()
-		M.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(t.map, t.x / 100, t.y / 100))
-	end)
+	local x, y = t.x / 100, t.y / 100
+	local ok = pcall(function() M.SetUserWaypoint(UiMapPoint.CreateFromCoordinates(t.map, x, y)) end)
 	if not ok then return clearNative() end
-	ownsNative = true
+	mine = { map = t.map, x = x, y = y }
 	if C_SuperTrack and C_SuperTrack.SetSuperTrackedUserWaypoint then
 		pcall(C_SuperTrack.SetSuperTrackedUserWaypoint, true)
 	end

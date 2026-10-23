@@ -66,6 +66,28 @@ test("recipes: packs register with . or :, under either name; bad ones are refus
 	eq(ns.Recipes.Get(2963).name, "Bolt of Linen Cloth", "bundled recipes untouched")
 end)
 
+test("recipes: a malformed pack is refused with its problems, never a Lua error", function()
+	local _, ns = tailor()
+	local base = { id = "test.bad", profession = "tailoring", name = "Tailoring", author = "a", license = "CC0" }
+	local function with(extra)
+		local p = {}
+		for k, v in pairs(base) do p[k] = v end
+		for k, v in pairs(extra) do p[k] = v end
+		return p
+	end
+	for label, pack in pairs({
+		["verified = true"] = with({ recipes = { { id = 1, name = "X", reagents = { { 2, 1 } }, skill = { 1, 2, 3, 4 }, verified = true } } }),
+		["a recipe that is a number"] = with({ recipes = { 5 } }),
+		["a rank that is a string"] = with({ ranks = { "Apprentice" }, recipes = { { id = 1, name = "X", reagents = { { 2, 1 } } } } }),
+		["trainers that are not a list"] = with({ trainers = "Bowen", recipes = { { id = 1, name = "X", reagents = { { 2, 1 } } } } }),
+	}) do
+		local okCall, valid, errors = pcall(ns.Recipes.Validate, pack)
+		ok(okCall, label .. ": " .. tostring(valid))
+		eq(valid, false, label)
+		ok(#errors > 0, label .. ": its problems")
+	end
+end)
+
 test("recipes: the profession window's reagents win, are kept for the account, and learning is noticed", function()
 	local stub, ns = tailor()
 	stub.tradeSkill = {
@@ -203,6 +225,17 @@ test("detours: craft what the bags make, wherever you are; the route is untouche
 	ok(lastPrint(stub):find("detour done: Craft 23 Bolt of Linen Cloth", 1, true), lastPrint(stub))
 	eq(ns.Guide.View().detour, nil, "materials used up")
 	eq(E.LiveStep(), live, "and the route still did not move")
+end)
+
+test("detours: a chosen craft stays chosen as the skill passes a multiple of ten", function()
+	local stub, ns = tailor(function(s) s.items[2589] = 46 s.skills[TAILORING] = { 9, 75 } end)
+	ns.Fire("DETOUR_GO")
+	ok(ns.Guide.View().detour.aimed, "chosen at 9")
+	stub.skills[TAILORING] = { 10, 75 }
+	stub.fire("SKILL_LINES_CHANGED")
+	local card = ns.Guide.View().detour
+	ok(card and card.aimed, "still chosen at 10")
+	eq(card.text, "Craft 23 Bolt of Linen Cloth")
 end)
 
 test("detours: train the next rank at the trainer on the way, the arrow there and back", function()

@@ -41,7 +41,7 @@ lua tools/validate_routes.lua
 
 - [ ] The arrow points at the step's place and the distance counts down in yards; "Arrived" when you get there.
 - [ ] The game's own map pin and in-world marker sit at the same place; `/pw waypoint off` removes them and keeps the arrow.
-- [ ] A map pin of your own is not removed by Pathwise unless a step sets a new target (note any surprise).
+- [ ] A map pin you place yourself stays: the guide moving on does not replace it and clearing the arrow does not remove it; once you remove it, Pathwise's pin comes back with the next target.
 - [ ] World map and minimap pins show the step's places and the objective's monsters.
 - [ ] `/pw where` prints the map ID, "Tirisfal Glades" and coordinates.
 

@@ -376,8 +376,10 @@ function T.TextColor(fs, name)
 end
 
 -- Classic: the game's red panel button (UIPanelButtonTemplate), its own
--- gold text. b.pwText is its label either way.
-local function gameButton(parent, label, onClick)
+-- gold text. An "accent" button (Next, and the chosen one of a row of
+-- choices) keeps its highlight lit and white text, so the choice shows.
+-- b.pwText is its label either way.
+local function gameButton(parent, label, kind, onClick)
 	local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
 	b:SetHeight(22)
 	local text = b.GetFontString and b:GetFontString() -- the template's ButtonText
@@ -387,6 +389,11 @@ local function gameButton(parent, label, onClick)
 	end
 	text:SetText(label)
 	b.pwText, b.pwTemplate = text, "UIPanelButtonTemplate"
+	if kind == "accent" then
+		if b.LockHighlight then b:LockHighlight() end
+		text:SetTextColor(1, 1, 1)
+		b.pwLit = true
+	end
 	if onClick then b:SetScript("OnClick", onClick) end
 	b:SetWidth(math.max(64, (text:GetStringWidth() or 30) + 28))
 	return b
@@ -395,7 +402,7 @@ end
 -- A low-profile text button: dark surface, 1 px outline.
 -- kind "default" (Back) or "accent" (Next). Classic: the game's button.
 function T.Button(parent, label, kind, onClick)
-	if T.IsClassic() then return gameButton(parent, label, onClick) end
+	if T.IsClassic() then return gameButton(parent, label, kind, onClick) end
 	local b = CreateFrame("Button", nil, parent)
 	b:SetHeight(28)
 	local accent = kind == "accent"

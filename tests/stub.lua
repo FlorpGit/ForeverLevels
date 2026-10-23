@@ -204,13 +204,17 @@ C_Map = {
 		return m.inst, CreateVector2D(m.n0 + m.ny * v.y * 100, m.w0 + m.wx * v.x * 100)
 	end,
 	GetMapInfo = function(map) local m = stub.maps[map] return m and { name = m.name } end,
-	-- The game's user waypoint: stub.userWaypoint = { map, x, y } (0-1).
+	-- The game's user waypoint: stub.userWaypoint, a UiMapPoint
+	-- ({ uiMapID, position }); the player places one with stub.placePin.
 	CanSetUserWaypointOnMap = function(map) return stub.maps[map] ~= nil end,
 	SetUserWaypoint = function(p) stub.userWaypoint = p end,
+	GetUserWaypoint = function() return stub.userWaypoint end,
 	HasUserWaypoint = function() return stub.userWaypoint ~= nil end,
 	ClearUserWaypoint = function() stub.userWaypoint = nil end,
 }
-UiMapPoint = { CreateFromCoordinates = function(map, x, y) return { map = map, x = x, y = y } end }
+-- Blizzard_ObjectAPI's UiMapPoint: { uiMapID, position = vector }, x and y 0-1.
+UiMapPoint = { CreateFromCoordinates = function(map, x, y) return { uiMapID = map, position = CreateVector2D(x, y) } end }
+function stub.placePin(map, x, y) stub.userWaypoint = UiMapPoint.CreateFromCoordinates(map, x, y) end
 C_SuperTrack = { SetSuperTrackedUserWaypoint = function(on) stub.superTracked = on end }
 -- The character: an Undead Mage by default (the reference character).
 stub.player.level, stub.player.race, stub.player.raceID, stub.player.class, stub.player.faction = 1, "Scourge", 5, "MAGE", "Horde"

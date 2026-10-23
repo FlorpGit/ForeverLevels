@@ -64,8 +64,26 @@ function R.Validate(pack)
 		errors[#errors + 1] = where .. ": requires profession data API version " .. tostring(pack.apiVersion)
 	end
 
-	for i, rank in ipairs(pack.ranks or {}) do
+	-- A list field: its entries when it is one, else nothing (and an error).
+	local function list(field)
+		local v = pack[field]
+		if v == nil then return {} end
+		if type(v) ~= "table" then
+			errors[#errors + 1] = where .. ": '" .. field .. "' must be a table"
+			return {}
+		end
+		return v
+	end
+	-- An entry that is not a table is an error, and is not looked into.
+	local function entry(v, w)
+		if type(v) == "table" then return true end
+		errors[#errors + 1] = w .. ": must be a table"
+		return false
+	end
+
+	for i, rank in ipairs(list("ranks")) do
 		local w = where .. " rank " .. i
+		if not entry(rank, w) then rank = {} end
 		if type(rank.name) ~= "string" then errors[#errors + 1] = w .. ": 'name' is required" end
 		for _, field in ipairs({ "trainAt", "maxSkill" }) do
 			if type(rank[field]) ~= "number" then errors[#errors + 1] = w .. ": '" .. field .. "' must be a number" end
@@ -74,8 +92,9 @@ function R.Validate(pack)
 		checkVerified(rank.verified, w, errors)
 	end
 
-	for i, trainer in ipairs(pack.trainers or {}) do
+	for i, trainer in ipairs(list("trainers")) do
 		local w = where .. " trainer " .. i
+		if not entry(trainer, w) then trainer = {} end
 		if type(trainer.name) ~= "string" then errors[#errors + 1] = w .. ": 'name' is required" end
 		if (trainer.x == nil) ~= (trainer.y == nil) then errors[#errors + 1] = w .. ": 'x' and 'y' must be given together" end
 		for _, axis in ipairs({ "x", "y" }) do
@@ -86,7 +105,7 @@ function R.Validate(pack)
 		checkVerified(trainer.verified, w, errors)
 	end
 
-	for itemID, item in pairs(pack.items or {}) do
+	for itemID, item in pairs(list("items")) do
 		if not isID(itemID) or type(item) ~= "table" or type(item.name) ~= "string" then
 			errors[#errors + 1] = where .. ": items must be [itemID] = { name = ... }"
 		else
@@ -101,6 +120,7 @@ function R.Validate(pack)
 	local seen = {}
 	for i, recipe in ipairs(pack.recipes) do
 		local w = where .. " recipe " .. i
+		if not entry(recipe, w) then recipe = {} end
 		if not isID(recipe.id) then
 			errors[#errors + 1] = w .. ": 'id' must be the recipe (spell) ID"
 		elseif seen[recipe.id] then
@@ -127,7 +147,7 @@ function R.Validate(pack)
 			end
 			if not valid then errors[#errors + 1] = w .. ": 'skill' must be { orange, yellow, green, grey } in rising order" end
 		end
-		if recipe.skill and not (recipe.verified and recipe.verified.skill) then
+		if recipe.skill and not (type(recipe.verified) == "table" and recipe.verified.skill) then
 			warnings[#warnings + 1] = w .. ": skill levels are an unverified fallback"
 		end
 		checkVerified(recipe.verified, w, errors)

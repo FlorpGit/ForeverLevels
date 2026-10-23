@@ -102,6 +102,22 @@ test("feedback: preparing needs a description and a problem, and never says it w
 	eq(box.box.text, box.text, "the report box cannot be edited")
 end)
 
+test("feedback: every box to type into or copy from has a height", function()
+	local stub, ns = login()
+	ns.Fire("REPORT_STEP")
+	ns.Feedback.SetField("category", "other")
+	typeInto(stub, "feedback.description", "Testing.")
+	stub.clickLabel("Prepare report")
+	local n = 0
+	for _, f in ipairs(stub.frames) do
+		if f.shown and rawget(f, "box") and f.kind == "Frame" then
+			n = n + 1
+			ok(f.h > 0, "a box with no height would draw inside out")
+		end
+	end
+	ok(n >= 5, "description, corrections, the report and the addresses")
+end)
+
 test("feedback: the report's text, the goals with their status, and the data line", function()
 	local stub, ns = login()
 	ns.Fire("REPORT_STEP")

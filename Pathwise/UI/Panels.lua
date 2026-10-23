@@ -345,6 +345,9 @@ local function render(rows)
 			f.text = r[2]
 			f.box:SetText(r[2])
 			f.box:SetWidth(inner - 16)
+			-- A frame anchored at one point needs its own height; its box
+			-- hangs between its corners.
+			f:SetHeight(12 + (r[3] or 6) * 14)
 			place(f, 12 + (r[3] or 6) * 14, 6)
 		elseif kind == "input" then
 			local f = take("input", makers.input)
@@ -352,6 +355,7 @@ local function render(rows)
 			f.box:SetText(inputs[r[2]] or "")
 			f.onChange = r[4]
 			f.box:SetWidth(inner - 16)
+			f:SetHeight(12 + (r[3] or 3) * 14)
 			place(f, 12 + (r[3] or 3) * 14, 6)
 		elseif kind == "coords" then
 			local f = take("coords", makers.coords)

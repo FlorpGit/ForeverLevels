@@ -107,6 +107,20 @@ local function find(list, id)
 	for _, c in ipairs(list) do if c.id == id then return c end end
 end
 
+-- The chosen detour among the candidates. A craft detour's id holds the
+-- skill (in tens, so Skip and Later are per stretch of skill); once chosen it
+-- is the same detour for as long as it is the same recipe.
+local function findActive(list, active)
+	local c = find(list, active.id)
+	if c or active.kind ~= "craft" then return c end
+	for _, x in ipairs(list) do
+		if x.kind == "craft" and x.line == active.line and x.spell == active.spell then
+			active.id = x.id
+			return x
+		end
+	end
+end
+
 -- Whether the player's choices allow a detour now.
 local function allowed(c)
 	local st = store()
@@ -160,7 +174,7 @@ function D.Card()
 	local st = store()
 	local c, aimed
 	if st.active then
-		c = find(cache, st.active.id)
+		c = findActive(cache, st.active)
 		if c then aimed = true else finish(st.active) end
 	end
 	if not c then
@@ -187,7 +201,7 @@ end
 function D.Aimed()
 	local st = store()
 	if not (st.active and cache) then return nil end
-	local c = find(cache, st.active.id)
+	local c = findActive(cache, st.active)
 	if c and c.goal then return c end
 	return nil
 end
