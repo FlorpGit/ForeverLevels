@@ -316,6 +316,43 @@ function T.Slider(parent, width, min, max, step, onChange)
 	return s
 end
 
+-- A small number box: type a value, Enter (or clicking away) commits it,
+-- Escape puts back the last value. onCommit(n) gets the typed number, or nil
+-- when it is not one; the caller decides what the box then shows
+-- (box:SetNumber). The 1 px border lights up in the accent while typing.
+function T.NumberBox(parent, width, onCommit)
+	local e = CreateFrame("EditBox", nil, parent)
+	e:SetSize(width, 22)
+	e:SetAutoFocus(false)
+	e:SetMaxLetters(4)
+	e:SetJustifyH("RIGHT")
+	e:SetTextInsets(6, 6, 0, 0)
+	if not e:SetFont(T.FONTS.regular, 12, "") then e:SetFont("Fonts\\FRIZQT__.TTF", 12, "") end
+	local tc = T.Color("text")
+	e:SetTextColor(tc[1], tc[2], tc[3])
+	T.Panel(e, "bg2")
+	local function edges(name)
+		for _, t in ipairs(e.pwEdges or {}) do setColor(t, name) end
+	end
+	local shown = ""
+	function e:SetNumber(n)
+		shown = n and tostring(n) or ""
+		self:SetText(shown)
+	end
+	local function commit(self)
+		local n = tonumber((self:GetText() or ""):gsub("[%%%s]", ""), 10)
+		onCommit(n)
+	end
+	e:SetScript("OnEditFocusGained", function(self) edges("accent") self:HighlightText() end)
+	e:SetScript("OnEditFocusLost", function(self)
+		edges("border")
+		if self:GetText() ~= shown then commit(self) end
+	end)
+	e:SetScript("OnEnterPressed", function(self) commit(self) self:ClearFocus() end)
+	e:SetScript("OnEscapePressed", function(self) self:SetText(shown) self:ClearFocus() end)
+	return e
+end
+
 -- The small compass mark used in headers (Media/icon.tga).
 function T.Icon(parent, size)
 	local t = parent:CreateTexture(nil, "ARTWORK")

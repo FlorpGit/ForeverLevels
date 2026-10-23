@@ -61,6 +61,19 @@ function Widget:SetValue(v)
 end
 function Widget:GetValue() return self.value end
 
+-- Typing into the number box beside setting `path`'s slider, then Enter.
+function stub.type(path, text)
+	for _, f in ipairs(stub.frames) do
+		local list = rawget(f, "sliders")
+		if list and list[path] and list[path].shown and f.shown then
+			f.box:SetText(text)
+			f.box.scripts.OnEnterPressed(f.box)
+			return f.box
+		end
+	end
+	error("no box for " .. path)
+end
+
 -- The slider in the settings panel for setting `path` (its row keeps them by path).
 function stub.slider(path)
 	for _, f in ipairs(stub.frames) do

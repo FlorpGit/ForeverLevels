@@ -102,17 +102,21 @@ function makers.setting()
 	return f
 end
 
--- One slider row: label and value on top, the slider under them. The slider
--- object is made per setting (its range differs), kept on the row by path.
+-- One slider row: the label on top; under it the slider and a box to type
+-- the percentage into. The slider is made per setting (its range differs),
+-- kept on the row by path; the box is shared and told which setting it edits.
+local BOX_W = 46
 function makers.slider()
 	local f = CreateFrame("Frame", nil, panel)
-	f:SetHeight(42)
+	f:SetHeight(48)
 	f.label = T.Text(f, "body", "text")
 	f.label:SetPoint("TOPLEFT")
 	f.label:SetWordWrap(false)
-	f.value = T.Text(f, "meta", "text2")
-	f.value:SetPoint("TOPRIGHT")
-	f.value:SetJustifyH("RIGHT")
+	f.pct = T.Text(f, "meta", "text2")
+	f.pct:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, -25)
+	f.pct:SetText("%")
+	f.box = T.NumberBox(f, BOX_W, function(n) if f.onBox then f.onBox(n) end end)
+	f.box:SetPoint("TOPRIGHT", f, "TOPRIGHT", -12, -20)
 	f.sliders = {}
 	return f
 end
@@ -213,19 +217,31 @@ local function render(rows)
 			f.label:SetText(label)
 			for _, s in pairs(f.sliders) do s:Hide() end
 			local s = f.sliders[path]
+			local function percent(v) return math.floor(v * 100 + 0.5) end
 			if not s then
-				s = T.Slider(f, inner, lo, hi, stepBy, function(v)
+				s = T.Slider(f, inner - BOX_W - 24, lo, hi, stepBy, function(v)
 					ns.Set(path, v)
-					f.value:SetText(format(v))
+					f.box:SetNumber(percent(v))
 				end)
 				s:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -22)
 				f.sliders[path] = s
 			end
 			s:Show()
+			-- Typed: any whole percentage in range (not only the slider's steps);
+			-- outside the range it is held to the nearest end, and the box says so.
+			f.onBox = function(n)
+				local v = n and math.max(lo, math.min(hi, n / 100)) or (ns.Get(path) or lo)
+				ns.Set(path, v)
+				s:SetQuietly(v)
+				f.box:SetNumber(percent(v))
+				if n and n / 100 ~= v then
+					ns.Print(("%s: %d-%d%%, so %d%%."):format(label, percent(lo), percent(hi), percent(v)))
+				end
+			end
 			local v = ns.Get(path) or lo
 			s:SetQuietly(v)
-			f.value:SetText(format(v))
-			place(f, 42, 8)
+			f.box:SetNumber(percent(v))
+			place(f, 48, 8)
 		elseif kind == "buttons" then
 			local f = take("buttons", makers.buttons)
 			for _, b in ipairs(f.buttons) do b:Hide() end
