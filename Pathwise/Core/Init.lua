@@ -6,6 +6,9 @@ local ADDON, ns = ...
 
 Pathwise = Pathwise or {}
 ns.API = Pathwise
+-- The project's first name. Route packs written for it call
+-- ForeverLevels:RegisterRoute(), and /fl still works.
+ForeverLevels = Pathwise
 
 local type, pairs, ipairs, select, tostring = type, pairs, ipairs, select, tostring
 
@@ -200,7 +203,36 @@ end
 
 SLASH_PATHWISE1 = "/pw"
 SLASH_PATHWISE2 = "/pathwise"
+SLASH_PATHWISE3 = "/fl"
+SLASH_PATHWISE4 = "/foreverlevels"
 if SlashCmdList then SlashCmdList.PATHWISE = ns.RunCommand end
+
+---------------------------------------------------------------------------
+-- Timers: ns.After(seconds, fn). The client's C_Timer when it has one,
+-- else a frame's OnUpdate, so nothing depends on more than frames.
+---------------------------------------------------------------------------
+
+local timerFrame, timers, clock = nil, {}, 0
+
+local function tick(_, elapsed)
+	clock = clock + elapsed
+	for i = #timers, 1, -1 do
+		local t = timers[i]
+		if clock >= t.at then
+			table.remove(timers, i)
+			local ok, err = pcall(t.fn)
+			if not ok then ns.Error("timer", err) end
+		end
+	end
+	if #timers == 0 then timerFrame:SetScript("OnUpdate", nil) end
+end
+
+function ns.After(seconds, fn)
+	if C_Timer and C_Timer.After then return C_Timer.After(seconds, fn) end
+	timerFrame = timerFrame or CreateFrame("Frame")
+	timers[#timers + 1] = { at = clock + seconds, fn = fn }
+	timerFrame:SetScript("OnUpdate", tick)
+end
 
 ---------------------------------------------------------------------------
 -- Lifecycle

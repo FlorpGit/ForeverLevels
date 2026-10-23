@@ -14,10 +14,21 @@ local ADDON, ns = ...
 local C = {}
 ns.Compat = C
 
+-- issecretvalue is documented with SecretArguments = "AllowedWhenUntainted":
+-- called from tainted addon code it may throw, and a value it will not
+-- judge is treated as secret.
 local function isSecret(v)
-	return v ~= nil and issecretvalue ~= nil and issecretvalue(v) and true or false
+	if v == nil or issecretvalue == nil then return false end
+	local ok, secret = pcall(issecretvalue, v)
+	return not ok or secret and true or false
 end
 C.IsSecret = isSecret
+
+-- True on the World of Warcraft: Forever client (game type "forever", the
+-- older name "camelot": WOW_PROJECT_ID == WOW_PROJECT_CAMELOT).
+function C.IsForeverClient()
+	return WOW_PROJECT_ID ~= nil and WOW_PROJECT_CAMELOT ~= nil and WOW_PROJECT_ID == WOW_PROJECT_CAMELOT
+end
 
 function C.Readable(v)
 	if isSecret(v) then return nil end

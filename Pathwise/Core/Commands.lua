@@ -151,5 +151,16 @@ ns.Command("route", function(args)
 	for _, x in ipairs(E.Routes()) do ns.Print("  " .. x.id .. "  " .. x.title) end
 end, "show or choose the route: /pw route <id or title>")
 
+ns.Command("next", function() ns.Fire("GUIDE_NEXT") end, "look at the next step")
+ns.Command("back", function() ns.Fire("GUIDE_BACK") end, "look at the step before")
+
 ns.On("GUIDE_BACK", function() ns.Engine.Back() end)
 ns.On("GUIDE_NEXT", function() ns.Engine.Next() end)
+
+-- Pathwise is made for Forever; elsewhere positions, quests and the
+-- interface may not be what it expects.
+ns.On("READY", function()
+	if not ns.Compat.IsForeverClient() then
+		ns.Print("|cffe4b96dthis client does not report itself as World of Warcraft: Forever.|r Pathwise is made for Forever only.")
+	end
+end)

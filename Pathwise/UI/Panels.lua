@@ -1126,6 +1126,12 @@ function builders.settings()
 		{ "heading", "Route" },
 		{ "setting", route and route.title or "No route", "", { { "Routes", function() Panels.Open("routes") end }, { "Zones", function() Panels.Open("zones") end } } },
 		{ "setting", "Side guide", E.Side() and E.Side().title or "None", E.Side() and { { "Stop", function() E.SetSide(nil) Panels.Refresh() end } } or {} },
+		{ "heading", "Quests at their NPC" },
+		{ "setting", "Accept the route's quests", onOff(ns.Get("auto.accept")), { { ns.Get("auto.accept") and "Turn off" or "Turn on", toggle("auto.accept") } } },
+		{ "setting", "Hand them in", onOff(ns.Get("auto.turnin")), { { ns.Get("auto.turnin") and "Turn off" or "Turn on", toggle("auto.turnin") } } },
+		{ "setting", "Pick them from an NPC's list", onOff(ns.Get("auto.gossip")), { { ns.Get("auto.gossip") and "Turn off" or "Turn on", toggle("auto.gossip") } } },
+		{ "setting", "Hold Shift to skip it once", onOff(ns.Get("auto.shift")), { { ns.Get("auto.shift") and "Turn off" or "Turn on", toggle("auto.shift") } } },
+		{ "text", "Only quests on your route. Pathwise never chooses a reward for you or hands in a quest that costs gold.", "muted" },
 		{ "heading", "Profession detours" },
 		{ "setting", "Mode", "", (function()
 			local mode = ns.Get("professions.detour")

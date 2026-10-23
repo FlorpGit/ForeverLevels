@@ -279,6 +279,34 @@ end
 stub.choices = {}
 function GetNumQuestChoices() return #stub.choices end
 function GetQuestItemLink(kind, i) return kind == "choice" and stub.choices[i] and ("item:" .. stub.choices[i]) or nil end
+
+-- The quest dialogs an NPC opens: stub.dialog = { quest, pvp, auto,
+-- completable, money }; gossip lists stub.gossip.active = { { questID,
+-- isComplete } } and .available = { { questID } }; the old greeting's lists
+-- stub.greeting.active = { { id, complete } }, .available = { ids }.
+-- stub.calls[name] counts the dialog buttons pressed.
+stub.dialog, stub.calls = {}, {}
+stub.gossip, stub.greeting = { active = {}, available = {} }, { active = {}, available = {} }
+local function press(name) return function() stub.calls[name] = (stub.calls[name] or 0) + 1 end end
+function GetQuestID() return stub.dialog.quest or 0 end
+function QuestFlagsPVP() return stub.dialog.pvp == true end
+function QuestGetAutoAccept() return stub.dialog.auto == true end
+function IsQuestCompletable() return stub.dialog.completable == true end
+function GetQuestMoneyToGet() return stub.dialog.money or 0 end
+AcceptQuest, AcknowledgeAutoAcceptQuest = press("AcceptQuest"), press("AcknowledgeAutoAcceptQuest")
+CompleteQuest, GetQuestReward = press("CompleteQuest"), press("GetQuestReward")
+C_GossipInfo = {
+	GetActiveQuests = function() return stub.gossip.active end,
+	GetAvailableQuests = function() return stub.gossip.available end,
+	SelectActiveQuest = press("gossip active"),
+	SelectAvailableQuest = press("gossip available"),
+}
+function GetNumActiveQuests() return #stub.greeting.active end
+function GetActiveTitle(i) return "Quest", stub.greeting.active[i].complete end
+function GetActiveQuestID(i) return stub.greeting.active[i].id end
+function GetNumAvailableQuests() return #stub.greeting.available end
+function GetAvailableQuestInfo(i) return false, 0, false, false, stub.greeting.available[i] end
+SelectActiveQuest, SelectAvailableQuest = press("greeting active"), press("greeting available")
 -- The profession window: stub.tradeSkill = { professionID, recipes = { [id] = { name, learned, relativeDifficulty } } }
 C_TradeSkillUI = {
 	GetBaseProfessionInfo = function() return stub.tradeSkill and { professionID = stub.tradeSkill.professionID } end,
@@ -366,6 +394,9 @@ function stub.texts()
 end
 
 function GetBuildInfo() return "1.60.1", "70532", "Oct 2026", 16001 end
+-- The Forever client (game type "camelot").
+WOW_PROJECT_CAMELOT = 18
+WOW_PROJECT_ID = WOW_PROJECT_CAMELOT
 function GetPlayerFacing() return stub.player.facing end
 function IsInInstance() return stub.player.instance end
 function UnitOnTaxi() return stub.player.taxi end

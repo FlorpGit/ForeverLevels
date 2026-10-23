@@ -75,7 +75,15 @@ function Engine.Check(def)
 	return problems
 end
 
-function Pathwise.RegisterRoute(def)
+-- Pathwise.RegisterRoute(def) and Pathwise:RegisterRoute(def) (the way the
+-- ForeverLevels builds called it) both work.
+function Pathwise.RegisterRoute(a, b)
+	local def = a == Pathwise and b or a
+	local first = type(def) == "table" and type(def.steps) == "table" and def.steps[1]
+	if type(first) == "table" and #first == 0 and (first.accept or first.turnin or first.complete or first.x) then
+		ns.Error("route " .. tostring(def.id), "written in the ForeverLevels route format (accept = { ... }); Pathwise routes list goals: see docs/ROUTE_FORMAT.md")
+		return false
+	end
 	local problems = Engine.Check(def)
 	if #problems > 0 then
 		ns.Error("route " .. tostring(def and def.id), table.concat(problems, "; "))
@@ -365,6 +373,28 @@ function Engine.GoalStatus(route, s, g, goal)
 	return goalStatus(route, s, g, goal)
 end
 function Engine.Refresh() player = Q.Player() end
+
+-- Whether the route asks for quest q now, for accepting and handing in at
+-- the NPC (Guide/AutoQuest.lua): "accept" from the first open step on,
+-- "turnin" anywhere in the route; an extra quest the player picked counts
+-- for both. Never a skipped quest, nor one or a step not for this character.
+function Engine.Wants(q, verb)
+	if type(q) ~= "number" or skipped(q) then return false end
+	player = Q.Player()
+	for _, x in ipairs(state().extras) do if x == q then return true end end
+	local route = Engine.Route()
+	if not (route and Q.ForPlayer(q, player)) then return false end
+	local from = verb == "accept" and (firstOpen(route) or #route.steps + 1) or 1
+	for s = from, #route.steps do
+		local step = route.steps[s]
+		if stepApplies(step) then
+			for _, goal in ipairs(step) do
+				if goal[1] == verb and goal[2] == q and not (goal.only and not fits(goal.only, player)) then return true end
+			end
+		end
+	end
+	return false
+end
 
 function Engine.LiveStep() return live end
 function Engine.CurrentStep() return current end
