@@ -51,6 +51,7 @@ function Widget:SetVertexColor(r, g, b, a) self.vertex = { r, g, b, a } end
 function Widget:SetTextColor(r, g, b, a) self.textColor = { r, g, b, a } end
 function Widget:RegisterEvent(e) stub.events[e] = stub.events[e] or {} table.insert(stub.events[e], self) end
 function Widget:SetScale(s) self.scale = s end
+function Widget:SetShadowOffset(x, y) self.shadow = { x, y } end
 
 function CreateFrame(kind, name, parent) return new(kind, name, parent) end
 UIParent = new("Frame", "UIParent")

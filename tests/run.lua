@@ -164,6 +164,32 @@ test("the arrow's distance counts down as the player walks", function()
 	eq(text.text, "700 yd")
 end)
 
+test("/pw arrow scale sets the arrow's size and is remembered", function()
+	local stub, ns = fresh()
+	stub.login()
+	SlashCmdList.PATHWISE("way 50 40")
+	SlashCmdList.PATHWISE("arrow scale 150")
+	eq(ns.Get("arrow.scale"), 1.5)
+	eq(_G.PathwiseArrow.scale, 1.5, "applied to the frame")
+	eq(PathwiseSettings.arrow.scale, 1.5, "saved")
+	SlashCmdList.PATHWISE("arrow scale 300")
+	ok(lastPrint(stub):find("usage"), "out of range explains")
+	eq(ns.Get("arrow.scale"), 1.5, "unchanged")
+	SlashCmdList.PATHWISE("arrow scale 100")
+	eq(PathwiseSettings.arrow.scale, nil, "back to the default is not stored")
+end)
+
+test("the arrow's text has a shadow", function()
+	local stub, ns = fresh()
+	stub.login()
+	SlashCmdList.PATHWISE("way 50 40")
+	local shadowed = 0
+	for _, f in ipairs(stub.frames) do
+		if f.parent == _G.PathwiseArrow and f.kind == "FontString" and rawget(f, "shadow") then shadowed = shadowed + 1 end
+	end
+	eq(shadowed, 2, "distance and title")
+end)
+
 test("/pw where and /pw debug print positions", function()
 	local stub = fresh()
 	stub.login()

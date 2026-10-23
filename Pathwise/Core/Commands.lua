@@ -75,10 +75,21 @@ ns.Command("opacity", function(args)
 	ns.Set("ui.opacity", v / 100)
 end, "window background opacity, 40-100")
 
-ns.Command("arrow", function()
+ns.Command("arrow", function(args)
+	local sub, rest = (args or ""):lower():match("^(%S*)%s*(.-)%s*$")
+	if sub == "scale" then
+		local v = tonumber((rest:gsub("%%", "")))
+		if not v or v < 50 or v > 200 then
+			ns.Print(("usage: /pw arrow scale <50-200>   (now %d%%)"):format(math.floor((ns.Get("arrow.scale") or 1) * 100 + 0.5)))
+			return
+		end
+		ns.Set("arrow.scale", v / 100)
+		ns.Print(("arrow size %d%%."):format(v))
+		return
+	end
 	ns.Set("arrow.shown", not ns.Get("arrow.shown"))
 	ns.Print(ns.Get("arrow.shown") and "arrow on (Shift-drag to move)." or "arrow off.")
-end, "show or hide the waypoint arrow")
+end, "show or hide the arrow; /pw arrow scale <50-200> sets its size")
 
 ns.Command("reset", function()
 	ns.Set("guide.point", nil)

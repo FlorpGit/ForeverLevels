@@ -68,12 +68,14 @@ local function build()
 	distText:SetJustifyH("CENTER")
 	distText:SetPoint("TOP", glow, "BOTTOM", 0, -2)
 	distText:SetWidth(160)
+	T.Shadow(distText)
 
 	titleText = T.Text(frame, "meta", "text2")
 	titleText:SetJustifyH("CENTER")
 	titleText:SetPoint("TOP", distText, "BOTTOM", 0, -3)
 	titleText:SetWidth(180)
 	titleText:SetWordWrap(false)
+	T.Shadow(titleText)
 
 	frame:Hide()
 end

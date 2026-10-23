@@ -154,6 +154,14 @@ function T.Font(fs, role)
 	end
 end
 
+-- A soft 1 px shadow for text drawn straight on the game world (the arrow),
+-- so it stays readable over snow, sand and bright skies. Windows have their
+-- own ground and do not need it.
+function T.Shadow(fs)
+	fs:SetShadowOffset(1, -1)
+	fs:SetShadowColor(0, 0, 0, 0.85)
+end
+
 function T.TextColor(fs, name)
 	local c = T.Color(name)
 	fs:SetTextColor(c[1], c[2], c[3], c[4])
