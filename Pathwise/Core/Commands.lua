@@ -75,6 +75,16 @@ ns.Command("opacity", function(args)
 	ns.Set("ui.opacity", v / 100)
 end, "window background opacity, 40-100")
 
+ns.Command("scale", function(args)
+	local v = tonumber(((args or ""):gsub("%%", "")))
+	if not v or v < 50 or v > 150 then
+		ns.Print(("usage: /pw scale <50-150>   (now %d%%)"):format(math.floor((ns.Get("ui.scale") or 1) * 100 + 0.5)))
+		return
+	end
+	ns.Set("ui.scale", v / 100)
+	ns.Print(("window size %d%%."):format(v))
+end, "guide window size, 50-150 (also in Settings)")
+
 ns.Command("arrow", function(args)
 	local sub, rest = (args or ""):lower():match("^(%S*)%s*(.-)%s*$")
 	if sub == "scale" then

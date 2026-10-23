@@ -195,6 +195,14 @@ T['dot-done'] = () => {
 	return c;
 };
 
+// The slider's handle: a disc with a thin darker ring, so it reads on the fill.
+T.thumb = () => {
+	const c = canvas(32);
+	paint(c, disc(16, 16, 12), 1);
+	paint(c, ring(16, 16, 12, 2), 0.55);
+	return c;
+};
+
 // Glyphs, 32 px drawn for a 16 px button.
 T['glyph-close'] = () => { const c = canvas(32); paint(c, stroke([[10, 10], [22, 22]], 2.4)); paint(c, stroke([[22, 10], [10, 22]], 2.4)); return c; };
 T['glyph-collapse'] = () => { const c = canvas(32); paint(c, stroke([[9, 19], [16, 12], [23, 19]], 2.4)); return c; };

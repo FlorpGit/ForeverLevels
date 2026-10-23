@@ -82,7 +82,7 @@ T.PROGRESS_H = 2
 
 ns.Defaults("ui", {
 	opacity = 0.94, -- window ground alpha
-	scale = 1, -- on top of the game's UI scale
+	scale = 1, -- window size, 0.5-1.5, on top of the game's UI scale
 })
 
 function T.Color(name)
@@ -262,6 +262,60 @@ function T.ProgressLine(parent, color)
 	return line
 end
 
+-- A slider: the game's Slider control drawn the Signature way, a 2 px track,
+-- an accent fill up to the value and a round handle (Media/thumb.tga).
+-- onChange(value) runs as it moves (rounded to `step`); the slider never
+-- re-reads a setting itself, so the caller sets it with slider:SetValue().
+function T.Slider(parent, width, min, max, step, onChange)
+	local s = CreateFrame("Slider", nil, parent)
+	s:SetOrientation("HORIZONTAL")
+	s:SetSize(width, 18)
+	s:SetMinMaxValues(min, max)
+	s:SetValueStep(step)
+	s:SetObeyStepOnDrag(true)
+	s:EnableMouseWheel(true)
+	local track = s:CreateTexture(nil, "BACKGROUND")
+	track:SetHeight(T.PROGRESS_H)
+	track:SetPoint("LEFT", s, "LEFT", 0, 0)
+	track:SetPoint("RIGHT", s, "RIGHT", 0, 0)
+	setColor(track, "border")
+	local fill = s:CreateTexture(nil, "ARTWORK")
+	fill:SetHeight(T.PROGRESS_H)
+	fill:SetPoint("LEFT", track, "LEFT", 0, 0)
+	setColor(fill, "accent")
+	local thumb = s:CreateTexture(nil, "OVERLAY")
+	thumb:SetTexture(MEDIA .. "thumb")
+	thumb:SetSize(14, 14)
+	local c = T.Color("text")
+	thumb:SetVertexColor(c[1], c[2], c[3])
+	s:SetThumbTexture(thumb)
+	s.pwFill, s.pwMin, s.pwMax, s.pwStep, s.pwWidth = fill, min, max, step, width
+	local function paintFill(v)
+		local p = (v - min) / (max - min)
+		p = p < 0 and 0 or (p > 1 and 1 or p)
+		if p <= 0 then fill:Hide() else fill:Show() fill:SetWidth(width * p) end
+	end
+	s:SetScript("OnValueChanged", function(self, v)
+		v = math.floor(math.floor(v / step + 0.5) * step * 100 + 0.5) / 100
+		paintFill(v)
+		if self.pwQuiet then return end
+		if onChange then onChange(v) end
+	end)
+	s:SetScript("OnMouseWheel", function(self, delta)
+		self:SetValue(math.max(min, math.min(max, (self:GetValue() or min) + delta * step)))
+	end)
+	s:SetScript("OnEnter", function() thumb:SetVertexColor(T.Color("accentHover")[1], T.Color("accentHover")[2], T.Color("accentHover")[3]) end)
+	s:SetScript("OnLeave", function() thumb:SetVertexColor(c[1], c[2], c[3]) end)
+	-- Sets the value without calling onChange (opening a panel, a reset).
+	function s:SetQuietly(v)
+		self.pwQuiet = true
+		self:SetValue(v)
+		self.pwQuiet = false
+		paintFill(v)
+	end
+	return s
+end
+
 -- The small compass mark used in headers (Media/icon.tga).
 function T.Icon(parent, size)
 	local t = parent:CreateTexture(nil, "ARTWORK")
@@ -275,9 +329,20 @@ local grounds = setmetatable({}, { __mode = "k" })
 function T.TrackGround(frame)
 	grounds[frame] = true
 end
+-- Windows that follow the "Window size" setting (ui.scale), on top of the
+-- game's own UI scale.
+local scaled = setmetatable({}, { __mode = "k" })
+function T.TrackScale(frame)
+	scaled[frame] = true
+	frame:SetScale(ns.Get("ui.scale") or 1)
+end
+
 ns.On("SETTING_CHANGED", function(path, value)
-	if path ~= "ui.opacity" then return end
-	for frame in pairs(grounds) do
-		if frame.pwGround then setColor(frame.pwGround, "bg", value) end
+	if path == "ui.opacity" then
+		for frame in pairs(grounds) do
+			if frame.pwGround then setColor(frame.pwGround, "bg", value) end
+		end
+	elseif path == "ui.scale" then
+		for frame in pairs(scaled) do frame:SetScale(value or 1) end
 	end
 end)

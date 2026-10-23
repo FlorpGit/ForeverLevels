@@ -52,6 +52,22 @@ function Widget:SetTextColor(r, g, b, a) self.textColor = { r, g, b, a } end
 function Widget:RegisterEvent(e) stub.events[e] = stub.events[e] or {} table.insert(stub.events[e], self) end
 function Widget:SetScale(s) self.scale = s end
 function Widget:SetShadowOffset(x, y) self.shadow = { x, y } end
+-- Sliders: SetValue clamps and fires OnValueChanged, as the client does.
+function Widget:SetMinMaxValues(lo, hi) self.min, self.max = lo, hi end
+function Widget:SetValue(v)
+	if self.min then v = math.max(self.min, math.min(self.max, v)) end
+	self.value = v
+	if self.scripts.OnValueChanged then self.scripts.OnValueChanged(self, v) end
+end
+function Widget:GetValue() return self.value end
+
+-- The slider in the settings panel for setting `path` (its row keeps them by path).
+function stub.slider(path)
+	for _, f in ipairs(stub.frames) do
+		local list = rawget(f, "sliders")
+		if list and list[path] and list[path].shown and f.shown then return list[path] end
+	end
+end
 
 function CreateFrame(kind, name, parent) return new(kind, name, parent) end
 UIParent = new("Frame", "UIParent")

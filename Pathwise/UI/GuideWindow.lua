@@ -63,6 +63,7 @@ local function build()
 	f:EnableMouse(true)
 	T.Panel(f)
 	T.TrackGround(f)
+	T.TrackScale(f)
 	local saved = ns.Get("guide.point")
 	if type(saved) == "table" then
 		f:SetPoint(saved[1], UIParent, saved[1], saved[2], saved[3])

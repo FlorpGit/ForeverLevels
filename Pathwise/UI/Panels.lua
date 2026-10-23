@@ -9,6 +9,7 @@
 --   { "text", text [, color] }              wrapped secondary text
 --   { "choice", text, sub, onClick }        a full-width clickable row
 --   { "setting", label, valueText, { { label, onClick }, ... } }
+--   { "slider", label, settingPath, min, max, step, format(v) -> text }
 --   { "divider" }
 --   { "buttons", { { label, kind, onClick }, ... } }   right-aligned footer
 
@@ -19,7 +20,7 @@ ns.Panels = Panels
 
 local WIDTH, PAD = 300, 16
 local panel, openKind
-local pool = { heading = {}, title = {}, text = {}, choice = {}, setting = {}, divider = {}, buttons = {} }
+local pool = { heading = {}, title = {}, text = {}, choice = {}, setting = {}, divider = {}, buttons = {}, slider = {} }
 local used
 
 local function build()
@@ -30,6 +31,8 @@ local function build()
 	panel:EnableMouse(true)
 	T.Panel(panel)
 	T.TrackGround(panel)
+	-- The panel takes the window size when it opens, not while a slider in it
+	-- is being dragged (it would move under the pointer).
 	panel.close = T.IconButton(panel, "close", "Close", function() Panels.Close() end)
 	panel.close:SetPoint("TOPRIGHT", -6, -6)
 	panel:Hide()
@@ -96,6 +99,21 @@ function makers.setting()
 	f.value = T.Text(f, "meta", "text2")
 	f.value:SetJustifyH("RIGHT")
 	f.buttons = {}
+	return f
+end
+
+-- One slider row: label and value on top, the slider under them. The slider
+-- object is made per setting (its range differs), kept on the row by path.
+function makers.slider()
+	local f = CreateFrame("Frame", nil, panel)
+	f:SetHeight(42)
+	f.label = T.Text(f, "body", "text")
+	f.label:SetPoint("TOPLEFT")
+	f.label:SetWordWrap(false)
+	f.value = T.Text(f, "meta", "text2")
+	f.value:SetPoint("TOPRIGHT")
+	f.value:SetJustifyH("RIGHT")
+	f.sliders = {}
 	return f
 end
 
@@ -189,6 +207,25 @@ local function render(rows)
 			if anchor then f.value:SetPoint("RIGHT", anchor, "LEFT", -8, 0) else f.value:SetPoint("RIGHT") end
 			f.value:SetText(r[3] or "")
 			place(f, 30, 6)
+		elseif kind == "slider" then
+			local f = take("slider", makers.slider)
+			local label, path, lo, hi, stepBy, format = r[2], r[3], r[4], r[5], r[6], r[7]
+			f.label:SetText(label)
+			for _, s in pairs(f.sliders) do s:Hide() end
+			local s = f.sliders[path]
+			if not s then
+				s = T.Slider(f, inner, lo, hi, stepBy, function(v)
+					ns.Set(path, v)
+					f.value:SetText(format(v))
+				end)
+				s:SetPoint("TOPLEFT", f, "TOPLEFT", 0, -22)
+				f.sliders[path] = s
+			end
+			s:Show()
+			local v = ns.Get(path) or lo
+			s:SetQuietly(v)
+			f.value:SetText(format(v))
+			place(f, 42, 8)
 		elseif kind == "buttons" then
 			local f = take("buttons", makers.buttons)
 			for _, b in ipairs(f.buttons) do b:Hide() end
@@ -231,6 +268,7 @@ function Panels.Open(kind)
 	local rows = builders[kind] and builders[kind]()
 	if not rows then return end
 	openKind = kind
+	panel:SetScale(ns.Get("ui.scale") or 1)
 	render(rows)
 	anchor()
 	panel:Show()
@@ -331,14 +369,6 @@ end
 ---------------------------------------------------------------------------
 
 local function pct(v) return ("%d%%"):format(math.floor(v * 100 + 0.5)) end
-local function clamp(v, lo, hi) return math.max(lo, math.min(hi, v)) end
-local function step(path, by, lo, hi)
-	return function()
-		local v = (ns.Get(path) or 1) + by
-		ns.Set(path, clamp(math.floor(v * 100 + 0.5) / 100, lo, hi))
-		Panels.Refresh()
-	end
-end
 local function toggle(path)
 	return function()
 		ns.Set(path, not ns.Get(path))
@@ -354,11 +384,12 @@ function builders.settings()
 	return {
 		{ "heading", "Settings" },
 		{ "heading", "Guide window" },
-		{ "setting", "Background opacity", pct(ns.Get("ui.opacity")), { { "-", step("ui.opacity", -0.05, 0.4, 1) }, { "+", step("ui.opacity", 0.05, 0.4, 1) } } },
+		{ "slider", "Window size", "ui.scale", 0.5, 1.5, 0.05, pct },
+		{ "slider", "Background opacity", "ui.opacity", 0.4, 1, 0.05, pct },
 		{ "setting", "Compact mode", onOff(ns.Get("guide.compact")), { { ns.Get("guide.compact") and "Turn off" or "Turn on", toggle("guide.compact") } } },
 		{ "heading", "Waypoint arrow" },
 		{ "setting", "Show the arrow", onOff(ns.Get("arrow.shown")), { { ns.Get("arrow.shown") and "Hide" or "Show", toggle("arrow.shown") } } },
-		{ "setting", "Arrow size", pct(ns.Get("arrow.scale") or 1), { { "-", step("arrow.scale", -0.1, 0.5, 2) }, { "+", step("arrow.scale", 0.1, 0.5, 2) } } },
+		{ "slider", "Arrow size", "arrow.scale", 0.5, 2, 0.1, pct },
 		{ "text", "Shift-drag the arrow to move it.", "muted" },
 		{ "heading", "Route" },
 		{ "setting", route and route.title or "No route", "", { { "Zones", function() Panels.Open("zones") end } } },
