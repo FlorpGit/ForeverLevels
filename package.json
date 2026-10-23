@@ -10,6 +10,7 @@
   "scripts": {
     "test": "lua5.1 tests/run.lua",
     "media": "node tools/media.js",
+    "data": "lua5.1 tools/data/build.lua",
     "link": "node tools/link.js"
   }
 }
