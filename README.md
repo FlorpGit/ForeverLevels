@@ -5,17 +5,22 @@
 A free, open-source leveling and profession companion for World of Warcraft:
 Forever. Created by leight_nn & florp. `_nn`
 
-> Early development. What works today: the Pathwise Signature interface
-> (guide window with full and compact modes) and the waypoint arrow. The
-> guide engine, routes and profession planning come next.
+> Early development. What works today: the guide engine following your
+> quest log, the first route (Tirisfal Glades, Undead, levels 1-10; a first
+> draft), skipping quests with nearby alternatives, zones for your level, a
+> settings panel, the Pathwise Signature interface and the waypoint arrow.
+> Quest data: QuestieDB (see `docs/DATA.md`). Profession planning comes next.
 
 ## Try it
 
 1. Set where your game's AddOns folder is (once), then reopen PowerShell:
    `setx WOW_FOREVER_ADDONS "G:\World of Warcraft\_classic_beta_\Interface\AddOns"`
 2. Link the addon into the game: `npm run link`
-3. In game:
+3. In game, everything is in the guide window: the gear opens Settings, the
+   map button opens Zones for your level, Skip offers alternatives. The same
+   things as commands:
    - `/pw` shows or hides the guide window
+   - `/pw settings`, `/pw zones`, `/pw skip`, `/pw route`
    - `/pw demo` previews it with a sample step
    - `/pw compact` switches full and compact mode
    - `/pw way 45 62 Inn` points the arrow at a spot on your current map (Shift-drag to move the arrow)

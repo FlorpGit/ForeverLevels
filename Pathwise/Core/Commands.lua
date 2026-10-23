@@ -125,15 +125,34 @@ ns.Command("about", function()
 	ns.Print(("Pathwise %s  ·  Every quest. Every craft. Every level.  ·  created by leight_nn & florp  _nn"):format(ns.VERSION))
 end, "version and credits")
 
--- Buttons whose features arrive with the guide engine say so instead of
--- doing nothing.
+ns.Command("settings", function() ns.Fire("SHOW_SETTINGS") end, "open the settings panel")
+ns.Command("zones", function() ns.Fire("SHOW_ZONES") end, "zones for your level (and switching routes)")
+ns.Command("skip", function() ns.Fire("GUIDE_SKIP") end, "skip the current quest, or pick one nearby instead")
+
+ns.Command("route", function(args)
+	local E = ns.Engine
+	if args and args ~= "" then
+		for _, r in ipairs(E.Routes()) do
+			if r.id == args or r.title:lower() == args:lower() then
+				E.SetRoute(r.id)
+				ns.Print("route: " .. r.title)
+				return
+			end
+		end
+		ns.Print("no route called '" .. args .. "'.")
+		return
+	end
+	local r = E.Route()
+	ns.Print("route: " .. (r and (r.title .. " (" .. r.id .. ")") or "none"))
+	for _, x in ipairs(E.Routes()) do ns.Print("  " .. x.id .. "  " .. x.title) end
+end, "show or choose the route: /pw route <id or title>")
+
+-- Buttons whose features are not built yet say so instead of doing nothing.
 local function later(what)
-	return function() ns.Print(what .. " arrives with the guide engine.") end
+	return function() ns.Print(what .. " is not built yet.") end
 end
-ns.On("GUIDE_BACK", later("Step navigation"))
-ns.On("GUIDE_NEXT", later("Step navigation"))
-ns.On("GUIDE_SKIP", later("Skipping a quest (with alternatives)"))
-ns.On("SHOW_ZONES", later("The zone list for your level"))
+ns.On("GUIDE_BACK", function() ns.Engine.Back() end)
+ns.On("GUIDE_NEXT", function() ns.Engine.Next() end)
 ns.On("REPORT_STEP", later("Reporting a step"))
 ns.On("DETOUR_GO", later("Profession detours"))
 ns.On("DETOUR_SKIP", later("Profession detours"))
