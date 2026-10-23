@@ -89,6 +89,15 @@ ns.Command("arrow", function(args)
 	ns.Print(ns.Get("arrow.shown") and "arrow on (Shift-drag to move)." or "arrow off.")
 end, "show or hide the arrow; /pw arrow scale <50-200> sets its size")
 
+ns.Command("style", function(args)
+	local T = ns.Theme
+	local name = (args or ""):lower():gsub("%s+", "")
+	if name ~= "" and T.Choose(name) then return end
+	local list = {}
+	for _, key in ipairs(T.STYLE_ORDER) do list[#list + 1] = key end
+	ns.Print(("look: %s. /pw style %s"):format(T.Style().label, table.concat(list, " | ")))
+end, "the look of every Pathwise window: /pw style modern | classic (after a reload)")
+
 ns.Command("waypoint", function(args)
 	local a = (args or ""):lower()
 	local on

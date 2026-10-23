@@ -75,8 +75,8 @@ local function build()
 	-- Header: icon, name, route, counter, compact, close.
 	local head = CreateFrame("Frame", nil, f)
 	W.head = head
-	head:SetPoint("TOPLEFT")
-	head:SetPoint("TOPRIGHT")
+	head:SetPoint("TOPLEFT", T.INSET, -T.INSET) -- the classic border is wider
+	head:SetPoint("TOPRIGHT", -T.INSET, -T.INSET)
 	head:SetHeight(T.HEADER_H)
 	head:EnableMouse(true)
 	head:RegisterForDrag("LeftButton")
@@ -186,8 +186,8 @@ local function build()
 	-- Compact bar.
 	local bar = CreateFrame("Button", nil, f)
 	W.bar = bar
-	bar:SetPoint("TOPLEFT")
-	bar:SetPoint("TOPRIGHT")
+	bar:SetPoint("TOPLEFT", T.INSET, -T.INSET)
+	bar:SetPoint("TOPRIGHT", -T.INSET, -T.INSET)
 	bar:SetHeight(48)
 	bar:RegisterForDrag("LeftButton")
 	bar:SetScript("OnDragStart", function() f:StartMoving() end)
@@ -298,7 +298,7 @@ local function layoutFull()
 		W.partyLabel:Hide()
 		for _, fs in ipairs(W.party) do fs:Hide() end
 		body:SetHeight(h)
-		f:SetHeight(T.HEADER_H + T.PROGRESS_H + h)
+		f:SetHeight(T.HEADER_H + T.PROGRESS_H + h + 2 * T.INSET)
 		return
 	end
 
@@ -420,7 +420,7 @@ local function layoutFull()
 	W.skip:SetPoint("LEFT", W.back, "RIGHT", 8, 0)
 	local h = footY + W.next:GetHeight() + PAD
 	body:SetHeight(h)
-	f:SetHeight(T.HEADER_H + T.PROGRESS_H + h)
+	f:SetHeight(T.HEADER_H + T.PROGRESS_H + h + 2 * T.INSET)
 	f:SetWidth(width)
 end
 
@@ -443,7 +443,7 @@ local function layoutCompact()
 	bar.step:SetText(has and view.count and ("%d / %d"):format(view.index or 0, view.count) or "")
 	bar.dist:SetText(W.distance or "")
 	W.barProgress:SetProgress(has and view.progress or 0)
-	f:SetHeight(bar:GetHeight() + T.PROGRESS_H)
+	f:SetHeight(bar:GetHeight() + T.PROGRESS_H + 2 * T.INSET)
 end
 
 function Guide.Refresh()

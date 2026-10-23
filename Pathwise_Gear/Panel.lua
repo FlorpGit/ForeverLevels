@@ -39,7 +39,8 @@ function P.Priority(weights)
 	local a, b = {}, {}
 	for i, r in ipairs(base) do if i <= 6 then a[#a + 1] = NAMES[r[1]] end end
 	for i, r in ipairs(pct) do if i <= 4 then b[#b + 1] = NAMES[r[1]] end end
-	return table.concat(a, "  ›  "), table.concat(b, "  ›  ")
+	local sep = "  " .. S.Theme.Sym("next") .. "  " -- "›", or ">" where the font has no "›"
+	return table.concat(a, sep), table.concat(b, sep)
 end
 
 -- Upgrades in the bags: { { link, name, pct, slot }, ... }, biggest first.

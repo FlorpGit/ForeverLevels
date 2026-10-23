@@ -56,7 +56,7 @@ local function build()
 		self:SetVerticalScroll(v)
 	end)
 	panel.close = T.IconButton(panel, "close", "Close", function() Panels.Close() end)
-	panel.close:SetPoint("TOPRIGHT", -6, -6)
+	panel.close:SetPoint("TOPRIGHT", -6 - T.INSET, -6 - T.INSET)
 	panel.close:SetFrameLevel((scroll:GetFrameLevel() or 1) + 5)
 	-- Back: to the panel this one was opened from (Settings > a suite addon).
 	panel.back = T.IconButton(panel, "back", "Back", function() Panels.Back() end)
@@ -953,7 +953,7 @@ function builders.profession()
 			end
 			for j, it in ipairs(list) do
 				if j > 6 then break end
-				local skill = it.skill and ((P.DE_SKILL_VERIFIED and "" or "≈") .. it.skill) or "?"
+				local skill = it.skill and ((P.DE_SKILL_VERIFIED and "" or ns.Theme.Sym("approx")) .. it.skill) or "?"
 				rows[#rows + 1] = { "text", ("%s  ·  skill %s  ·  item level %d"):format(it.name, skill, it.ilvl or 0),
 					it.canNow and "text" or "muted" }
 			end
@@ -1135,13 +1135,28 @@ function builders.settings()
 	local E = ns.Engine
 	local route = E.Route()
 	local skippedN = #E.Skipped()
+	local T = ns.Theme
+	local chosen = ns.Get("ui.style") or "modern"
+	local looks = {}
+	for _, key in ipairs(T.STYLE_ORDER) do
+		looks[#looks + 1] = { T.STYLES[key].label, function() T.Choose(key) Panels.Refresh() end, chosen == key and "accent" or "default" }
+	end
 	local rows = {
 		{ "heading", "Settings" },
+		{ "heading", "Look" },
+		{ "setting", "Style", "", looks },
+		{ "text", (T.STYLES[chosen] or T.Style()).about, "muted" },
+	}
+	if chosen ~= T.STYLE then
+		rows[#rows + 1] = { "text", "Every Pathwise window takes the new look after a reload.", "warning" }
+		rows[#rows + 1] = { "choice", "Reload now", "Reloads the interface", function() if ReloadUI then ReloadUI() end end }
+	end
+	for _, r in ipairs({
 		{ "heading", "Guide window" },
 		{ "slider", "Window size", "ui.scale", 0.5, 1.5, 0.05, pct },
 		{ "slider", "Background opacity", "ui.opacity", 0.4, 1, 0.05, pct },
 		{ "setting", "Compact mode", onOff(ns.Get("guide.compact")), { { ns.Get("guide.compact") and "Turn off" or "Turn on", toggle("guide.compact") } } },
-	}
+	}) do rows[#rows + 1] = r end
 	-- Colour: the accent, for Pathwise and (if chosen) the whole suite.
 	local mode = ns.Get("ui.accentMode") or "pathwise"
 	local function pickMode(v) return function() ns.Set("ui.accentMode", v) Panels.Refresh() end end

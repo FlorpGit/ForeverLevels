@@ -360,9 +360,9 @@ function W.Refresh()
 	end
 	local barH = S.Get("bags.bagBar") and BAGBAR or 0
 	body:ClearAllPoints()
-	body:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD, -(TOP + barH))
+	body:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + T.INSET, -(TOP + barH + T.INSET))
 	body:SetSize(width, math.max(height, SIZE))
-	frame:SetSize(width + PAD * 2, TOP + barH + math.max(height, SIZE) + 10 + FOOT)
+	frame:SetSize(width + (PAD + T.INSET) * 2, TOP + barH + math.max(height, SIZE) + 10 + FOOT + 2 * T.INSET)
 	W.RefreshBagBar()
 	-- Footer: free slots and what can be sold on the left, money on the right.
 	local free, total = ns.Space.Free()
@@ -419,7 +419,7 @@ end
 
 local function buildBagBar()
 	bagbar = CreateFrame("Frame", nil, frame)
-	bagbar:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD, -TOP + 2)
+	bagbar:SetPoint("TOPLEFT", frame, "TOPLEFT", PAD + T.INSET, -TOP + 2 - T.INSET)
 	bagbar:SetSize(5 * 44, BAGBAR - 6)
 	bagbar.slots = {}
 	for i, bag in ipairs(Items.BAGS) do
@@ -521,6 +521,7 @@ local function build()
 	accent:SetPoint("TOPRIGHT", -1, -1)
 	accent:SetHeight(2)
 	T.SetColor(accent, "bags")
+	accent:SetShown(not T.IsClassic()) -- the classic border is the window's edge
 	local p = S.Get("bags.point")
 	if type(p) == "table" then frame:SetPoint(p[1], UIParent, p[2], p[3], p[4])
 	else frame:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -60, 120) end
@@ -528,12 +529,12 @@ local function build()
 
 	-- Title row: name, search, buttons.
 	local title = T.Text(frame, "window", "text")
-	title:SetPoint("TOPLEFT", PAD, -14)
+	title:SetPoint("TOPLEFT", PAD + T.INSET, -14 - T.INSET) -- T.INSET: the classic border is wider
 	title:SetText(playerTitle())
 	frame.pwTitle = title
 
 	local close = T.IconButton(frame, "close", "Close", function() W.Hide() end)
-	close:SetPoint("TOPRIGHT", -8, -9)
+	close:SetPoint("TOPRIGHT", -8 - T.INSET, -9 - T.INSET)
 	local settings = T.IconButton(frame, "settings", "Pathwise Bags settings", function() S.Open("bags") end)
 	settings:SetPoint("RIGHT", close, "LEFT", -2, 0)
 	local mark = T.IconButton(frame, "coin", "Mark items: click one to keep it, again for junk, again to clear", function()
@@ -585,14 +586,14 @@ local function build()
 
 	-- Footer.
 	local line = T.Divider(frame)
-	line:SetPoint("BOTTOMLEFT", PAD, FOOT)
-	line:SetPoint("BOTTOMRIGHT", -PAD, FOOT)
+	line:SetPoint("BOTTOMLEFT", PAD + T.INSET, FOOT + T.INSET)
+	line:SetPoint("BOTTOMRIGHT", -PAD - T.INSET, FOOT + T.INSET)
 	frame.pwFree = T.Text(frame, "meta")
-	frame.pwFree:SetPoint("BOTTOMLEFT", PAD, 9)
+	frame.pwFree:SetPoint("BOTTOMLEFT", PAD + T.INSET, 9 + T.INSET)
 	frame.pwSell = T.Text(frame, "small", "warning")
 	frame.pwSell:SetPoint("LEFT", frame.pwFree, "RIGHT", 12, 0)
 	frame.pwMoney = T.Text(frame, "meta", "text")
-	frame.pwMoney:SetPoint("BOTTOMRIGHT", -PAD, 9)
+	frame.pwMoney:SetPoint("BOTTOMRIGHT", -PAD - T.INSET, 9 + T.INSET)
 	frame.pwMoney:SetJustifyH("RIGHT")
 
 	frame:SetScript("OnHide", function() W.SetMarkMode(false) hoverBag = nil end)

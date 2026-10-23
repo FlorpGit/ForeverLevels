@@ -26,6 +26,7 @@ UI\GuideWindow.lua
 UI\Panels.lua
 UI\Feedback.lua
 UI\MinimapButton.lua
+UI\Options.lua
 Professions\Recipes.lua
 Routes\Leveling.lua
 Routes\Class.lua

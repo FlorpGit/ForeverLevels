@@ -3,13 +3,29 @@
 -- icon button, progress line) so every module looks and spaces the same.
 -- Modules differ only by their accent (Theme.MODULES).
 --
+-- Looks (Settings > Look, /pw style): every window, panel, the arrow, the
+-- minimap buttons, Pathwise Gear and Pathwise Bags draw through these
+-- builders, so a look changes them all.
+--   "modern"   the Signature look: flat dark grounds, 1 px lines, Inter, ice blue
+--   "classic"  the game's own: the dark dialog border, Friz Quadrata, gold
+--              headings, the game's red buttons and close button
+-- A look is applied when the settings load (LOADED), before any window is
+-- built; choosing another takes effect after a reload, as the game's
+-- templates are chosen when a frame is made.
+--
 -- Construction notes for the WoW client:
---  * Solid fills and 1 px lines are textures with SetColorTexture; no
---    backdrop templates, no art files, nothing animated.
---  * Corners are square: the client has no rounded clipping, and 9-slice art
---    for a 6 px radius blurs at 70% UI scale. Documented limitation.
---  * Text is Inter (SIL OFL 1.1, Media/Fonts), sizes in UI units, so the
---    game's UI scale scales it.
+--  * Modern: solid fills and 1 px lines are textures with SetColorTexture;
+--    no backdrop templates, no art files, nothing animated.
+--  * Classic: only art Forever's own UI source uses: BACKDROP_DIALOG_EDGE_32
+--    (Interface\DialogFrame\UI-DialogBox-Border) and the tooltip border
+--    (Interface\Tooltips\UI-Tooltip-Border, as in BACKDROP_TUTORIAL_16_16)
+--    through BackdropTemplateMixin (Blizzard_SharedXML/Backdrop.lua), and
+--    UIPanelButtonTemplate, UIPanelCloseButton and InputBoxTemplate
+--    (SharedUIPanelTemplates.xml, InputBoxTemplates.xml).
+--  * Corners are square in Modern: the client has no rounded clipping, and
+--    9-slice art for a 6 px radius blurs at 70% UI scale. Documented limitation.
+--  * Modern text is Inter (SIL OFL 1.1, Media/Fonts), Classic the game's
+--    Friz Quadrata; sizes in UI units, so the game's UI scale scales them.
 
 local ADDON, ns = ...
 local T = {}
@@ -79,11 +95,95 @@ T.TYPE = {
 T.SPACE = { xs = 4, s = 8, m = 12, l = 16, xl = 24 }
 T.HEADER_H = 36
 T.PROGRESS_H = 2
+T.INSET = 0 -- extra room inside a window's edge (the classic border is wide)
 
 ns.Defaults("ui", {
 	opacity = 0.94, -- window ground alpha
 	scale = 1, -- window size, 0.5-1.5, on top of the game's UI scale
+	style = "modern", -- the look: "modern" | "classic"
 })
+
+---------------------------------------------------------------------------
+-- Looks
+---------------------------------------------------------------------------
+
+local GAME_FONT = "Fonts\\FRIZQT__.TTF"
+
+T.STYLES = {
+	modern = {
+		label = "Modern",
+		about = "Flat and dark with thin lines, in Pathwise's ice blue.",
+		accent = "#66D7FF",
+		-- the Signature tokens above, as they are
+	},
+	classic = {
+		label = "Classic",
+		about = "The game's own dialogs: the stone border, gold headings and red buttons.",
+		accent = "#FFD100",
+		classic = true,
+		inset = 6,
+		colors = {
+			bg = hex("#0C0B0A"), bg2 = hex("#1C1813"), hover = hex("#3A3018"),
+			border = hex("#8C7444"), divider = hex("#5E4E2E"),
+			text = hex("#FFFFFF"), text2 = hex("#D2CCC0"), muted = hex("#9A948A"),
+			accent = hex("#FFD100"), accentHover = hex("#FFEE88"),
+			success = hex("#33FF33"), warning = hex("#FF9933"), error = hex("#FF3333"), silver = hex("#D0D0D0"),
+		},
+		fonts = { regular = GAME_FONT, medium = GAME_FONT, semibold = GAME_FONT },
+		sizes = { window = 14, quest = 15, body = 12, meta = 11, small = 10, label = 11, number = 16, button = 12 },
+		-- Headings in the game's gold (GameFontNormal), whatever colour the caller asked for.
+		roleColor = { window = "accent", quest = "accent", label = "accent" },
+		-- Icon glyphs gold, brighter on hover.
+		icon = { "accent", "accentHover" },
+	},
+}
+T.STYLE_ORDER = { "modern", "classic" }
+
+-- Modern keeps a copy of the Signature tokens, so it can be applied again.
+do
+	local m = T.STYLES.modern
+	m.colors, m.fonts, m.sizes = {}, {}, {}
+	for k, c in pairs(T.COLORS) do m.colors[k] = { c[1], c[2], c[3], c[4] } end
+	for k, f in pairs(T.FONTS) do m.fonts[k] = f end
+	for role, r in pairs(T.TYPE) do m.sizes[role] = r[2] end
+end
+
+-- Symbols each look's font can draw: Inter has "≈" and "›"; the game's
+-- Friz Quadrata covers Latin-1 only.
+T.STYLES.modern.symbols = { approx = "≈", next = "›" }
+T.STYLES.classic.symbols = { approx = "~", next = ">" }
+function T.Sym(name) return T.Style().symbols[name] or "" end
+
+-- The look in use (fixed until the next reload) and its table.
+T.STYLE = "modern"
+function T.Style() return T.STYLES[T.STYLE] end
+function T.IsClassic() return T.STYLES[T.STYLE].classic == true end
+
+-- Chooses a look: saved now, shown after a reload. -> true when it is one
+function T.Choose(name)
+	if not T.STYLES[name] then return false end
+	ns.Set("ui.style", name)
+	if name == T.STYLE then
+		ns.Print(("look: %s."):format(T.STYLES[name].label))
+	else
+		ns.Print(("look: %s after a reload (/reload, or Settings > Look > Reload now)."):format(T.STYLES[name].label))
+	end
+	ns.Fire("STYLE_CHOSEN", name)
+	return true
+end
+
+-- Applies a look's tokens in place, so every lookup after this sees them.
+function T.ApplyStyle(name)
+	local style = T.STYLES[name] or T.STYLES.modern
+	T.STYLE = T.STYLES[name] and name or "modern"
+	for k, c in pairs(style.colors or {}) do
+		for i = 1, 4 do T.COLORS[k][i] = c[i] end
+	end
+	for k, f in pairs(style.fonts or {}) do T.FONTS[k] = f end
+	for role, size in pairs(style.sizes or {}) do T.TYPE[role][2] = size end
+	T.INSET = style.inset or 0
+	return style
+end
 
 function T.Color(name)
 	-- "One colour for the whole suite": the suite addons' own colours give
@@ -127,15 +227,17 @@ local function lighten(c, by)
 	return { c[1] + (1 - c[1]) * by, c[2] + (1 - c[2]) * by, c[3] + (1 - c[3]) * by, 1 }
 end
 
--- The accent the settings ask for. -> { r, g, b, 1 }
+-- The accent the settings ask for. -> { r, g, b, 1 }. "Pathwise" is the
+-- look's own: ice blue in Modern, the game's gold in Classic.
 function T.WantedAccent()
+	local own = hex(T.Style().accent or "#66D7FF")
 	local mode = ns.Get("ui.accentMode")
-	if mode == "class" then return T.ClassColor() or T.PATHWISE_ACCENT end
+	if mode == "class" then return T.ClassColor() or own end
 	if mode == "custom" then
 		local h = ns.Get("ui.accentColor")
 		if type(h) == "string" and h:match("^#?%x%x%x%x%x%x$") then return hex(h) end
 	end
-	return T.PATHWISE_ACCENT
+	return own
 end
 
 -- Sets the accent in place, so every colour lookup after this sees it.
@@ -153,7 +255,10 @@ function T.ToHex(c)
 	return ("#%02X%02X%02X"):format(math.floor(c[1] * 255 + 0.5), math.floor(c[2] * 255 + 0.5), math.floor(c[3] * 255 + 0.5))
 end
 
-ns.On("LOADED", function() T.ApplyAccent() end)
+ns.On("LOADED", function()
+	T.ApplyStyle(ns.Get("ui.style"))
+	T.ApplyAccent()
+end)
 ns.On("SETTING_CHANGED", function(path)
 	if path == "ui.accentMode" or path == "ui.accentColor" or path == "ui.accentSuite" then T.ApplyAccent() end
 end)
@@ -168,13 +273,45 @@ T.SetColor = setColor
 -- Builders
 ---------------------------------------------------------------------------
 
+-- Classic: a border of the game's art round `frame` (BackdropTemplateMixin
+-- mixed into a frame made without the template, as Backdrop.lua allows).
+-- -> true when it could
+local DIALOG_EDGE = { edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tileEdge = true, edgeSize = 32 } -- BACKDROP_DIALOG_EDGE_32
+local CARD_EDGE = { edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tileEdge = true, edgeSize = 16 }
+local mixed = setmetatable({}, { __mode = "k" }) -- frames given the backdrop mixin
+local function gameBorder(frame, info, color)
+	if not (Mixin and BackdropTemplateMixin and frame.CreateTexture) then return false end
+	if not mixed[frame] then
+		Mixin(frame, BackdropTemplateMixin)
+		if frame.HookScript then frame:HookScript("OnSizeChanged", frame.OnBackdropSizeChanged) end
+		mixed[frame] = true
+	end
+	frame:SetBackdrop(BACKDROP_DIALOG_EDGE_32 and info == DIALOG_EDGE and BACKDROP_DIALOG_EDGE_32 or info)
+	if color and frame.SetBackdropBorderColor then frame:SetBackdropBorderColor(color[1], color[2], color[3], color[4] or 1) end
+	frame.pwBorderArt = info.edgeFile
+	return true
+end
+
 -- A window or card ground with a 1 px border. Returns the textures so the
--- caller can recolour them (opacity setting, hover).
+-- caller can recolour them (opacity setting, hover). Classic: a window
+-- (no ground given) gets the game's dialog border, a bordered card the
+-- tooltip border; borderless grounds are the same in both looks.
 function T.Panel(frame, ground, border)
 	local bg = frame:CreateTexture(nil, "BACKGROUND", nil, -8)
 	bg:SetAllPoints()
 	setColor(bg, ground or "bg", ground == nil and ns.Get("ui.opacity") or nil)
 	frame.pwGround = bg
+	if border ~= false and T.IsClassic() then
+		local window = ground == nil
+		if gameBorder(frame, window and DIALOG_EDGE or CARD_EDGE, not window and T.Color("border") or nil) then
+			-- The ground stays inside the border's rounded corners.
+			local inset = window and 5 or 3
+			bg:ClearAllPoints()
+			bg:SetPoint("TOPLEFT", inset, -inset)
+			bg:SetPoint("BOTTOMRIGHT", -inset, inset)
+			return bg
+		end
+	end
 	if border ~= false then
 		local edges = {}
 		local function line(p1, p2, w, h)
@@ -207,6 +344,8 @@ function T.Text(parent, role, color, layer)
 	local r = T.TYPE[role] or T.TYPE.body
 	local fs = parent:CreateFontString(nil, layer or "OVERLAY")
 	T.Font(fs, role)
+	local own = T.Style().roleColor and T.Style().roleColor[role]
+	if own and (color == nil or color == "text" or color == "text2") then color = own end
 	local c = T.Color(color or r[3])
 	fs:SetTextColor(c[1], c[2], c[3], c[4])
 	fs:SetJustifyH("LEFT")
@@ -236,9 +375,27 @@ function T.TextColor(fs, name)
 	fs:SetTextColor(c[1], c[2], c[3], c[4])
 end
 
+-- Classic: the game's red panel button (UIPanelButtonTemplate), its own
+-- gold text. b.pwText is its label either way.
+local function gameButton(parent, label, onClick)
+	local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
+	b:SetHeight(22)
+	local text = b.GetFontString and b:GetFontString() -- the template's ButtonText
+	if not text then
+		text = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		text:SetPoint("CENTER")
+	end
+	text:SetText(label)
+	b.pwText, b.pwTemplate = text, "UIPanelButtonTemplate"
+	if onClick then b:SetScript("OnClick", onClick) end
+	b:SetWidth(math.max(64, (text:GetStringWidth() or 30) + 28))
+	return b
+end
+
 -- A low-profile text button: dark surface, 1 px outline.
--- kind "default" (Back) or "accent" (Next).
+-- kind "default" (Back) or "accent" (Next). Classic: the game's button.
 function T.Button(parent, label, kind, onClick)
+	if T.IsClassic() then return gameButton(parent, label, onClick) end
 	local b = CreateFrame("Button", nil, parent)
 	b:SetHeight(28)
 	local accent = kind == "accent"
@@ -276,8 +433,27 @@ end
 -- drawn by tools/media.js) tinted secondary, primary on hover. `tip` is its
 -- tooltip and its name.
 function T.IconButton(parent, glyph, tip, onClick, size)
-	local b = CreateFrame("Button", nil, parent)
 	size = size or 22
+	local style = T.Style()
+	-- Classic: the game's own close button.
+	if glyph == "close" and style.classic then
+		local b = CreateFrame("Button", nil, parent, "UIPanelCloseButton")
+		b:SetSize(size + 4, size + 4)
+		b.pwTemplate = "UIPanelCloseButton"
+		if onClick then b:SetScript("OnClick", onClick) end
+		function b:SetGlyph() end
+		b:SetScript("OnEnter", function(self)
+			if tip and GameTooltip then
+				GameTooltip:SetOwner(self, "ANCHOR_TOP")
+				GameTooltip:SetText(tip, 1, 1, 1)
+				GameTooltip:Show()
+			end
+		end)
+		b:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+		return b
+	end
+	local normal, lit = (style.icon or {})[1] or "text2", (style.icon or {})[2] or "text"
+	local b = CreateFrame("Button", nil, parent)
 	b:SetSize(size, size)
 	local hover = b:CreateTexture(nil, "BACKGROUND")
 	hover:SetAllPoints()
@@ -290,12 +466,12 @@ function T.IconButton(parent, glyph, tip, onClick, size)
 	local text = { -- tints the glyph like a font string would be tinted
 		SetTextColor = function(_, r, g, b2, a) icon:SetVertexColor(r, g, b2, a) end,
 	}
-	T.TextColor(text, "text2")
+	T.TextColor(text, normal)
 	b.pwIcon = icon
 	function b:SetGlyph(name) icon:SetTexture(MEDIA .. "glyph-" .. name) end
 	b:SetScript("OnEnter", function(self)
 		hover:Show()
-		T.TextColor(text, "text")
+		T.TextColor(text, lit)
 		if tip and GameTooltip then
 			GameTooltip:SetOwner(self, "ANCHOR_TOP")
 			GameTooltip:SetText(tip, 1, 1, 1)
@@ -304,7 +480,7 @@ function T.IconButton(parent, glyph, tip, onClick, size)
 	end)
 	b:SetScript("OnLeave", function()
 		hover:Hide()
-		T.TextColor(text, "text2")
+		T.TextColor(text, normal)
 		if GameTooltip then GameTooltip:Hide() end
 	end)
 	if onClick then b:SetScript("OnClick", onClick) end
@@ -429,7 +605,8 @@ end
 -- when it is not one; the caller decides what the box then shows
 -- (box:SetNumber). The 1 px border lights up in the accent while typing.
 function T.NumberBox(parent, width, onCommit)
-	local e = CreateFrame("EditBox", nil, parent)
+	local classic = T.IsClassic() -- the game's input box (InputBoxTemplate), else a Signature box
+	local e = CreateFrame("EditBox", nil, parent, classic and "InputBoxTemplate" or nil)
 	e:SetSize(width, 22)
 	e:SetAutoFocus(false)
 	e:SetMaxLetters(5)
@@ -438,7 +615,7 @@ function T.NumberBox(parent, width, onCommit)
 	if not e:SetFont(T.FONTS.regular, 12, "") then e:SetFont("Fonts\\FRIZQT__.TTF", 12, "") end
 	local tc = T.Color("text")
 	e:SetTextColor(tc[1], tc[2], tc[3])
-	T.Panel(e, "bg2")
+	if not classic then T.Panel(e, "bg2") end
 	local function edges(name)
 		for _, t in ipairs(e.pwEdges or {}) do setColor(t, name) end
 	end

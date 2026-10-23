@@ -107,8 +107,34 @@ end
 function Widget:SetParent(p) self.parent = p end
 function Widget:GetParent() return self.parent end
 
-function CreateFrame(kind, name, parent) return new(kind, name, parent) end
+-- A frame remembers the template it was made from (w.template).
+function CreateFrame(kind, name, parent, template)
+	local w = new(kind, name, parent)
+	w.template = template
+	return w
+end
 UIParent = new("Frame", "UIParent")
+function Widget:HookScript(k, fn)
+	local old = self.scripts[k]
+	self.scripts[k] = old and function(...) old(...) fn(...) end or fn
+end
+
+-- Blizzard_SharedXML: Mixin and the backdrop mixin (Backdrop.lua). A
+-- backdrop is remembered as w.backdrop (the info table) and w.backdropBorder.
+function Mixin(object, ...)
+	for i = 1, select("#", ...) do
+		for k, v in pairs((select(i, ...))) do object[k] = v end
+	end
+	return object
+end
+BackdropTemplateMixin = {
+	SetBackdrop = function(self, info) self.backdrop = info end,
+	SetBackdropBorderColor = function(self, r, g, b, a) self.backdropBorder = { r, g, b, a } end,
+	SetBackdropColor = function() end,
+	OnBackdropSizeChanged = function() end,
+}
+BACKDROP_DIALOG_EDGE_32 = { edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tileEdge = true, edgeSize = 32 }
+function ReloadUI() stub.reloaded = (stub.reloaded or 0) + 1 end
 
 -- The world map: shown on stub.mapShown, a 1000 x 666 canvas at stub.mapScale.
 stub.mapShown, stub.mapScale = nil, 1
