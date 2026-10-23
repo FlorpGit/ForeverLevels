@@ -198,14 +198,31 @@ local function routeCount()
 	return ns.Engine and ns.Engine.routeCount or 0
 end
 
+local taught -- [line] = { spell, ... }: recipes the routes craft or teach
+
+-- A profession route's skill line: its first train, skill or craft goal's.
+local function routeLine(route)
+	for _, step in ipairs(route.steps) do
+		for _, g in ipairs(step) do
+			if g[1] == "train" or g[1] == "skill" then return g[2] end
+			if g[1] == "craft" and g.skillLine then return g.skillLine end
+		end
+	end
+end
+
 local function build()
-	book = {}
+	book, taught = {}, {}
 	-- Routes first: every craft goal of the profession routes.
 	local E = ns.Engine
 	for _, route in ipairs(E and E.Routes() or {}) do
 		if route.category == "Professions" then
+			local line = routeLine(route)
 			for _, step in ipairs(route.steps) do
 				for _, g in ipairs(step) do
+					if line and (g[1] == "craft" or g[1] == "learn") and isID(g[2]) then
+						taught[line] = taught[line] or {}
+						taught[line][g[2]] = true
+					end
 					if g[1] == "craft" and isID(g[2]) and not book[g[2]] then
 						local reagents = {}
 						for _, r in ipairs(g.reagents or {}) do reagents[#reagents + 1] = { r[1], r[2] } end
@@ -245,6 +262,20 @@ function R.ForLine(line)
 	local out = {}
 	for _, r in pairs(current()) do if r.line == line then out[#out + 1] = r end end
 	table.sort(out, function(a, b) return (a.name or "") < (b.name or "") end)
+	return out
+end
+
+-- Every recipe id Pathwise knows for a skill line: the packs' and those the
+-- routes craft or teach. Forever's client has no call that lists a
+-- profession's recipes (GetAllRecipeIDs is not in its TradeSkillUI), so the
+-- window scan asks about these one by one.
+function R.KnownIDs(line)
+	local set = {}
+	for _, r in ipairs(R.ForLine(line)) do set[r.id] = true end
+	for id in pairs(taught[line] or {}) do set[id] = true end
+	local out = {}
+	for id in pairs(set) do out[#out + 1] = id end
+	table.sort(out)
 	return out
 end
 

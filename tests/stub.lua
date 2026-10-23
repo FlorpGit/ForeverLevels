@@ -341,13 +341,10 @@ function GetNumAvailableQuests() return #stub.greeting.available end
 function GetAvailableQuestInfo(i) return false, 0, false, false, stub.greeting.available[i] end
 SelectActiveQuest, SelectAvailableQuest = press("greeting active"), press("greeting available")
 -- The profession window: stub.tradeSkill = { professionID, recipes = { [id] = { name, learned, relativeDifficulty } } }
+-- Like Forever's TradeSkillUI (1.60.1.70532), there is no GetAllRecipeIDs or
+-- GetFilteredRecipeIDs: recipes are asked about one by one.
 C_TradeSkillUI = {
 	GetBaseProfessionInfo = function() return stub.tradeSkill and { professionID = stub.tradeSkill.professionID } end,
-	GetAllRecipeIDs = function()
-		local ids = {}
-		for id in pairs(stub.tradeSkill and stub.tradeSkill.recipes or {}) do ids[#ids + 1] = id end
-		return ids
-	end,
 	GetRecipeInfo = function(id) return stub.tradeSkill and stub.tradeSkill.recipes[id] end,
 	-- stub.tradeSkill.reagents[id] = { { item, count }, ... }
 	GetRecipeSchematic = function(id)

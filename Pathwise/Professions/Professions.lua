@@ -198,7 +198,12 @@ function P.Scan()
 	end
 	if not prof then return nil end
 	local ids = call(T.GetAllRecipeIDs) or call(T.GetFilteredRecipeIDs)
-	if type(ids) ~= "table" or #ids == 0 then return nil end
+	if type(ids) ~= "table" or #ids == 0 then
+		-- Forever's client cannot list a profession's recipes: ask about every
+		-- recipe Pathwise knows for this one (its route's, the packs').
+		ids = ns.Recipes and ns.Recipes.KnownIDs(prof.line) or {}
+	end
+	if #ids == 0 then return nil end
 	local rank = C.SkillRank(prof.line)
 	local recipes = {}
 	local cache = ns.Recipes and ns.Recipes.Schematics()
