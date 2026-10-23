@@ -1,0 +1,17 @@
+## Interface: 16001
+## Title: Pathwise
+## Notes: Every quest. Every craft. Every level.
+## Author: leight_nn & florp
+## Version: 0.1.0-dev
+## IconTexture: Interface\AddOns\Pathwise\Media\icon
+## SavedVariables: PathwiseSettings
+## SavedVariablesPerCharacter: PathwiseCharSettings
+## X-License: GPL-3.0-only
+
+Core\Init.lua
+Core\Compat.lua
+Theme\Signature.lua
+Nav\Waypoint.lua
+Nav\Arrow.lua
+UI\GuideWindow.lua
+Core\Commands.lua
