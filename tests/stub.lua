@@ -79,6 +79,69 @@ C_Map = {
 	end,
 	GetMapInfo = function(map) local m = stub.maps[map] return m and { name = m.name } end,
 }
+-- The character: an Undead Mage by default (the reference character).
+stub.player.level, stub.player.race, stub.player.raceID, stub.player.class, stub.player.faction = 1, "Scourge", 5, "MAGE", "Horde"
+function UnitLevel() return stub.player.level end
+function UnitRace() return "Undead", stub.player.race, stub.player.raceID end
+function UnitClass() return "Mage", stub.player.class, 8 end
+function UnitFactionGroup() return stub.player.faction end
+
+-- The quest log: log[id] = { objectives = { {text, numFulfilled, numRequired, finished}, ... }, ready }
+stub.log, stub.done = {}, {}
+C_QuestLog = {
+	IsOnQuest = function(id) return stub.log[id] ~= nil end,
+	IsQuestFlaggedCompleted = function(id) return stub.done[id] == true end,
+	ReadyForTurnIn = function(id) return stub.log[id] ~= nil and stub.log[id].ready == true end,
+	IsComplete = function(id) return stub.log[id] ~= nil and stub.log[id].ready == true end,
+	GetQuestObjectives = function(id) return stub.log[id] and stub.log[id].objectives or {} end,
+	GetTitleForQuestID = function() return nil end,
+}
+function stub.accept(id, objectives)
+	stub.log[id] = { objectives = objectives or {}, ready = objectives == nil }
+	stub.fire("QUEST_ACCEPTED", id)
+	stub.fire("QUEST_LOG_UPDATE")
+end
+function stub.progress(id, i, have)
+	local o = stub.log[id].objectives[i]
+	o.numFulfilled = have
+	o.finished = have >= o.numRequired
+	local all = true
+	for _, x in ipairs(stub.log[id].objectives) do if not x.finished then all = false end end
+	stub.log[id].ready = all
+	stub.fire("QUEST_LOG_UPDATE")
+end
+function stub.turnin(id)
+	stub.log[id] = nil
+	stub.done[id] = true
+	stub.fire("QUEST_TURNED_IN", id)
+	stub.fire("QUEST_LOG_UPDATE")
+end
+function stub.moveTo(map, x, y) stub.player.map, stub.player.x, stub.player.y = map, x, y end
+
+-- Clicks the shown button whose label is `label` (T.Button) or whose tooltip
+-- name is `label` (T.IconButton has none: use stub.click(frame)).
+function stub.clickLabel(label)
+	for _, f in ipairs(stub.frames) do
+		local t = rawget(f, "pwText")
+		if t and t.text == label and f.shown and (not f.parent or f.parent.shown ~= false) then
+			f.scripts.OnClick(f)
+			return true
+		end
+	end
+	return false
+end
+
+-- The texts of every shown font string whose parent is shown, in creation order.
+function stub.texts()
+	local out = {}
+	for _, f in ipairs(stub.frames) do
+		if f.kind == "FontString" and f.shown and rawget(f, "text") and f.text ~= "" and (not f.parent or f.parent.shown) then
+			out[#out + 1] = f.text
+		end
+	end
+	return out
+end
+
 function GetPlayerFacing() return stub.player.facing end
 function IsInInstance() return stub.player.instance end
 function UnitOnTaxi() return stub.player.taxi end

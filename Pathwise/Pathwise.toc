@@ -9,9 +9,14 @@
 ## X-License: GPL-3.0-only
 
 Core\Init.lua
+Data\Data.lua
 Core\Compat.lua
 Theme\Signature.lua
 Nav\Waypoint.lua
 Nav\Arrow.lua
+Guide\Quests.lua
+Guide\Engine.lua
 UI\GuideWindow.lua
+UI\Panels.lua
+Routes\Tirisfal.lua
 Core\Commands.lua

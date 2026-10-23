@@ -94,6 +94,7 @@ local function setMode(m)
 	dart:SetShown(m == "travel")
 	glow:SetShown(m == "travel")
 	if arrived then
+		ns.Fire("WAYPOINT_ARRIVED", Nav.Target())
 		local c = T.Color("success")
 		mark:SetVertexColor(c[1], c[2], c[3])
 		T.TextColor(distText, "success")

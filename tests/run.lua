@@ -95,6 +95,7 @@ test("Nav.Sample: travel, arrived, far, instance, taxi, none", function()
 	local stub, ns = fresh()
 	stub.login()
 	local Nav = ns.Nav
+	Nav.Clear() -- the guide sets its own waypoint at login
 	eq(Nav.Sample(), "none")
 	Nav.SetTarget(1420, 50, 40, "Here") -- 10 map units north = 200 yd
 	local state, dist = Nav.Sample()
@@ -217,6 +218,7 @@ end)
 
 test("guide window: empty state, sample step, compact mode keeps the view", function()
 	local stub, ns = fresh()
+	stub.player.raceID, stub.player.faction = 1, "Alliance" -- no route yet: the empty state
 	stub.login()
 	local f = _G.PathwiseGuide
 	ok(f and f.shown, "guide window shown at login")
@@ -248,8 +250,8 @@ end)
 test("buttons for features not built yet say so", function()
 	local stub, ns = fresh()
 	stub.login()
-	ns.Fire("GUIDE_SKIP")
-	ok(lastPrint(stub):find("arrives with the guide engine"), lastPrint(stub))
+	ns.Fire("REPORT_STEP")
+	ok(lastPrint(stub):find("not built yet"), lastPrint(stub))
 end)
 
 test("opacity setting re-tints the window ground", function()
@@ -300,6 +302,9 @@ test("every texture the addon names exists", function()
 		if f then f:close() end
 	end
 end)
+
+-- The guide engine, the data and the panels.
+assert(loadfile(ROOT .. "/tests/guide.lua"))({ test = test, eq = eq, near = near, ok = ok, fresh = fresh, lastPrint = lastPrint })
 
 ---------------------------------------------------------------------------
 
