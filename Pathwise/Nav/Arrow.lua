@@ -104,11 +104,12 @@ local function setMode(m)
 	end
 end
 
--- Yards as shown: "42 yd", "1.2 km" past 1,000 yards (as the game's maps do,
--- in yards; km reads shorter for long hauls).
+-- Yards as shown, always in yards (the game's unit), so every step walked
+-- shows: "42 yd", "1,240 yd".
 function Nav.FormatYards(y)
-	if y < 1000 then return ("%d yd"):format(floor(y + 0.5)) end
-	return ("%.1f km"):format(y * 0.9144 / 1000)
+	local n = tostring(floor(y + 0.5))
+	local grouped = n:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+	return grouped .. " yd"
 end
 
 local function sample()

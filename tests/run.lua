@@ -143,7 +143,35 @@ test("FormatYards", function()
 	local _, ns = fresh()
 	eq(ns.Nav.FormatYards(41.6), "42 yd")
 	eq(ns.Nav.FormatYards(999.4), "999 yd")
-	eq(ns.Nav.FormatYards(2000), "1.8 km")
+	eq(ns.Nav.FormatYards(1240.2), "1,240 yd")
+	eq(ns.Nav.FormatYards(123456), "123,456 yd")
+end)
+
+test("the arrow's distance counts down as the player walks", function()
+	local stub, ns = fresh()
+	stub.login()
+	ns.Nav.SetTarget(1420, 50, 10, "North") -- 40 map units = 800 yd north
+	stub.advance(0.2)
+	local dist = _G.PathwiseArrow
+	local text
+	for _, f in ipairs(stub.frames) do
+		if f.parent == dist and rawget(f, "text") and tostring(f.text):match("yd$") then text = f end
+	end
+	ok(text, "distance text")
+	eq(text.text, "800 yd")
+	stub.player.y = 45 -- walked 100 yd north
+	stub.advance(0.2)
+	eq(text.text, "700 yd")
+end)
+
+test("/pw where and /pw debug print positions", function()
+	local stub = fresh()
+	stub.login()
+	SlashCmdList.PATHWISE("where")
+	ok(lastPrint(stub):find("50.0, 50.0 on Tirisfal Glades"), lastPrint(stub))
+	SlashCmdList.PATHWISE("way 50 40")
+	SlashCmdList.PATHWISE("debug")
+	ok(lastPrint(stub):find("state travel, distance 200.0 yd"), lastPrint(stub))
 end)
 
 test("/pw way sets a waypoint on the current map; bad input explains", function()
