@@ -10,7 +10,7 @@ requests, and it must never contain passwords or API keys. The panel says
 "Report ready, not sent" and where to send it.
 
 Code: `Core/Feedback.lua` (collecting, drafts, building and formatting reports)
-and `UI/Feedback.lua` (the panel).
+and `Pathwise_UI/UI/Feedback.lua` (the panel).
 
 ## Opening it
 

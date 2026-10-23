@@ -83,6 +83,14 @@ local function setNative(t)
 	end
 end
 
+-- Yards as shown, always in yards (the game's unit), so every step walked
+-- shows: "42 yd", "1,240 yd".
+function Nav.FormatYards(y)
+	local n = tostring(math.floor(y + 0.5))
+	local grouped = n:reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+	return grouped .. " yd"
+end
+
 function Nav.SetTarget(map, x, y, title)
 	if not (map and x and y) then return false end
 	local inst, north, west = ns.Compat.MapToWorld(map, x, y)

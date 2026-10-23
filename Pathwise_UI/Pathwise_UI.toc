@@ -1,0 +1,21 @@
+## Interface: 16001
+## Title: Pathwise UI
+## Notes: Pathwise's windows: the guide, its panels, the looks, the arrow, map pins and the minimap button. Part of Pathwise.
+## Author: leight_nn & florp
+## Version: 0.3.0-dev
+## Dependencies: Pathwise
+## IconTexture: Interface\AddOns\Pathwise_UI\Media\icon
+## X-License: GPL-3.0-only
+## X-Website: https://github.com/FlorpGit/Pathwise
+
+Join.lua
+Theme\Signature.lua
+Nav\Arrow.lua
+Nav\Pins.lua
+UI\GuideWindow.lua
+UI\Panels.lua
+UI\Feedback.lua
+UI\MinimapButton.lua
+UI\Options.lua
+UI\Commands.lua
+Suite.lua

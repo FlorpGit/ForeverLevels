@@ -21,7 +21,7 @@ local function fresh()
 	for k in pairs(package.loaded) do if k:match("^tests") then package.loaded[k] = nil end end
 	PathwiseSettings, PathwiseCharSettings, Pathwise, SLASH_PATHWISE1 = nil, nil, nil, nil
 	local stub = dofile(ROOT .. "/tests/stub.lua")
-	local ns = stub.load(ROOT)
+	local ns = stub.loadAll(ROOT) -- Pathwise and Pathwise UI
 	return stub, ns
 end
 
@@ -61,13 +61,44 @@ test("loads every file in the TOC and registers /pw and /pathwise", function()
 	eq(ns.VERSION, "0.1.0-test")
 end)
 
-test("the TOC lists every Lua file in the addon folder", function()
+test("the TOCs list every Lua file in Pathwise and Pathwise UI", function()
 	local stub = fresh()
-	local listed = {}
-	for _, f in ipairs(stub.files) do listed[f] = true end
-	local files = luaFiles("Pathwise")
-	ok(#files > 0, "found the addon's files")
-	for _, f in ipairs(files) do ok(listed[f.rel], "not in the TOC: " .. f.rel) end
+	for addon, list in pairs({ Pathwise = stub.files, Pathwise_UI = stub.addonFiles.Pathwise_UI }) do
+		local listed = {}
+		for _, f in ipairs(list) do listed[f] = true end
+		local files = luaFiles(addon)
+		ok(#files > 0, "found " .. addon .. "'s files")
+		for _, f in ipairs(files) do ok(listed[f.rel], addon .. ": not in the TOC: " .. f.rel) end
+	end
+end)
+
+test("Pathwise runs without Pathwise UI: no windows, no errors, and it says so once", function()
+	local stub = dofile(ROOT .. "/tests/stub.lua")
+	PathwiseSettings, PathwiseCharSettings, Pathwise = nil, nil, nil
+	local ns = stub.load(ROOT) -- Pathwise UI turned off
+	stub.player.level = 2
+	stub.moveTo(1420, 30.2, 71.6)
+	stub.login()
+	for _, m in ipairs(stub.printed) do ok(not m:find("error"), m) end
+	ok(ns.Engine.Route(), "the guide still follows the route")
+	ok(ns.Nav.Target(), "and points the game's waypoint")
+	eq(ns.Guide, nil, "no guide window module")
+	for _, f in ipairs(stub.frames) do ok(f.name ~= "PathwiseGuide" and f.name ~= "PathwisePanel", "no window: " .. tostring(f.name)) end
+	local said = 0
+	for _, m in ipairs(stub.printed) do if m:find("Pathwise UI is turned off", 1, true) then said = said + 1 end end
+	eq(said, 1)
+	stub.dialog.quest = 363
+	stub.fire("QUEST_DETAIL")
+	eq(stub.calls.AcceptQuest, 1, "quests at their NPC still work")
+	SlashCmdList.PATHWISE("where")
+	ok(lastPrint(stub):find("Tirisfal Glades"), "commands still work")
+end)
+
+test("Pathwise UI waits for its own load, not Pathwise's LOADED (which fires before its files run)", function()
+	for _, f in ipairs(luaFiles("Pathwise_UI")) do
+		local src = assert(io.open(f.path)):read("*a")
+		ok(not src:find('On%("LOADED"'), f.rel .. " listens for Pathwise's LOADED")
+	end
 end)
 
 test("settings: defaults, saved values, defaults not stored, change message", function()
@@ -88,7 +119,7 @@ end)
 test("settings from another layout are cleared, not misread", function()
 	local stub = dofile(ROOT .. "/tests/stub.lua")
 	PathwiseSettings = { schema = 99, guide = { compact = "yes" } }
-	local ns = stub.load(ROOT)
+	local ns = stub.loadAll(ROOT)
 	stub.login()
 	eq(PathwiseSettings.schema, 1)
 	eq(ns.Get("guide.compact"), false)
@@ -311,7 +342,7 @@ end)
 
 test("every texture the addon names exists", function()
 	local names = {}
-	for _, f in ipairs(luaFiles("Pathwise")) do
+	for _, f in ipairs(luaFiles("Pathwise_UI")) do
 		local src = assert(io.open(f.path)):read("*a")
 		for n in src:gmatch('MEDIA %.%. "([%w%-]+)"') do names[n] = true end
 		for n in src:gmatch('IconButton%([^,]+,%s*"([%w%-]+)"') do names["glyph-" .. n] = true end
@@ -319,8 +350,8 @@ test("every texture the addon names exists", function()
 	names["glyph-"] = nil -- the prefix the glyph helper builds names from
 	names["glyph-collapse"], names["glyph-expand"] = true, true
 	for n in pairs(names) do
-		local f = io.open("Pathwise/Media/" .. n .. ".tga", "rb")
-		ok(f, "missing Pathwise/Media/" .. n .. ".tga")
+		local f = io.open("Pathwise_UI/Media/" .. n .. ".tga", "rb")
+		ok(f, "missing Pathwise_UI/Media/" .. n .. ".tga")
 		if f then f:close() end
 	end
 end)

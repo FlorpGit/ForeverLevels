@@ -255,7 +255,7 @@ function T.ToHex(c)
 	return ("#%02X%02X%02X"):format(math.floor(c[1] * 255 + 0.5), math.floor(c[2] * 255 + 0.5), math.floor(c[3] * 255 + 0.5))
 end
 
-ns.On("LOADED", function()
+ns.On("UI_LOADED", function() -- when Pathwise UI has loaded (Join.lua), before any window is built
 	T.ApplyStyle(ns.Get("ui.style"))
 	T.ApplyAccent()
 end)

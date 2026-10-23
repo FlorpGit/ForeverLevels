@@ -1,5 +1,7 @@
 -- Pathwise.Suite: what the other Pathwise addons (Pathwise_Gear, ...) use, so
--- they look, save and behave like Pathwise. Loaded last: every module exists.
+-- they look, save and behave like Pathwise. Part of Pathwise UI, loaded last in
+-- it: every module of Pathwise and Pathwise UI exists. The suite addons list
+-- both as dependencies.
 --
 --   S.Theme                    the Signature theme (each addon has an accent in Theme.MODULES)
 --   S.Get(path) / S.Set(path, value) / S.Defaults(section, defaults)

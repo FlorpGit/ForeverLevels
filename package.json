@@ -10,7 +10,7 @@
   "scripts": {
     "test": "lua5.1 tests/run.lua",
     "validate": "lua5.1 tools/validate_routes.lua",
-    "lint": "luacheck Pathwise Pathwise_Gear Pathwise_Bags examples && luacheck tests tools",
+    "lint": "luacheck Pathwise Pathwise_UI Pathwise_Gear Pathwise_Bags examples && luacheck tests tools",
     "media": "node tools/media.js",
     "recipes": "node tools/data/recipes.js",
     "data": "lua5.1 tools/data/build.lua",

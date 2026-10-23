@@ -492,6 +492,7 @@ function stub.load(root)
 		chunk("Pathwise", ns)
 	end
 	stub.ns, stub.files = ns, files
+	stub.addons = { "Pathwise" }
 	return ns
 end
 
@@ -499,11 +500,24 @@ end
 function stub.loadAddon(root, name)
 	local ns = {}
 	local toc = assert(io.open(root .. "/" .. name .. "/" .. name .. ".toc")):read("*a")
+	stub.addonFiles = stub.addonFiles or {}
+	stub.addonFiles[name] = {}
 	for line in toc:gmatch("[^\r\n]+") do
 		if not line:match("^##") and line:match("%.lua$") then
-			assert(loadfile(root .. "/" .. name .. "/" .. line:gsub("\\", "/")))(name, ns)
+			local f = line:gsub("\\", "/")
+			stub.addonFiles[name][#stub.addonFiles[name] + 1] = f
+			assert(loadfile(root .. "/" .. name .. "/" .. f))(name, ns)
 		end
 	end
+	stub.addons = stub.addons or {}
+	stub.addons[#stub.addons + 1] = name
+	return ns
+end
+
+-- Pathwise and Pathwise UI, as players install them together.
+function stub.loadAll(root)
+	local ns = stub.load(root)
+	stub.loadAddon(root, "Pathwise_UI")
 	return ns
 end
 
@@ -515,8 +529,12 @@ function stub.find(pattern)
 	end
 end
 
+-- Each loaded addon's ADDON_LOADED, in load order, then PLAYER_LOGIN. (The
+-- client fires an addon's ADDON_LOADED before the next addon's files run;
+-- here every file has run by then, so tests/run.lua checks that Pathwise
+-- UI does not listen for Pathwise's LOADED.)
 function stub.login()
-	stub.fire("ADDON_LOADED", "Pathwise")
+	for _, name in ipairs(stub.addons or { "Pathwise" }) do stub.fire("ADDON_LOADED", name) end
 	stub.fire("PLAYER_LOGIN")
 end
 

@@ -46,10 +46,18 @@ came from where.
 - Recipe data from the routes, checked data packs and your own profession
   window; data packs from other addons can add more.
 
-**Pathwise Gear and Pathwise Bags** (separate folders in the same download)
-- Gear: upgrade advice for your spec, stat priority, Best in Slot (Level),
-  the best quest reward. Bags: one bag window, keep and sell markers, junk
-  selling, bag space help. Switch either off in the AddOns list.
+**One download, four addons**
+- **Pathwise**: the guide itself (routes, quest data, professions, auto
+  quests, party sync).
+- **Pathwise UI**: its windows, looks, arrow, map pins and minimap button.
+  Pathwise runs without it (no windows); everything else in the download
+  needs it.
+- **Pathwise Gear**: upgrade advice for your spec, stat priority, Best in Slot
+  (Level), the best quest reward.
+- **Pathwise Bags**: one bag window, keep and sell markers, junk selling, bag
+  space help.
+
+Switch Gear or Bags off in the AddOns list if you don't want them.
 
 **Looks**: Modern (dark, flat, ice blue) or Classic (the game's own dialogs,
 gold headings, red buttons), for every Pathwise window. Settings > Look.
@@ -64,9 +72,11 @@ gold headings, red buttons), for every Pathwise window. Settings > Look.
    - beta: `World of Warcraft/_classic_beta_/Interface/AddOns/`
 
    You want `Interface/AddOns/Pathwise/Pathwise_Forever.toc` (and
-   `Pathwise_Gear/`, `Pathwise_Bags/` beside it), not an extra folder level.
+   `Pathwise_UI/`, `Pathwise_Gear/`, `Pathwise_Bags/` beside it), not an extra
+   folder level.
 3. Restart the game completely: `/reload` does not load a new addon.
-4. Check that Pathwise is enabled in the AddOns list on the character screen.
+4. Check that Pathwise and Pathwise UI are enabled in the AddOns list on the
+   character screen.
 5. Open each profession window once so Pathwise can read your recipes.
 
 ## Using it
@@ -140,8 +150,9 @@ source; the list, and what the API does not allow, is in
 ## Repository
 
 ```
-Pathwise/            the main addon (Core, Guide, Nav, UI, Theme, Professions,
-                     Routes, Data, Guides, Media)
+Pathwise/            the guide (Core, Guide, Nav, Professions, Routes, Data, Guides)
+Pathwise_UI/         Pathwise UI: windows, panels, looks, arrow, pins, minimap
+                     buttons, key bindings, media, the suite API
 Pathwise_Gear/       Pathwise Gear
 Pathwise_Bags/       Pathwise Bags
 examples/            an example route pack and an example profession data pack

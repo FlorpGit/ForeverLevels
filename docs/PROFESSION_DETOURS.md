@@ -3,7 +3,7 @@
 A detour is an optional profession task in a card under the guide's step while
 you follow a leveling route, for example "Train Journeyman Tailoring" or
 "Craft 23 Bolt of Linen Cloth". One card at a time (`Professions/Detours.lua`,
-drawn by `UI/GuideWindow.lua`).
+drawn by Pathwise UI's `UI/GuideWindow.lua`).
 
 ## Guarantees
 

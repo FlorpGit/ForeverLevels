@@ -32,7 +32,7 @@ npm run lint        # luacheck: the addon folders, then tests and tools
 npm run link        # link the addon folders into the game
 ```
 
-`npm run link` links `Pathwise/`, `Pathwise_Gear/` and `Pathwise_Bags/` into the
+`npm run link` links `Pathwise/`, `Pathwise_UI/`, `Pathwise_Gear/` and `Pathwise_Bags/` into the
 game (set `WOW_FOREVER_ADDONS` to your `Interface\AddOns` folder first); `/reload`
 in game picks up changes.
 
@@ -43,7 +43,8 @@ in game picks up changes.
 | `Pathwise/Core` | Start-up, settings, commands, the one place client APIs are read (`Compat.lua`), feedback reports |
 | `Pathwise/Guide` | Quest facts (`Quests.lua`), the guide engine (`Engine.lua`), auto accept and turn-in, party sync, the recorder, dungeons |
 | `Pathwise/Professions` | Recipes from routes, packs and the game (`Recipes.lua`), professions and the window scan, the planner, the detour card |
-| `Pathwise/UI`, `Pathwise/Theme`, `Pathwise/Nav` | The guide window, side panels (Settings, Feedback, professions...), the game's Settings page, the looks (`Signature.lua`), the arrow, waypoint and pins |
+| `Pathwise/Nav` | The waypoint: where the arrow points, the game's map pin, distances |
+| `Pathwise_UI` | Pathwise UI, an addon of its own in the same download: the guide window, side panels (Settings, Feedback, professions...), the game's Settings page, the looks (`Theme/Signature.lua`), the arrow, map pins, minimap buttons, key bindings, the media, and `Pathwise.Suite` for Gear and Bags. Its files work in Pathwise's namespace (`Join.lua`) |
 | `Pathwise/Data/Data.lua` | Generated from QuestieDB: `npm run data` (docs/DATA.md) |
 | `Pathwise/Routes/*.lua` | Generated from Polestar: `npm run routes` (tools/port/polestar.lua) |
 | `Pathwise/Guides/Professions` | Pathwise's checked starter profession data (CC BY-SA 4.0) |

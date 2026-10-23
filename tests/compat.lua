@@ -40,11 +40,10 @@ test("compat: Pathwise_Forever.toc (the Forever client's own) and Pathwise.toc a
 	eq(b, a, "Pathwise_Forever.toc must match Pathwise.toc")
 	ok(a:find("## Interface: 16001", 1, true), "the Forever interface")
 	local versions = {}
-	for _, toc in ipairs({ "Pathwise/Pathwise.toc", "Pathwise_Gear/Pathwise_Gear.toc", "Pathwise_Bags/Pathwise_Bags.toc" }) do
+	for _, toc in ipairs({ "Pathwise/Pathwise.toc", "Pathwise_UI/Pathwise_UI.toc", "Pathwise_Gear/Pathwise_Gear.toc", "Pathwise_Bags/Pathwise_Bags.toc" }) do
 		versions[#versions + 1] = assert(io.open(toc, "rb")):read("*a"):match("## Version: (%S+)")
 	end
-	eq(versions[2], versions[1], "Gear's version")
-	eq(versions[3], versions[1], "Bags' version")
+	for i = 2, #versions do eq(versions[i], versions[1], "every TOC's version") end
 end)
 
 test("compat: a client that is not Forever is warned about at login", function()

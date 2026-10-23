@@ -623,7 +623,7 @@ end)
 test("key bindings: listed under Pathwise, each one works", function()
 	local stub, ns = login()
 	eq(BINDING_HEADER_PATHWISE, "Pathwise")
-	local xml = assert(io.open("Pathwise/Bindings.xml")):read("*a")
+	local xml = assert(io.open("Pathwise_UI/Bindings.xml")):read("*a")
 	for _, name in ipairs({ "TOGGLE", "COMPACT", "PROFESSIONS", "DUNGEONS", "SETTINGS", "REPORT" }) do
 		ok(xml:find('name="PATHWISE_' .. name .. '"', 1, true), name .. " in Bindings.xml")
 		ok(_G["BINDING_NAME_PATHWISE_" .. name], name .. " has a name in the menu")

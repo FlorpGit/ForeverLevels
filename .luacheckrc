@@ -2,7 +2,7 @@
 -- Run the addon folders on their own (CI does): tests/stub.lua defines the
 -- client's globals at the top level, and checked together with it unknown
 -- client names in the addon would pass unnoticed.
---   luacheck Pathwise Pathwise_Gear Pathwise_Bags examples
+--   luacheck Pathwise Pathwise_UI Pathwise_Gear Pathwise_Bags examples
 --   luacheck tests tools
 std = "lua51"
 max_line_length = false

@@ -3,9 +3,9 @@
 ## Notes: One bag window in the Pathwise look, keep and sell markers, junk selling and bag space help. Part of Pathwise.
 ## Author: leight_nn & florp
 ## Version: 0.3.0-dev
-## Dependencies: Pathwise
+## Dependencies: Pathwise, Pathwise_UI
 ## OptionalDeps: Pathwise_Gear
-## IconTexture: Interface\AddOns\Pathwise\Media\icon
+## IconTexture: Interface\AddOns\Pathwise_UI\Media\icon
 ## X-License: GPL-3.0-only
 
 Items.lua

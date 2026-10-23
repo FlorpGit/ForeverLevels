@@ -1,15 +1,17 @@
 'use strict';
-// Draws Pathwise's textures (Pathwise/Media/*.tga) from geometry: the
+// Draws Pathwise's textures (Pathwise_UI/Media/*.tga) from geometry: the
 // Signature arrow, its glow, the arrived mark, the header icon, objective
 // dots and the icon-button glyphs. White shapes on transparency, so the addon
-// tints them with SetVertexColor. Run: node tools/media.js
+// tints them with SetVertexColor. The icon also goes to Pathwise/Media, for
+// Pathwise's own line in the AddOns list. Run: node tools/media.js
 // No dependencies: a small anti-aliased rasteriser (4x4 supersampling) and an
 // uncompressed 32-bit TGA writer. Sizes are powers of two, as the client wants.
 
 const fs = require('node:fs');
 const path = require('node:path');
 
-const OUT = path.join(__dirname, '..', 'Pathwise', 'Media');
+const OUT = path.join(__dirname, '..', 'Pathwise_UI', 'Media');
+const CORE = path.join(__dirname, '..', 'Pathwise', 'Media'); // the icon only
 const SS = 4; // supersamples per axis
 
 // --- shapes: each returns coverage test (x, y) -> bool in pixel space ---
@@ -333,6 +335,10 @@ function main() {
 		const file = path.join(OUT, `${name}.tga`);
 		fs.writeFileSync(file, tga(draw()));
 		console.log(`wrote ${path.relative(process.cwd(), file)}`);
+		if (name === 'icon') {
+			fs.mkdirSync(CORE, { recursive: true });
+			fs.copyFileSync(file, path.join(CORE, 'icon.tga'));
+		}
 	}
 }
 

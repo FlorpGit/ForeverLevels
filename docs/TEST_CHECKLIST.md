@@ -16,8 +16,9 @@ lua tools/validate_routes.lua
 
 ## 1. Install and load
 
-- [ ] `Pathwise`, `Pathwise_Gear` and `Pathwise_Bags` are in `_forever_/Interface/AddOns/` (or `_classic_beta_/...`), with `Pathwise_Forever.toc` directly inside `Pathwise`.
-- [ ] After a full game restart, the AddOns list shows all three and does not mark them out of date.
+- [ ] `Pathwise`, `Pathwise_UI`, `Pathwise_Gear` and `Pathwise_Bags` are in `_forever_/Interface/AddOns/` (or `_classic_beta_/...`), with `Pathwise_Forever.toc` directly inside `Pathwise`.
+- [ ] After a full game restart, the AddOns list shows all four and does not mark them out of date.
+- [ ] With Pathwise UI turned off in the AddOns list: no Lua errors, one chat line saying Pathwise UI is off, no windows; quests at their NPC and `/pw where` still work. Turn it back on.
 - [ ] Login shows no Lua errors (`/console scriptErrors 1` first, or use BugSack).
 - [ ] No "does not report itself as World of Warcraft: Forever" warning.
 

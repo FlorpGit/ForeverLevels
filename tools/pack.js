@@ -1,6 +1,6 @@
 'use strict';
 // Builds the release zip: dist/Pathwise-<version>.zip holding the Pathwise/
-// folder (and Pathwise_Gear/, Pathwise_Bags/) as players install them, with
+// folder (and Pathwise_UI/, Pathwise_Gear/, Pathwise_Bags/) as players install them, with
 // LICENSE, NOTICE.md (the GPL's additional terms) and THIRD_PARTY.md inside each
 // (the GPL asks that the licence travels with every copy). Nothing is uploaded.
 //
@@ -25,7 +25,7 @@ function version() {
 }
 
 // The addon folders shipped together: Pathwise and the suite's addons.
-const ADDONS = ['Pathwise', 'Pathwise_Gear', 'Pathwise_Bags'];
+const ADDONS = ['Pathwise', 'Pathwise_UI', 'Pathwise_Gear', 'Pathwise_Bags'];
 
 // Every file of each addon folder, sorted, skipping dotfiles; then the
 // licence files from the repository root, in each folder.

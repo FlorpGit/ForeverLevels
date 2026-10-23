@@ -27,7 +27,7 @@ jobs:
         # defines the client's globals, unknown client names would pass.
         run: |
           luarocks install luacheck
-          luacheck Pathwise Pathwise_Gear Pathwise_Bags examples
+          luacheck Pathwise Pathwise_UI Pathwise_Gear Pathwise_Bags examples
           luacheck tests tools
 
   package:

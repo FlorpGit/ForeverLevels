@@ -1,6 +1,6 @@
 'use strict';
 // Sets Pathwise's version everywhere it is written: every TOC's ## Version
-// (Pathwise, its _Forever twin, Pathwise_Gear, Pathwise_Bags), package.json,
+// (Pathwise, its _Forever twin, Pathwise_UI, Pathwise_Gear, Pathwise_Bags), package.json,
 // and a new CHANGELOG.md section made from "Unreleased".
 //
 //   node tools/version.js 0.3.0
@@ -17,7 +17,7 @@ if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$/.test(v || '')) {
 	process.exit(2);
 }
 
-for (const rel of ['Pathwise/Pathwise.toc', 'Pathwise/Pathwise_Forever.toc', 'Pathwise_Gear/Pathwise_Gear.toc', 'Pathwise_Bags/Pathwise_Bags.toc']) {
+for (const rel of ['Pathwise/Pathwise.toc', 'Pathwise/Pathwise_Forever.toc', 'Pathwise_UI/Pathwise_UI.toc', 'Pathwise_Gear/Pathwise_Gear.toc', 'Pathwise_Bags/Pathwise_Bags.toc']) {
 	const toc = path.join(ROOT, rel);
 	if (fs.existsSync(toc)) fs.writeFileSync(toc, fs.readFileSync(toc, 'utf8').replace(/^## Version:.*$/m, `## Version: ${v}`));
 }

@@ -9,6 +9,10 @@ ns.API = Pathwise
 -- The project's first name. Route packs written for it call
 -- ForeverLevels:RegisterRoute(), and /fl still works.
 ForeverLevels = Pathwise
+-- The namespace itself, for Pathwise's own UI addon (Pathwise_UI), whose
+-- files work in it as if they were Pathwise's. Other addons use the
+-- documented calls and Pathwise.Suite.
+Pathwise.Core = ns
 
 local type, pairs, ipairs, select, tostring = type, pairs, ipairs, select, tostring
 

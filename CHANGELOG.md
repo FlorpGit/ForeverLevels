@@ -10,11 +10,17 @@ Version 0.3.0-dev. Pathwise was two projects with one name: florp's
 ForeverLevels/Pathwise (github.com/FlorpGit/Pathwise, released up to
 0.2.0-alpha.3, history below) and leight_nn's Pathwise
 (github.com/pathwise-nn/Pathwise, not released). They are now one repository
-and one addon, with both histories. leight_nn's guide engine, data, routes and
+and one download, with both histories. leight_nn's guide engine, data, routes and
 interface are the base; what only the ForeverLevels builds had is carried over,
 and where both had the same thing they are joined.
 
-### One addon from two
+### One project from two
+- Pathwise UI: the windows, panels, looks, arrow, map and minimap pins,
+  minimap buttons, key bindings and media are an addon of their own
+  (`Pathwise_UI`), in the same download beside Pathwise, Pathwise Gear and
+  Pathwise Bags. Pathwise runs without it (no windows, and it says so once
+  at login); Gear and Bags need it. Its files work in Pathwise's namespace,
+  so nothing about how the windows behave changed.
 - Auto accept and turn-in (from ForeverLevels): the route's quests are
   accepted and handed in at their NPC, on by default; Shift skips it once,
   each part can be turned off (Settings > Quests at their NPC, `/pw auto`).
