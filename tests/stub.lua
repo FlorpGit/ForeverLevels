@@ -6,6 +6,10 @@
 local stub = { events = {}, frames = {}, printed = {}, now = 0 }
 _G.stub = stub
 
+-- The client runs Lua 5.1, which has math.atan2; newer Lua (5.3, 5.4) folds
+-- it into math.atan(y, x). The tests run on both.
+math.atan2 = math.atan2 or math.atan
+
 local function noop() end
 
 -- Widgets: any method call is accepted; a few remember state.

@@ -27,6 +27,28 @@ end
 
 local function lastPrint(stub) return stub.printed[#stub.printed] or "" end
 
+-- Every .lua file under folder `dir` of the repository:
+-- { { rel = "Core/Init.lua", path = <openable path> }, ... }. `dir` on
+-- Windows prints absolute paths, so the working directory is cut off them.
+local WINDOWS = package.config:sub(1, 1) == "\\"
+local function luaFiles(dir)
+	local out = {}
+	local cmd = WINDOWS and ('dir /s /b "%s\\*.lua"'):format(dir) or ('find "%s" -name "*.lua"'):format(dir)
+	local cwd = WINDOWS and io.popen("cd"):read("*l"):gsub("\\", "/") or "."
+	local p = io.popen(cmd)
+	for line in p:lines() do
+		local path = line:gsub("\\", "/")
+		for _, prefix in ipairs({ cwd .. "/" .. dir .. "/", dir .. "/", "./" .. dir .. "/" }) do
+			if path:sub(1, #prefix) == prefix then
+				out[#out + 1] = { rel = path:sub(#prefix + 1), path = path }
+				break
+			end
+		end
+	end
+	p:close()
+	return out
+end
+
 ---------------------------------------------------------------------------
 
 test("loads every file in the TOC and registers /pw and /pathwise", function()
@@ -43,12 +65,9 @@ test("the TOC lists every Lua file in the addon folder", function()
 	local stub = fresh()
 	local listed = {}
 	for _, f in ipairs(stub.files) do listed[f] = true end
-	local p = io.popen('dir /s /b "Pathwise\\*.lua" 2>nul || find Pathwise -name "*.lua"')
-	for line in p:lines() do
-		local rel = line:gsub("\\", "/"):match("Pathwise/(.+%.lua)$")
-		if rel then ok(listed[rel], "not in the TOC: " .. rel) end
-	end
-	p:close()
+	local files = luaFiles("Pathwise")
+	ok(#files > 0, "found the addon's files")
+	for _, f in ipairs(files) do ok(listed[f.rel], "not in the TOC: " .. f.rel) end
 end)
 
 test("settings: defaults, saved values, defaults not stored, change message", function()
@@ -292,13 +311,11 @@ end)
 
 test("every texture the addon names exists", function()
 	local names = {}
-	local p = io.popen('dir /s /b "Pathwise\\*.lua" 2>nul || find Pathwise -name "*.lua"')
-	for line in p:lines() do
-		local src = assert(io.open(line)):read("*a")
+	for _, f in ipairs(luaFiles("Pathwise")) do
+		local src = assert(io.open(f.path)):read("*a")
 		for n in src:gmatch('MEDIA %.%. "([%w%-]+)"') do names[n] = true end
 		for n in src:gmatch('IconButton%([^,]+,%s*"([%w%-]+)"') do names["glyph-" .. n] = true end
 	end
-	p:close()
 	names["glyph-"] = nil -- the prefix the glyph helper builds names from
 	names["glyph-collapse"], names["glyph-expand"] = true, true
 	for n in pairs(names) do
