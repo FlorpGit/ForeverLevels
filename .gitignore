@@ -11,8 +11,3 @@ WTF/
 # Editor and OS files
 .DS_Store
 Thumbs.db
-
-# Local assistant notes
-CLAUDE.md
-CLAUDE.local.md
-.claude/
